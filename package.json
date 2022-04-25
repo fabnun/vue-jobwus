@@ -1,0 +1,32 @@
+{
+  "name": "vue-jobwus",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "vue.serve": "vue-cli-service serve",
+    "vue.build": "vue-cli-service build",
+    "firebase.emulators": "firebase emulators:start",
+    "firebase.deploy": "firebase deploy",
+    "firebase.emulators.functions": "firebase emulators:start --only functions",
+    "firebase.deploy.functions": "firebase deploy --only functions",
+    "firebase.logs.functions": "firebase functions:log",
+    "firebase.function.shell": "firebase functions:shell",
+    "git.commit.log": "git log --pretty=format:\"%h - %an, %ar : %s\""
+  },
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "register-service-worker": "^1.7.1",
+    "vue": "^2.6.11",
+    "vue-material-design-icons": "^5.0.0",
+    "vue-router": "^3.2.0",
+    "vuex": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.15",
+    "@vue/cli-plugin-pwa": "~4.5.15",
+    "@vue/cli-plugin-router": "~4.5.15",
+    "@vue/cli-plugin-vuex": "~4.5.15",
+    "@vue/cli-service": "~4.5.15",
+    "vue-template-compiler": "^2.6.11"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules
+functions
+dist
+.firebase
+.firebaserc
+firebase.json
+firestore-debug.json
+firestore.indexes.json
+firestore.rules
+storage.rules
+*.log
+*.zip
