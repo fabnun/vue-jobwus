@@ -1,5 +1,7 @@
 # vue-jobwus
 
+[ir a jobwus](https:/jobwus.com).
+
 ## Project setup
 
 ```

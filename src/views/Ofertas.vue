@@ -10,7 +10,8 @@
     <div :class="{ noEvents: modal }">
       <div v-if="!loading">
         <div v-for="item in result.pages" :key="item.id">
-          <oferta v-if="(!item.hidden && filter(item)) || (item.hidden && filter(item))" :data="result.data[item.id]" :ignorarTildes="ignorarTildes" :filtro="filtroFinal" />
+          <!-- oculto:{{ item.hidden }} match:{{ filter(item) }} filtros:{{ filtroFinal.length }} grupo:{{ item.grupo }} -->
+          <oferta v-if="(filtroFinal.length === 0 && !item.hidden) || filter(item)" :data="result.data[item.id]" :id="item.id" :ignorarTildes="ignorarTildes" :filtro="filtroFinal" :grupo="item.grupo === null ? [] : result.clusters[item.grupo].filter((id) => id !== item.id).map((id) => result.data[id])" />
         </div>
       </div>
       <div v-if="loading" class="loading">
@@ -89,7 +90,7 @@ export default {
     filter(item) {
       let data = this.result.data[item.id];
       let words = this.filtroFinal;
-      if (words.length === 0) return true;
+      if (words.length === 0) return false;
       words = words.map((word) => this.normalizeText(word));
       let text = this.normalizeText(data.titulo + data.descripcion);
 

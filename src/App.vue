@@ -41,7 +41,6 @@ input {
 .highlight {
   background: var(--match-background);
   color: var(--match-color);
-  font-weight: bolder;
   padding: 0 4px;
   border-radius: 0.3em;
 }

@@ -2,16 +2,28 @@
   <div>
     <div class="oferta" :class="{ collapsed }">
       <div v-if="filtro.length > 0">
-        <a :href="data.url" target="_blank" class="titulo" v-html="format(data.src.toUpperCase() + ' : ' + data.titulo)"></a>
+        <span class="highlight">{{ dateFormat(data.fecha) }}</span>
+        <a :href="data.url" target="_blank" class="titulo" v-html="format(data.src + ' : ' + data.titulo)"></a>
         <span class="descripcion" @click="collapsed = !collapsed" v-html="format(data.descripcion)"></span>
       </div>
-      <div v-if="filtro.length === 0">
-        <a :href="data.url" target="_blank" class="titulo" v-text="(data.src.toUpperCase() + ' : ' + data.titulo).trim()"></a>
+      <div v-else>
+        <span class="highlight">{{ dateFormat(data.fecha) }}</span>
+        <a :href="data.url" target="_blank" class="titulo" v-text="(data.src + ' : ' + data.titulo).trim()"></a>
         <span class="descripcion" @click="collapsed = !collapsed" v-text="data.descripcion"></span>
+      </div>
+      <div v-if="grupo.length > 0">
+        <hr />
+        OFERTAS SIMILARES
+        <br /><br />
+        <span v-for="(item, idx) in grupo" :key="idx">
+          <a :href="item.url" class="copy-job" target="_blank">
+            <span class="highlight">{{ dateFormat(item.fecha) }}</span> {{ item.titulo }}</a
+          ><br />
+        </span>
       </div>
     </div>
     <div class="oferta-buttons">
-      12 <content-copy-icon :size="18" /> 3 <thumb-up-outline-icon :size="18" /> 1 <thumb-down-outline-icon :size="18" /> 5 <chat-outline-icon :size="18" />
+      <template v-if="grupo.length > 0">{{ grupo.length }} <content-copy-icon class="default-cursor" :size="18" /></template> 3 <thumb-up-outline-icon :size="18" /> 1 <thumb-down-outline-icon :size="18" /> 5 <chat-outline-icon :size="18" />
       <star-outline-icon :size="18" />
       <dots-vertical-icon :size="18" />
     </div>
@@ -19,6 +31,7 @@
   </div>
 </template>
 <script>
+import dayjs from 'dayjs';
 import ContentCopyIcon from 'vue-material-design-icons/ContentCopy.vue';
 import ThumbUpOutlineIcon from 'vue-material-design-icons/ThumbUpOutline.vue';
 import ThumbDownOutlineIcon from 'vue-material-design-icons/ThumbDownOutline.vue';
@@ -26,13 +39,19 @@ import ChatOutlineIcon from 'vue-material-design-icons/ChatOutline.vue';
 import StarOutlineIcon from 'vue-material-design-icons/StarOutline.vue';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 
+console.log();
+
 export default {
+  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id'],
   data: function () {
     return {
       collapsed: true,
     };
   },
   methods: {
+    dateFormat: function (date) {
+      return dayjs(date).format('DD/MM/YY');
+    },
     format(text) {
       if (this.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -51,10 +70,15 @@ export default {
     StarOutlineIcon,
     DotsVerticalIcon,
   },
-  props: ['data', 'filtro', 'ignorarTildes'],
 };
 </script>
 <style scoped>
+.default-cursor {
+  cursor: text !important;
+}
+.copy-job {
+  margin-right: 2em;
+}
 .oferta {
   padding: 0.2em 0.5em 0.5em;
   margin: 0 0.5em;
