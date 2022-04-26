@@ -1,29 +1,43 @@
 <template>
   <div>
-    <div class="oferta" :class="{ collapsed }">
+    <div class="oferta" :class="{ collapsed }" @click="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
-        <span class="highlight">{{ dateFormat(data.fecha) }}</span>
-        <a :href="data.url" target="_blank" class="titulo" v-html="format(data.src + ' : ' + data.titulo)"></a>
-        <span class="descripcion" @click="collapsed = !collapsed" v-html="format(data.descripcion)"></span>
+        <a @click.stop="load(data.url)" href="#" class="titulo">
+          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
+          <span v-html="format(data.src + ' : ' + data.titulo)"></span>
+        </a>
+        <span class="descripcion" v-html="format(data.descripcion)"></span>
       </div>
       <div v-else>
-        <span class="highlight">{{ dateFormat(data.fecha) }}</span>
-        <a :href="data.url" target="_blank" class="titulo" v-text="(data.src + ' : ' + data.titulo).trim()"></a>
-        <span class="descripcion" @click="collapsed = !collapsed" v-text="data.descripcion"></span>
+        <a @click.stop="load(data.url)" href="#" class="titulo">
+          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
+          {{ (data.src + ' : ' + data.titulo).trim() }}
+        </a>
+        <span class="descripcion" v-text="data.descripcion"></span>
       </div>
       <div v-if="grupo.length > 0">
         <hr />
         OFERTAS SIMILARES
         <br /><br />
         <span v-for="(item, idx) in grupo" :key="idx">
-          <a :href="item.url" class="copy-job" target="_blank">
+          <a @click.stop="load(item.url)" href="#" class="copy-job">
             <span class="highlight">{{ dateFormat(item.fecha) }}</span> {{ item.titulo }}</a
           ><br />
         </span>
       </div>
     </div>
     <div class="oferta-buttons">
-      <template v-if="grupo.length > 0">{{ grupo.length }} <content-copy-icon class="default-cursor" :size="18" /></template> 3 <thumb-up-outline-icon :size="18" /> 1 <thumb-down-outline-icon :size="18" /> 5 <chat-outline-icon :size="18" />
+      <template v-if="grupo.length > 0"
+        >{{ grupo.length }}
+        <content-copy-icon
+          @click="
+            if (collapsed) {
+              collapsed = false;
+            }
+          "
+          :size="18"
+      /></template>
+      ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" /> ? <chat-outline-icon :size="18" />
       <star-outline-icon :size="18" />
       <dots-vertical-icon :size="18" />
     </div>
@@ -49,6 +63,9 @@ export default {
     };
   },
   methods: {
+    load(url) {
+      window.open(url, '_blank').focus();
+    },
     dateFormat: function (date) {
       return dayjs(date).format('DD/MM/YY');
     },
@@ -73,9 +90,6 @@ export default {
 };
 </script>
 <style scoped>
-.default-cursor {
-  cursor: text !important;
-}
 .copy-job {
   margin-right: 2em;
 }
