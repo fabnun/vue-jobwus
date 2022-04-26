@@ -14,12 +14,13 @@
   --oferta-max-height: 4.5em;
   --oferta-full-max-height: 2048px;
   --oferta-transition: max-height 0.2s ease-in-out;
+  --page-max-width: 1280px;
 }
 
 .container {
   overflow: hidden;
   margin: 0 auto;
-  max-width: 960px;
+  max-width: var(--page-max-width);
 }
 
 * {

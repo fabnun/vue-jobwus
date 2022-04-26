@@ -11,7 +11,22 @@
       <div v-if="!loading">
         <div v-for="item in result.pages" :key="item.id">
           <!-- oculto:{{ item.hidden }} match:{{ filter(item) }} filtros:{{ filtroFinal.length }} grupo:{{ item.grupo }} -->
-          <oferta v-if="(filtroFinal.length === 0 && !item.hidden) || filter(item)" :data="result.data[item.id]" :id="item.id" :ignorarTildes="ignorarTildes" :filtro="filtroFinal" :grupo="item.grupo === null ? [] : result.clusters[item.grupo].filter((id) => id !== item.id).map((id) => result.data[id])" />
+          <oferta
+            v-if="(filtroFinal.length === 0 && !item.hidden) || filter(item)"
+            :data="result.data[item.id]"
+            :id="item.id"
+            :ignorarTildes="ignorarTildes"
+            :filtro="filtroFinal"
+            :grupo="
+              item.grupo === null
+                ? []
+                : result.clusters[item.grupo]
+                    .filter((id) => id !== item.id)
+                    .map((id) => {
+                      return { id, ...result.data[id] };
+                    })
+            "
+          />
         </div>
       </div>
       <div v-if="loading" class="loading">
@@ -170,7 +185,7 @@ export default {
   z-index: 1;
   position: fixed;
   width: 100%;
-  max-width: 960px;
+  max-width: var(--page-max-width);
   top: 0;
   padding: 0.5em 0 0.5em;
   background: var(--background);

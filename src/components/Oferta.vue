@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="oferta" :class="{ collapsed }" @click="collapsed = !collapsed">
+    <div class="oferta" :class="{ collapsed }" @click.capture="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
         <a @click.stop="load(data.url)" href="#" class="titulo">
-          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
-          <span v-html="format(data.src + ' : ' + data.titulo)"></span>
+          <span class="highlight">{{ dateFormat(data.fecha) + ' ' + data.src }}</span>
+          <span v-html="format(data.titulo)"></span>
         </a>
         <span class="descripcion" v-html="format(data.descripcion)"></span>
       </div>
       <div v-else>
         <a @click.stop="load(data.url)" href="#" class="titulo">
-          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
-          {{ (data.src + ' : ' + data.titulo).trim() }}
+          <span class="highlight">{{ dateFormat(data.fecha) + ' ' + data.src }}</span>
+          {{ data.titulo.trim() }}
         </a>
         <span class="descripcion" v-text="data.descripcion"></span>
       </div>
@@ -21,7 +21,7 @@
         <br /><br />
         <span v-for="(item, idx) in grupo" :key="idx">
           <a @click.stop="load(item.url)" href="#" class="copy-job">
-            <span class="highlight">{{ dateFormat(item.fecha) }}</span> {{ item.titulo }}</a
+            <span class="highlight">{{ dateFormat(item.fecha) + ' ' + item.src }}</span> {{ item.titulo }}</a
           ><br />
         </span>
       </div>
@@ -60,6 +60,8 @@ export default {
   data: function () {
     return {
       collapsed: true,
+      dragStart: 0,
+      dragTime: 0,
     };
   },
   methods: {
