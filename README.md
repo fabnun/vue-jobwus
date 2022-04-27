@@ -1,6 +1,6 @@
 # vue-jobwus
 
-[ir a jobwus](https:/jobwus.com).
+Iterfaz desarrollada con vue 2 para mostrar datos de ofertas laborales.
 
 ## Project setup
 

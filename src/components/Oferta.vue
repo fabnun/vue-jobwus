@@ -2,10 +2,10 @@
   <div>
     <div class="oferta" :class="{ collapsed }" @click="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
-        <a @click.prevent.stop="load(data.url)" href="#" class="titulo">
+        <span @click.prevent.stop="load(data.url)" href="#" class="titulo">
           <span class="highlight">{{ dateFormat(data.fecha) + ' ' + data.src }}</span>
-          <span v-html="format(data.titulo)"></span>
-        </a>
+          <span v-html="format(data.titulo)"></span> </span
+        >-
         <span class="descripcion" v-html="format(data.descripcion)"></span>
       </div>
       <div v-else>
@@ -17,11 +17,12 @@
       </div>
       <div v-if="grupo.length > 0">
         <hr />
+        <br />
         OFERTAS SIMILARES
         <br /><br />
         <span class="copy-job" v-for="(item, idx) in grupo" :key="idx">
-          <a @click.prevent.stop="load(item.url)" href="#">
-            <span class="highlight">{{ dateFormat(item.fecha) + ' ' + item.src }}</span> {{ item.titulo }}</a
+          <span @click.prevent.stop="load(item.url)" class="titulo">
+            <span class="highlight">{{ dateFormat(item.fecha) + ' ' + item.src }}</span> {{ item.titulo }}</span
           >
         </span>
       </div>
@@ -113,6 +114,8 @@ a {
   color: var(--color);
 }
 .titulo {
+  cursor: pointer;
+  text-decoration: underline;
   font-weight: bolder;
   margin-right: 0.5em;
 }

@@ -8,5 +8,6 @@ firestore-debug.json
 firestore.indexes.json
 firestore.rules
 storage.rules
+package-lock.json
 *.log
 *.zip
