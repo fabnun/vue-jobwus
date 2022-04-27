@@ -98,6 +98,7 @@ export default {
   display: block;
 }
 .oferta {
+  background: rgba(35, 25, 0, 0.3);
   line-height: var(--oferta-line-height);
   padding: 0.6em 0.5em 0.5em;
   margin: 0 0.5em;

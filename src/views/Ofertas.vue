@@ -6,26 +6,26 @@
         <h4>JOBWUS</h4>
         <input spellcheck="false" v-model="filtro" @keyup.enter="submit" ref="filtro" />
         <magnify-icon class="submit-button" @click="submit" />
-        <div class="status" v-if="result !== null">{{ filtroFinal }}</div>
+        <div class="status" v-if="resultView !== null">{{ filtroFinal }}</div>
       </div>
     </div>
     <div :class="{ noEvents: modal }">
       <div v-if="!loading">
-        <div v-for="item in result.pages" :key="item.id">
+        <div v-for="item in resultView.pages" :key="item.id">
           <!-- oculto:{{ item.hidden }} match:{{ filter(item) }} filtros:{{ filtroFinal.length }} grupo:{{ item.grupo }} -->
           <oferta
-            v-if="(filtroFinal.length === 0 && !item.hidden) || filter(item)"
-            :data="result.data[item.id]"
+            v-if="!item.hidden"
+            :data="resultView.data[item.id]"
             :id="item.id"
             :ignorarTildes="ignorarTildes"
             :filtro="filtroFinal"
             :grupo="
               item.grupo === null
                 ? []
-                : result.clusters[item.grupo]
+                : resultView.clusters[item.grupo]
                     .filter((id) => id !== item.id)
                     .map((id) => {
-                      return { id, ...result.data[id] };
+                      return { id, ...resultView.data[id] };
                     })
             "
           />
@@ -71,6 +71,7 @@ export default {
       filtro: '',
       filtroFinal: [],
       result: null,
+      resultView: null,
     };
   },
   watch: {
@@ -90,7 +91,8 @@ export default {
   },
   methods: {
     submit() {
-      let text = this.filtro.trim();
+      this.filtro = this.filtro.trim();
+      let text = this.filtro;
       if (this.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
@@ -101,21 +103,49 @@ export default {
         .map((word) => word.trim())
         .filter((word) => word !== '');
 
-      if (this.filtroFinal.join(',') !== final.join(',')) {
-        this.loading = true;
+      if (this.filtroFinal.join(',') !== final.join(',') && this.filtro.length > 0) {
         this.filtroFinal = final;
+        this.loading = true;
+        //////////////////////////////////////////////////////////////////
+        let resultBuild = {
+          pages: this.result.pages.filter((item) => this.filter(item.id)),
+          data: this.result.data,
+          clusters: this.result.clusters.map((cluster) => {
+            return cluster.filter((id) => this.filter(id));
+          }),
+          config: this.result.config,
+          updateTime: this.result.updateTime,
+        };
+        let firstGroup = new Set();
+        for (let page of resultBuild.pages) {
+          if (page.grupo !== null) {
+            if (firstGroup.has(page.grupo)) {
+              page.hidden = true;
+            } else {
+              page.hidden = false;
+              firstGroup.add(page.grupo);
+            }
+          }
+        }
+        console.log(resultBuild);
+        //////////////////////////////////////////////////////////////////
+
+        this.resultView = resultBuild;
         window.scrollTo(0, 0);
         this.$refs.filtro.blur();
       } else {
         this.loading = true;
+        this.resultView = this.result;
+        console.log(this.resultView);
         setTimeout(() => {
           this.loading = false;
           if (!SmartPhone.isAny()) this.$refs.filtro.focus();
         }, 333);
       }
     },
-    filter(item) {
-      let data = this.result.data[item.id];
+
+    filter(id) {
+      let data = this.result.data[id];
       let words = this.filtroFinal;
       if (words.length === 0) return false;
       words = words.map((word) => this.normalizeText(word));

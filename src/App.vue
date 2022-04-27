@@ -12,7 +12,7 @@
   --font-size: 1.1em;
   --match-background: rgba(146, 196, 168, 0.1);
   --match-color: yellow;
-  --oferta-max-height: 4.4em;
+  --oferta-max-height: 5.6em;
   --oferta-line-height: 1.2em;
   --oferta-full-max-height: 2048px;
   --oferta-transition: max-height 0.2s ease-in-out;
