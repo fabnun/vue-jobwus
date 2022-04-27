@@ -56,6 +56,9 @@ import CloseIcon from 'vue-material-design-icons/Close.vue';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
+import _smartPhone from 'detect-mobile-browser';
+let SmartPhone = _smartPhone(false);
+
 let oldFiltro = null;
 export default {
   components: { Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading },
@@ -71,13 +74,6 @@ export default {
     };
   },
   watch: {
-    filtro() {
-      let text = this.filtro;
-      if (this.ignorarTildes) {
-        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      }
-      this.filtro = text.toLowerCase();
-    },
     ignorarTildes() {
       window.localStorage.setItem('ignorarTildes', this.ignorarTildes);
     },
@@ -88,13 +84,18 @@ export default {
       oldFiltro = this.filtroFinal.join(',');
       setTimeout(() => {
         this.loading = false;
+        if (!SmartPhone.isAny()) this.$refs.filtro.focus();
       }, 661);
     }
   },
   methods: {
     submit() {
+      let text = this.filtro.trim();
+      if (this.ignorarTildes) {
+        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
       window.localStorage.setItem('filtro', this.filtro);
-      let final = this.normalizeText(this.filtro)
+      let final = this.normalizeText(this.filtro.toLowerCase())
         .replace(/\s+/, ' ')
         .split(',')
         .map((word) => word.trim())
@@ -109,6 +110,7 @@ export default {
         this.loading = true;
         setTimeout(() => {
           this.loading = false;
+          if (!SmartPhone.isAny()) this.$refs.filtro.focus();
         }, 333);
       }
     },

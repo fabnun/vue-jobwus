@@ -1,6 +1,9 @@
 <template>
   <div>
-    <h2>STS CARGANDO</h2>
+    <h2 style="text-align: center">
+      JOBWUS ESTA <br />
+      TRABAJANDO...
+    </h2>
     <svg version="1.1" id="L1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
       <circle fill="none" stroke="var(--color)" stroke-width="6" stroke-miterlimit="15" stroke-dasharray="14.2472,14.2472" cx="50" cy="50" r="47">
         <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="5s" from="0 50 50" to="360 50 50" repeatCount="indefinite" />
