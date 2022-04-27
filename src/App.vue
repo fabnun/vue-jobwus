@@ -5,16 +5,23 @@
 </template>
 <style>
 :root {
-  --background: url('/assets/paper2.jpg') repeat center top;
-  --color: black;
+  --background: url('/assets/dark1.jpg') repeat center top;
+  --color: rgba(255, 244, 233, 0.8);
   --background-input: white;
+  --background-color: black;
   --font-size: 1.1em;
-  --match-background: rgba(146, 196, 168, 0.75);
-  --match-color: black;
-  --oferta-max-height: 4.5em;
+  --match-background: rgba(146, 196, 168, 0.1);
+  --match-color: yellow;
+  --oferta-max-height: 4.4em;
+  --oferta-line-height: 1.2em;
   --oferta-full-max-height: 2048px;
   --oferta-transition: max-height 0.2s ease-in-out;
   --page-max-width: 1280px;
+  --menu-background: rgba(0, 0, 0, 0.9);
+}
+
+hr {
+  border-color: var(--color) !important;
 }
 
 .container {
@@ -31,7 +38,7 @@ body {
   margin-top: 4.4em;
   background: var(--background);
   color: var(--color);
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: var(--font-size);
 }
 

@@ -1,11 +1,13 @@
 <template>
   <div>
     <div class="filtro">
-      <dots-vertical-icon class="menu-button" @click="modal = !modal" />
-      <h4>JOBWUS</h4>
-      <input v-model="filtro" @keyup.enter="submit" ref="filtro" />
-      <magnify-icon class="submit-button" @click="submit" />
-      <div class="status" v-if="result !== null">{{ filtroFinal }}</div>
+      <div class="filtroIn">
+        <dots-vertical-icon class="menu-button" @click="modal = !modal" />
+        <h4>JOBWUS</h4>
+        <input spellcheck="false" v-model="filtro" @keyup.enter="submit" ref="filtro" />
+        <magnify-icon class="submit-button" @click="submit" />
+        <div class="status" v-if="result !== null">{{ filtroFinal }}</div>
+      </div>
     </div>
     <div :class="{ noEvents: modal }">
       <div v-if="!loading">
@@ -70,8 +72,11 @@ export default {
   },
   watch: {
     filtro() {
-      this.filtro = this.filtro.toLowerCase();
-      window.localStorage.setItem('filtro', this.filtro);
+      let text = this.filtro;
+      if (this.ignorarTildes) {
+        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
+      this.filtro = text.toLowerCase();
     },
     ignorarTildes() {
       window.localStorage.setItem('ignorarTildes', this.ignorarTildes);
@@ -88,6 +93,7 @@ export default {
   },
   methods: {
     submit() {
+      window.localStorage.setItem('filtro', this.filtro);
       let final = this.normalizeText(this.filtro)
         .replace(/\s+/, ' ')
         .split(',')
@@ -122,7 +128,10 @@ export default {
     },
     normalizeText(text) {
       text = text.toLowerCase();
-      text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (this.ignorarTildes) {
+        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
+
       return text.trim();
     },
   },
@@ -156,7 +165,7 @@ export default {
 .submit-button {
   position: relative;
   top: 3px;
-  padding-left: 8px;
+  padding-left: 4px;
   cursor: pointer;
 }
 .status {
@@ -182,22 +191,28 @@ export default {
   left: 26%;
   width: 40%;
   height: 40%;
-  background: white;
+  background: var(--menu-background);
   padding: 4%;
   z-index: 9999;
 }
 
 .menu-button {
-  margin: 0 -9px 0 12px;
+  cursor: pointer;
 }
 .filtro {
-  z-index: 1;
   position: fixed;
   width: 100%;
-  max-width: var(--page-max-width);
+  left: 0;
+  right: 0;
   top: 0;
+  text-align: center;
+  background: var(--menu-background);
+  z-index: 1;
+}
+.filtroIn {
+  width: 100%;
+  max-width: var(--page-max-width);
   padding: 0.5em 0 0.5em;
-  background: var(--background);
 }
 
 .filtro h4 {
@@ -222,8 +237,8 @@ export default {
   position: relative;
   top: -5px;
   outline: none;
-  border: 1px solid var(--color);
-  color: var(--color);
+  border: 1px solid var(--background-color);
+  color: var(--background-color);
 }
 .filtro div span {
   border: none;

@@ -19,10 +19,10 @@
         <hr />
         OFERTAS SIMILARES
         <br /><br />
-        <span v-for="(item, idx) in grupo" :key="idx">
-          <a @click.stop="load(item.url)" href="#" class="copy-job">
+        <span class="copy-job" v-for="(item, idx) in grupo" :key="idx">
+          <a @click.stop="load(item.url)" href="#">
             <span class="highlight">{{ dateFormat(item.fecha) + ' ' + item.src }}</span> {{ item.titulo }}</a
-          ><br />
+          >
         </span>
       </div>
     </div>
@@ -93,10 +93,12 @@ export default {
 </script>
 <style scoped>
 .copy-job {
-  margin-right: 2em;
+  margin-bottom: 0.4em;
+  display: block;
 }
 .oferta {
-  padding: 0.2em 0.5em 0.5em;
+  line-height: var(--oferta-line-height);
+  padding: 0.6em 0.5em 0.5em;
   margin: 0 0.5em;
   border-radius: 0.5em;
   border: 1px solid var(--color);
