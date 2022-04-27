@@ -71,6 +71,10 @@ export default {
   watch: {
     filtro() {
       this.filtro = this.filtro.toLowerCase();
+      window.localStorage.setItem('filtro', this.filtro);
+    },
+    ignorarTildes() {
+      window.localStorage.setItem('ignorarTildes', this.ignorarTildes);
     },
   },
 
@@ -123,10 +127,15 @@ export default {
     },
   },
   mounted() {
+    let filtro = window.localStorage.getItem('filtro');
+    this.filtro = filtro ? filtro : '';
+    let ignorarTildes = window.localStorage.getItem('ignorarTildes');
+    this.ignorarTildes = ignorarTildes ? ignorarTildes === 'true' : true;
     (async () => {
       let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/exportsJSON')).json();
       console.log(result);
       this.result = result;
+      this.submit();
     })();
   },
 };
