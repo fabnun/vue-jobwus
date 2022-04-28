@@ -6,7 +6,7 @@
         <h4>JOBWUS</h4>
         <input spellcheck="false" v-model="filtro" @keyup.enter="submit" ref="filtro" />
         <magnify-icon class="submit-button" @click="submit" />
-        <div class="status" v-if="resultView !== null">{{ filtroFinal }}</div>
+        <div class="status">{{ filtroFinal }}</div>
       </div>
     </div>
     <div :class="{ noEvents: modal }">
@@ -14,6 +14,8 @@
         <div v-for="item in resultView.pages" :key="item.id">
           <!-- oculto:{{ item.hidden }} match:{{ filter(item) }} filtros:{{ filtroFinal.length }} grupo:{{ item.grupo }} -->
           <oferta
+            :isFavorite="favoritos.has(item.id)"
+            @favorite="favorite"
             v-if="!item.hidden"
             :data="resultView.data[item.id]"
             :id="item.id"
@@ -38,14 +40,13 @@
     <div class="modal-container" v-if="modal">
       <div class="modal">
         <button style="float: right; cursor: pointer" @click="modal = false"><close-icon /></button>
-        <h2>Configuración</h2>
         <input type="checkbox" id="ignorarTildes" v-model="ignorarTildes" />
-        <label for="ignorarTildes">Ignorar tildes</label>
-        <br />
-        <br />
-        <h2>Recursos usados</h2>
-        <a target="_blank" href="https://www.npmjs.com/package/vue-material-design-icons">vue-material-design-icons</a><br />
-        <a target="_blank" href="https://fonts.google.com/specimen/Roboto">Google Fonts Roboto</a>
+        <label for="ignorarTildes">Ignorar tildes en la busqueda</label><br /><br />
+
+        &nbsp;&nbsp;&nbsp;&nbsp;<label for="ignorarTildes">Carpeta</label>&nbsp;
+        <select v-model="folder">
+          <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
+        </select>
       </div>
     </div>
   </div>
@@ -65,6 +66,8 @@ export default {
   name: 'Ofertas',
   data() {
     return {
+      folders: ['Principal', 'Favoritos', 'Archivados'],
+      folder: 'Favoritos',
       loading: true,
       modal: false,
       ignorarTildes: true,
@@ -72,11 +75,16 @@ export default {
       filtroFinal: [],
       result: null,
       resultView: null,
+      archivados: new Set(),
+      favoritos: new Set(),
     };
   },
   watch: {
     ignorarTildes() {
       window.localStorage.setItem('ignorarTildes', this.ignorarTildes);
+    },
+    folder() {
+      window.localStorage.setItem('folder', this.folder);
     },
   },
 
@@ -90,6 +98,14 @@ export default {
     }
   },
   methods: {
+    favorite(id) {
+      if (this.favoritos.has(id)) {
+        this.favoritos.delete(id);
+      } else {
+        this.favoritos.add(id);
+      }
+      window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
+    },
     submit() {
       this.filtro = this.filtro.trim();
       let text = this.filtro;
@@ -103,7 +119,7 @@ export default {
         .map((word) => word.trim())
         .filter((word) => word !== '');
 
-      if (this.filtroFinal.join(',') !== final.join(',') && this.filtro.length > 0) {
+      if (this.filtro.length > 0) {
         this.filtroFinal = final;
         this.loading = true;
         //////////////////////////////////////////////////////////////////
@@ -135,6 +151,7 @@ export default {
         this.$refs.filtro.blur();
       } else {
         this.loading = true;
+        this.filtroFinal = [];
         this.resultView = this.result;
         console.log(this.resultView);
         setTimeout(() => {
@@ -168,10 +185,26 @@ export default {
     },
   },
   mounted() {
+    ///////////////////////////////////////////////////
+    let favoritos = window.localStorage.getItem('favoritos');
+    if (favoritos !== null) {
+      this.favoritos = new Set(favoritos.split(','));
+    }
+    ///////////////////////////////////////////////////
+    let archivados = window.localStorage.getItem('archivados');
+    if (archivados !== null) {
+      this.archivados = new Set(archivados.split(','));
+    }
+    ///////////////////////////////////////////////////
+    let folder = window.localStorage.getItem('folder');
+    this.folder = folder ? folder : 'Principal';
+    ///////////////////////////////////////////////////
     let filtro = window.localStorage.getItem('filtro');
     this.filtro = filtro ? filtro : '';
+    ///////////////////////////////////////////////////
     let ignorarTildes = window.localStorage.getItem('ignorarTildes');
     this.ignorarTildes = ignorarTildes ? ignorarTildes === 'true' : true;
+    ///////////////////////////////////////////////////
     (async () => {
       let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/exportsJSON')).json();
       console.log(result);
@@ -201,9 +234,8 @@ export default {
   cursor: pointer;
 }
 .status {
-  display: block;
-  width: 100%;
-  padding: 4px 0 0;
+  /*fix*/
+  display: none !important;
 }
 .modal-container {
   position: fixed;

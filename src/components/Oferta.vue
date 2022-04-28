@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div class="oferta" :class="{ collapsed }" @click="collapsed = !collapsed">
+    <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
         <span @click.prevent.stop="load(data.url)" href="#" class="titulo">
-          <span class="highlight">{{ dateFormat(data.fecha) + ' ' + data.src }}</span>
+          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
           <span v-html="format(data.titulo)"></span> </span
         >-
         <span class="descripcion" v-html="format(data.descripcion)"></span>
       </div>
       <div v-else>
         <a @click.prevent.stop="load(data.url)" href="#" class="titulo">
-          <span class="highlight">{{ dateFormat(data.fecha) + ' ' + data.src }}</span>
+          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
           {{ data.titulo.trim() }}
         </a>
         <span class="descripcion" v-text="data.descripcion"></span>
@@ -22,7 +22,7 @@
         <br /><br />
         <span class="copy-job" v-for="(item, idx) in grupo" :key="idx">
           <span @click.prevent.stop="load(item.url)" class="titulo">
-            <span class="highlight">{{ dateFormat(item.fecha) + ' ' + item.src }}</span> {{ item.titulo }}</span
+            <span class="highlight">{{ dateFormat(item.fecha) }}</span> {{ item.titulo }}</span
           >
         </span>
       </div>
@@ -39,7 +39,9 @@
           :size="18"
       /></template>
       ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" /> ? <chat-outline-icon :size="18" />
-      <star-outline-icon :size="18" />
+
+      <star-outline-icon @click="favorite" :size="18" v-if="!fav" />
+      <star-icon @click="favorite" :size="18" v-if="fav" />
       <dots-vertical-icon :size="18" />
     </div>
     <div class="clear"></div>
@@ -51,21 +53,34 @@ import ContentCopyIcon from 'vue-material-design-icons/ContentCopy.vue';
 import ThumbUpOutlineIcon from 'vue-material-design-icons/ThumbUpOutline.vue';
 import ThumbDownOutlineIcon from 'vue-material-design-icons/ThumbDownOutline.vue';
 import ChatOutlineIcon from 'vue-material-design-icons/ChatOutline.vue';
+import StarIcon from 'vue-material-design-icons/Star.vue';
 import StarOutlineIcon from 'vue-material-design-icons/StarOutline.vue';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 
-console.log();
-
 export default {
-  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id'],
+  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'isFavorite'],
   data: function () {
     return {
       collapsed: true,
       dragStart: 0,
       dragTime: 0,
+      fav: this.isFavorite,
     };
   },
+  components: {
+    ContentCopyIcon,
+    ThumbUpOutlineIcon,
+    ThumbDownOutlineIcon,
+    ChatOutlineIcon,
+    StarOutlineIcon,
+    DotsVerticalIcon,
+    StarIcon,
+  },
   methods: {
+    favorite() {
+      this.fav = !this.fav;
+      this.$emit('favorite', this.id);
+    },
     load(url) {
       window.open(url, '_blank').focus();
     },
@@ -82,17 +97,12 @@ export default {
         .trim();
     },
   },
-  components: {
-    ContentCopyIcon,
-    ThumbUpOutlineIcon,
-    ThumbDownOutlineIcon,
-    ChatOutlineIcon,
-    StarOutlineIcon,
-    DotsVerticalIcon,
-  },
 };
 </script>
 <style scoped>
+.fav {
+  background: var(--favorite-background) !important;
+}
 .copy-job {
   margin-bottom: 0.4em;
   display: block;
