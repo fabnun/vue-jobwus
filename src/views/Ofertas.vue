@@ -14,9 +14,12 @@
         <div v-for="item in resultView.pages" :key="item.id">
           <!-- oculto:{{ item.hidden }} match:{{ filter(item) }} filtros:{{ filtroFinal.length }} grupo:{{ item.grupo }} -->
           <oferta
+            :folder="folder"
+            :isArchived="archivados.has(item.id)"
             :isFavorite="favoritos.has(item.id)"
             @favorite="favorite"
-            v-if="!item.hidden"
+            @archive="archive"
+            v-if="(!item.hidden && folder === 'Principal' && !archivados.has(item.id)) || folder !== 'Principal'"
             :data="resultView.data[item.id]"
             :id="item.id"
             :ignorarTildes="ignorarTildes"
@@ -105,6 +108,14 @@ export default {
         this.favoritos.add(id);
       }
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
+    },
+    archive(id) {
+      if (this.archivados.has(id)) {
+        this.archivados.delete(id);
+      } else {
+        this.archivados.add(id);
+      }
+      window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
     },
     submit() {
       this.filtro = this.filtro.trim();

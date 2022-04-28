@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="(folder === 'Principal' && !arch) || folder !== 'Principal'">
     <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
         <span @click.prevent.stop="load(data.url)" href="#" class="titulo">
@@ -38,10 +38,11 @@
           "
           :size="18"
       /></template>
-      ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" /> ? <chat-outline-icon :size="18" />
-
+      ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" />
       <star-outline-icon @click="favorite" :size="18" v-if="!fav" />
       <star-icon @click="favorite" :size="18" v-if="fav" />
+      <check-circle-outline-icon @click="archive" :size="18" v-if="arch" />
+      <checkbox-blank-circle-outline-icon @click="archive" :size="18" v-if="!arch" />
       <dots-vertical-icon :size="18" />
     </div>
     <div class="clear"></div>
@@ -56,15 +57,18 @@ import ChatOutlineIcon from 'vue-material-design-icons/ChatOutline.vue';
 import StarIcon from 'vue-material-design-icons/Star.vue';
 import StarOutlineIcon from 'vue-material-design-icons/StarOutline.vue';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
+import CheckCircleOutlineIcon from 'vue-material-design-icons/CheckCircleOutline.vue';
+import CheckboxBlankCircleOutlineIcon from 'vue-material-design-icons/CheckboxBlankCircleOutline.vue';
 
 export default {
-  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'isFavorite'],
+  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'isFavorite', 'isArchived', 'folder'],
   data: function () {
     return {
       collapsed: true,
       dragStart: 0,
       dragTime: 0,
       fav: this.isFavorite,
+      arch: this.isArchived,
     };
   },
   components: {
@@ -75,11 +79,17 @@ export default {
     StarOutlineIcon,
     DotsVerticalIcon,
     StarIcon,
+    CheckCircleOutlineIcon,
+    CheckboxBlankCircleOutlineIcon,
   },
   methods: {
     favorite() {
       this.fav = !this.fav;
       this.$emit('favorite', this.id);
+    },
+    archive() {
+      this.arch = !this.arch;
+      this.$emit('archive', this.id);
     },
     load(url) {
       window.open(url, '_blank').focus();

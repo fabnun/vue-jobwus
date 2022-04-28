@@ -19,7 +19,7 @@
   --page-max-width: 1280px;
   --menu-background: rgba(0, 0, 0, 0.9);
   --body-margin-top: 3.2em;
-  --favorite-background: rgba(165, 155, 20, 0.15);
+  --favorite-background: rgba(185, 165, 20, 0.2);
 }
 
 hr {
