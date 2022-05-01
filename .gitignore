@@ -10,3 +10,4 @@ firestore.rules
 storage.rules
 *.log
 *.zip
+.env

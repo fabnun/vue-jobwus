@@ -122,8 +122,8 @@ export default {
   line-height: var(--oferta-line-height);
   padding: 0.6em 0.5em 0.5em;
   margin: 0 0.5em;
-  border-radius: 0.5em;
-  border: 1px solid var(--color);
+  border-radius: var(--radio);
+  border: 1.5px solid var(--color);
   overflow: hidden;
   transition: var(--oferta-transition);
   max-height: var(--oferta-full-max-height);
@@ -142,8 +142,8 @@ a {
 }
 .oferta-buttons {
   float: right;
-  border-radius: 0 0 0.5em 0.5em;
-  border: 1px solid var(--color);
+  border-radius: 0 0 var(--radio) var(--radio);
+  border: 1.5px solid var(--color);
   padding: 0.1em 0.5em;
   margin: 0 1em 1em 0;
   position: relative;

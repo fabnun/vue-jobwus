@@ -20,6 +20,7 @@
   --menu-background: rgba(0, 0, 0, 0.9);
   --body-margin-top: 3.2em;
   --favorite-background: rgba(185, 165, 20, 0.2);
+  --radio: 0.4em;
 }
 
 hr {
@@ -51,7 +52,7 @@ input {
 .highlight {
   background: var(--match-background);
   color: var(--match-color);
+  border-radius: var(--radio);
   padding: 0 4px;
-  border-radius: 0.3em;
 }
 </style>

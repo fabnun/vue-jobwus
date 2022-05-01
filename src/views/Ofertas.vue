@@ -4,7 +4,7 @@
       <div class="filtroIn">
         <dots-vertical-icon class="menu-button" @click="modal = !modal" />
         <h4>JOBWUS</h4>
-        <input spellcheck="false" v-model="filtro" @keyup.enter="submit" ref="filtro" />
+        <input spellcheck="false" @keyup.enter="submit" ref="filtro" />
         <magnify-icon class="submit-button" @click="submit" />
         <div class="status">{{ filtroFinal }}</div>
       </div>
@@ -19,19 +19,21 @@
             :isFavorite="favoritos.has(item.id)"
             @favorite="favorite"
             @archive="archive"
-            v-if="(!item.hidden && folder === 'Principal' && !archivados.has(item.id)) || folder !== 'Principal'"
+            v-if="(folder === 'Principal' && !item.hidden && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
             :data="resultView.data[item.id]"
             :id="item.id"
             :ignorarTildes="ignorarTildes"
             :filtro="filtroFinal"
             :grupo="
-              item.grupo === null
-                ? []
-                : resultView.clusters[item.grupo]
-                    .filter((id) => id !== item.id)
-                    .map((id) => {
-                      return { id, ...resultView.data[id] };
-                    })
+              folder === 'Principal'
+                ? item.grupo === null
+                  ? []
+                  : resultView.clusters[item.grupo]
+                      .filter((id) => id !== item.id)
+                      .map((id) => {
+                        return { id, ...resultView.data[id] };
+                      })
+                : []
             "
           />
         </div>
@@ -40,16 +42,18 @@
         <loading />
       </div>
     </div>
-    <div class="modal-container" v-if="modal">
+    <div class="modal-container" v-show="modal">
       <div class="modal">
-        <button style="float: right; cursor: pointer" @click="modal = false"><close-icon /></button>
+        <button style="float: right; background: transparent; color: white; cursor: pointer; border: none" @click="modal = false"><close-icon /></button>
         <input type="checkbox" id="ignorarTildes" v-model="ignorarTildes" />
-        <label for="ignorarTildes">Ignorar tildes en la busqueda</label><br /><br />
+        <label for="ignorarTildes">Ignorar tildes</label><br /><br />
 
-        &nbsp;&nbsp;&nbsp;&nbsp;<label for="ignorarTildes">Carpeta</label>&nbsp;
-        <select v-model="folder">
+        <label for="ignorarTildes">Carpeta</label>&nbsp;
+
+        <select v-model="folder" style="outline: none; padding: 0.5em">
           <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
         </select>
+        <br /><br /><span style="color: yellow">{{ folderDesc[folders.indexOf(folder)] }}</span>
       </div>
     </div>
   </div>
@@ -69,12 +73,12 @@ export default {
   name: 'Ofertas',
   data() {
     return {
-      folders: ['Principal', 'Favoritos', 'Archivados'],
+      folders: ['Principal', 'Favoritos', 'Archivados', 'Todos'],
+      folderDesc: ['Agrupados - No archivados', 'No agrupados - Favoritos', 'No agrupados - Archivados', 'No agrupados - Todos'],
       folder: 'Favoritos',
       loading: true,
       modal: false,
       ignorarTildes: true,
-      filtro: '',
       filtroFinal: [],
       result: null,
       resultView: null,
@@ -97,7 +101,7 @@ export default {
       setTimeout(() => {
         this.loading = false;
         if (!SmartPhone.isAny()) this.$refs.filtro.focus();
-      }, 661);
+      }, 333);
     }
   },
   methods: {
@@ -107,6 +111,7 @@ export default {
       } else {
         this.favoritos.add(id);
       }
+      this.$forceUpdate();
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
     },
     archive(id) {
@@ -115,22 +120,22 @@ export default {
       } else {
         this.archivados.add(id);
       }
+      this.$forceUpdate();
       window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
     },
     submit() {
-      this.filtro = this.filtro.trim();
-      let text = this.filtro;
+      let text = this.$refs.filtro.value.trim();
       if (this.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
-      window.localStorage.setItem('filtro', this.filtro);
-      let final = this.normalizeText(this.filtro.toLowerCase())
+      window.localStorage.setItem('filtro', text);
+      let final = this.normalizeText(text.toLowerCase())
         .replace(/\s+/, ' ')
         .split(',')
         .map((word) => word.trim())
         .filter((word) => word !== '');
 
-      if (this.filtro.length > 0) {
+      if (text.length > 0) {
         this.filtroFinal = final;
         this.loading = true;
         //////////////////////////////////////////////////////////////////
@@ -138,7 +143,7 @@ export default {
           pages: this.result.pages.filter((item) => this.filter(item.id)),
           data: this.result.data,
           clusters: this.result.clusters.map((cluster) => {
-            return cluster.filter((id) => this.filter(id));
+            return cluster.filter((id) => !this.archivados.has(id) && this.filter(id));
           }),
           config: this.result.config,
           updateTime: this.result.updateTime,
@@ -154,7 +159,6 @@ export default {
             }
           }
         }
-        console.log(resultBuild);
         //////////////////////////////////////////////////////////////////
 
         this.resultView = resultBuild;
@@ -191,7 +195,6 @@ export default {
       if (this.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
-
       return text.trim();
     },
   },
@@ -211,13 +214,14 @@ export default {
     this.folder = folder ? folder : 'Principal';
     ///////////////////////////////////////////////////
     let filtro = window.localStorage.getItem('filtro');
-    this.filtro = filtro ? filtro : '';
+    filtro = filtro ? filtro : '';
+    this.$refs.filtro.value = filtro;
     ///////////////////////////////////////////////////
     let ignorarTildes = window.localStorage.getItem('ignorarTildes');
     this.ignorarTildes = ignorarTildes ? ignorarTildes === 'true' : true;
     ///////////////////////////////////////////////////
     (async () => {
-      let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/exportsJSON')).json();
+      let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData')).json();
       console.log(result);
       this.result = result;
       this.submit();
@@ -250,24 +254,27 @@ export default {
 }
 .modal-container {
   position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  height: 107%;
+  background: rgba(0, 0, 0, 0.75);
   z-index: 9999;
 }
 .noEvents {
   pointer-events: none !important;
 }
 .modal {
-  position: fixed;
-  top: 26%;
-  left: 26%;
-  width: 40%;
-  height: 40%;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+  width: 280px;
+  height: 240px;
   background: var(--menu-background);
-  padding: 4%;
+  padding: 1em;
+  border-radius: var(--radio);
+  background: rgba(20, 40, 60, 0.88);
   z-index: 9999;
 }
 
@@ -305,7 +312,7 @@ export default {
   display: inline-block;
 }
 .filtro input {
-  border-radius: 8px;
+  border-radius: var(--radio);
   background: var(--background-input);
   width: calc(100% - 172px);
   padding: 1px 0.33em 0px;
