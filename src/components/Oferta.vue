@@ -1,5 +1,5 @@
 <template>
-  <div v-if="(folder === 'Principal' && !arch) || folder !== 'Principal'" :class="{ arch }">
+  <div v-if="(folder === 'Agrupados' && !arch) || folder !== 'Agrupados'" :class="{ arch }">
     <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
         <span @click.prevent.stop="load(data.url)" href="#" class="titulo">

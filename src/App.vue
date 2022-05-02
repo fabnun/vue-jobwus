@@ -5,7 +5,7 @@
 </template>
 <style>
 :root {
-  --background: url('/assets/dark1.jpg') repeat center top;
+  --background: url('/assets/dark9.jpg') repeat center top;
   --color: rgba(255, 244, 233, 0.8);
   --background-input: white;
   --background-color: black;

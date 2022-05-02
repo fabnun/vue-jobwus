@@ -6,16 +6,15 @@
         <h4>JOBWUS</h4>
         <input spellcheck="false" @keyup.enter="submit" ref="filtro" />
         <magnify-icon class="submit-button" @click="submit" />
-        <div class="status">{{ filtroFinal }}</div>
       </div>
     </div>
     <div :class="{ noEvents: modal }">
       <div v-if="!loading">
         <div style="margin: 0 auto; padding: 0 10px 10px">
-          <select v-model="folder" style="outline: none; padding: 0; cursor: pointer">
+          <select v-model="folder" style="outline: none; padding: 0; cursor: pointer; border-radius: var(--radio); text-align: center">
             <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
           </select>
-          : <span v-if="folder === 'Principal'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} repetidos</span>
+          <span v-if="folder === 'Agrupados'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} repetidos</span>
           <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actualizado el {{ new Date(result.updateTime).toLocaleDateString() }}</span>
           <div style="clear: both"></div>
         </div>
@@ -27,13 +26,13 @@
             :isFavorite="favoritos.has(item.id)"
             @favorite="favorite"
             @archive="archive"
-            v-if="(folder === 'Principal' && !item.hidden && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
+            v-if="(folder === 'Agrupados' && !item.hidden && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
             :data="resultView.data[item.id]"
             :id="item.id"
             :ignorarTildes="ignorarTildes"
             :filtro="filtroFinal"
             :grupo="
-              folder === 'Principal'
+              folder === 'Agrupados'
                 ? item.grupo === null
                   ? []
                   : resultView.clusters[item.grupo]
@@ -77,8 +76,7 @@ export default {
   name: 'Ofertas',
   data() {
     return {
-      folders: ['Principal', 'Favoritos', 'Archivados', 'Todos'],
-      folderDesc: ['Agrupados - No archivados', 'No agrupados - Favoritos', 'No agrupados - Archivados', 'No agrupados - Todos'],
+      folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
       folder: 'Favoritos',
       loading: true,
       modal: false,
@@ -230,7 +228,7 @@ export default {
     }
     ///////////////////////////////////////////////////
     let folder = window.localStorage.getItem('folder');
-    this.folder = folder ? folder : 'Principal';
+    this.folder = folder ? folder : 'Agrupados';
     ///////////////////////////////////////////////////
     let filtro = window.localStorage.getItem('filtro');
     filtro = filtro ? filtro : '';
