@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <div class="filtro">
       <div class="filtroIn">
         <dots-vertical-icon class="menu-button" @click="modal = !modal" />
@@ -11,6 +11,11 @@
     </div>
     <div :class="{ noEvents: modal }">
       <div v-if="!loading">
+        <div style="margin: 0 auto; padding: 0 10px 10px">
+          Carpeta {{ folder }} : <span v-if="folder === 'Principal'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} repetidos</span>
+          <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actualizado el {{ new Date(result.updateTime).toLocaleDateString() }}</span>
+          <div style="clear: both"></div>
+        </div>
         <div v-for="item in resultView.pages" :key="item.id">
           <!-- oculto:{{ item.hidden }} match:{{ filter(item) }} filtros:{{ filtroFinal.length }} grupo:{{ item.grupo }} -->
           <oferta
@@ -100,8 +105,12 @@ export default {
       oldFiltro = this.filtroFinal.join(',');
       setTimeout(() => {
         this.loading = false;
-        if (!SmartPhone.isAny()) this.$refs.filtro.focus();
-      }, 333);
+        if (!SmartPhone.isAny()) {
+          this.$refs.filtro.focus();
+        } else {
+          this.$refs.filtro.blur();
+        }
+      }, 500);
     }
   },
   methods: {
@@ -135,9 +144,10 @@ export default {
         .map((word) => word.trim())
         .filter((word) => word !== '');
 
+      this.loading = true;
       if (text.length > 0) {
         this.filtroFinal = final;
-        this.loading = true;
+
         //////////////////////////////////////////////////////////////////
         let resultBuild = {
           pages: this.result.pages.filter((item) => this.filter(item.id)),
@@ -163,16 +173,26 @@ export default {
 
         this.resultView = resultBuild;
         window.scrollTo(0, 0);
-        this.$refs.filtro.blur();
+        setTimeout(() => {
+          this.loading = false;
+          if (!SmartPhone.isAny()) {
+            this.$refs.filtro.focus();
+          } else {
+            this.$refs.filtro.blur();
+          }
+        }, 999);
       } else {
-        this.loading = true;
         this.filtroFinal = [];
         this.resultView = this.result;
         console.log(this.resultView);
         setTimeout(() => {
           this.loading = false;
-          if (!SmartPhone.isAny()) this.$refs.filtro.focus();
-        }, 333);
+          if (!SmartPhone.isAny()) {
+            this.$refs.filtro.focus();
+          } else {
+            this.$refs.filtro.blur();
+          }
+        }, 666);
       }
     },
 

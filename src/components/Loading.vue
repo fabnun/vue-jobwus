@@ -1,34 +1,11 @@
 <template>
   <div>
-    <h2 style="text-align: center">
+    <h2>
       JOBWUS ESTA <br />
       TRABAJANDO...
     </h2>
-    <svg version="1.1" id="L1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
-      <circle fill="none" stroke="var(--color)" stroke-width="6" stroke-miterlimit="15" stroke-dasharray="14.2472,14.2472" cx="50" cy="50" r="47">
-        <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="5s" from="0 50 50" to="360 50 50" repeatCount="indefinite" />
-      </circle>
-      <circle fill="none" stroke="var(--color)" stroke-width="1" stroke-miterlimit="10" stroke-dasharray="10,10" cx="50" cy="50" r="39">
-        <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="5s" from="0 50 50" to="-360 50 50" repeatCount="indefinite" />
-      </circle>
-      <g fill="var(--color)">
-        <rect x="30" y="35" width="5" height="30">
-          <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.1" />
-        </rect>
-        <rect x="40" y="35" width="5" height="30">
-          <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.2" />
-        </rect>
-        <rect x="50" y="35" width="5" height="30">
-          <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.3" />
-        </rect>
-        <rect x="60" y="35" width="5" height="30">
-          <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.4" />
-        </rect>
-        <rect x="70" y="35" width="5" height="30">
-          <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.5" />
-        </rect>
-      </g>
-    </svg>
+    <br />
+    <div class="dots-bars-4"></div>
   </div>
 </template>
 <script>
@@ -38,10 +15,59 @@ export default {};
 h2 {
   font-weight: bolder;
 }
-svg {
-  width: 100px;
-  height: 100px;
-  margin: 20px;
-  display: inline-block;
+
+.dots-bars-4 {
+  margin-top: 20px;
+  margin-left: 20px;
+  width: 80px;
+  height: 30px;
+  --c: radial-gradient(farthest-side, currentColor 93%, #0000);
+  background: var(--c) 0 0, var(--c) 50% 0, var(--c) 100% 0;
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  position: relative;
+  animation: db4-0 1s linear infinite alternate;
+}
+.dots-bars-4:before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  background: currentColor;
+  left: 0;
+  top: 0;
+  animation: db4-1 1s linear infinite alternate, db4-2 0.5s cubic-bezier(0, 200, 0.8, 200) infinite;
+}
+
+@keyframes db4-0 {
+  0% {
+    background-position: 0 100%, 50% 0, 100% 0;
+  }
+  8%,
+  42% {
+    background-position: 0 0, 50% 0, 100% 0;
+  }
+  50% {
+    background-position: 0 0, 50% 100%, 100% 0;
+  }
+  58%,
+  92% {
+    background-position: 0 0, 50% 0, 100% 0;
+  }
+  100% {
+    background-position: 0 0, 50% 0, 100% 100%;
+  }
+}
+
+@keyframes db4-1 {
+  100% {
+    left: calc(100% - 8px);
+  }
+}
+
+@keyframes db4-2 {
+  100% {
+    top: -0.1px;
+  }
 }
 </style>
