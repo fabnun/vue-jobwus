@@ -12,7 +12,10 @@
     <div :class="{ noEvents: modal }">
       <div v-if="!loading">
         <div style="margin: 0 auto; padding: 0 10px 10px">
-          Carpeta {{ folder }} : <span v-if="folder === 'Principal'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} repetidos</span>
+          <select v-model="folder" style="outline: none; padding: 0; cursor: pointer">
+            <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
+          </select>
+          : <span v-if="folder === 'Principal'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} repetidos</span>
           <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actualizado el {{ new Date(result.updateTime).toLocaleDateString() }}</span>
           <div style="clear: both"></div>
         </div>
@@ -52,13 +55,9 @@
         <button style="float: right; background: transparent; color: white; cursor: pointer; border: none" @click="modal = false"><close-icon /></button>
         <input type="checkbox" id="ignorarTildes" v-model="ignorarTildes" />
         <label for="ignorarTildes">Ignorar tildes</label><br /><br />
-
-        <label for="ignorarTildes">Carpeta</label>&nbsp;
-
-        <select v-model="folder" style="outline: none; padding: 0.5em">
-          <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
-        </select>
-        <br /><br /><span style="color: yellow">{{ folderDesc[folders.indexOf(folder)] }}</span>
+        <br />
+        <br />
+        <a target="_blank" style="color: white" href="https://github.com/fabnun/vue-jobwus">Ver en github</a>
       </div>
     </div>
   </div>

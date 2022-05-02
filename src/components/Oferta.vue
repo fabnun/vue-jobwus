@@ -1,5 +1,5 @@
 <template>
-  <div v-if="(folder === 'Principal' && !arch) || folder !== 'Principal'">
+  <div v-if="(folder === 'Principal' && !arch) || folder !== 'Principal'" :class="{ arch }">
     <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
         <span @click.prevent.stop="load(data.url)" href="#" class="titulo">
@@ -38,12 +38,12 @@
           "
           :size="18"
       /></template>
-      ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" />
-      <star-outline-icon @click="favorite" :size="18" v-if="!fav" />
-      <star-icon @click="favorite" :size="18" v-if="fav" />
-      <check-circle-outline-icon @click="archive" :size="18" v-if="arch" />
-      <checkbox-blank-circle-outline-icon @click="archive" :size="18" v-if="!arch" />
-      <dots-vertical-icon :size="18" />
+      <!-- ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" /> -->
+      <star-outline-icon @click="favorite" :size="22" v-if="!fav" />
+      <star-icon @click="favorite" :size="22" v-if="fav" />
+      <check-circle-outline-icon @click="archive" :size="22" v-if="arch" />
+      <checkbox-blank-circle-outline-icon @click="archive" :size="22" v-if="!arch" />
+      <dots-vertical-icon :size="22" />
     </div>
     <div class="clear"></div>
   </div>
@@ -157,5 +157,8 @@ a {
 
 .clear {
   clear: both;
+}
+.arch {
+  opacity: 0.5;
 }
 </style>

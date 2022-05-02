@@ -38,6 +38,7 @@ hr {
 }
 
 body {
+  overflow-y: scroll;
   margin-top: var(--body-margin-top);
   background: var(--background);
   color: var(--color);
