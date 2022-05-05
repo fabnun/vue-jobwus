@@ -123,7 +123,7 @@ export default {
         .forEach((c) => {
           c.forEach((id2) => {
             if (id2 !== id) {
-              if (este.favoritos.has(id2)) {
+              if (este.favoritos.has(id2) !== este.favoritos.has(id)) {
                 este.favoritos.delete(id2);
               } else {
                 este.favoritos.add(id2);
@@ -147,7 +147,7 @@ export default {
         .forEach((c) => {
           c.forEach((id2) => {
             if (id2 !== id) {
-              if (este.archivados.has(id2)) {
+              if (este.archivados.has(id2) !== este.archivados.has(id)) {
                 este.archivados.delete(id2);
               } else {
                 este.archivados.add(id2);
