@@ -1,5 +1,5 @@
 {
-  "name": "vue-jobwus",
+  "name": "jobwus",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,6 +9,7 @@
     "firebase.deploy": "firebase deploy",
     "firebase.emulators.functions": "firebase emulators:start --only functions",
     "firebase.deploy.functions": "firebase deploy --only functions",
+    "firebase.deploy.hosting": "firebase deploy --only hosting",
     "firebase.logs.functions": "firebase functions:log",
     "firebase.function.shell": "firebase functions:shell",
     "git.commit.log": "git log --pretty=format:\"%h - %an, %ar : %s\""
@@ -30,5 +31,17 @@
     "@vue/cli-plugin-vuex": "~4.5.15",
     "@vue/cli-service": "~4.5.15",
     "vue-template-compiler": "^2.6.11"
-  }
+  },
+  "description": "Iterfaz desarrollada con vue 2 para mostrar datos de ofertas laborales.",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabnun/vue-jobwus.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fabnun/vue-jobwus/issues"
+  },
+  "homepage": "https://github.com/fabnun/vue-jobwus#readme"
 }

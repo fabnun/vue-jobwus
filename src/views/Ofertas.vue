@@ -14,8 +14,8 @@
           <select v-model="folder" style="outline: none; padding: 0; cursor: pointer; border-radius: var(--radio); text-align: center">
             <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
           </select>
-          <span v-if="folder === 'Agrupados'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} repetidos</span>
-          <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actualizado el {{ new Date(result.updateTime).toLocaleDateString() }}</span>
+          <span v-if="folder === 'Agrupados'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} similares</span>
+          <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actualizado el {{ new Date(result.updateTime).toLocaleDateString() }} a las {{ new Date(result.updateTime).toLocaleTimeString() }}</span>
           <div style="clear: both"></div>
         </div>
         <div v-for="item in resultView.pages" :key="item.id">
@@ -181,7 +181,7 @@ export default {
       } else {
         this.filtroFinal = [];
         this.resultView = this.result;
-        console.log(this.resultView);
+        //console.log(this.resultView);
         setTimeout(() => {
           this.loading = false;
           if (!SmartPhone.isAny()) {
@@ -228,7 +228,7 @@ export default {
     }
     ///////////////////////////////////////////////////
     let folder = window.localStorage.getItem('folder');
-    this.folder = folder ? folder : 'Agrupados';
+    this.folder = this.folders.includes(folder) ? folder : 'Agrupados';
     ///////////////////////////////////////////////////
     let filtro = window.localStorage.getItem('filtro');
     filtro = filtro ? filtro : '';
@@ -238,8 +238,10 @@ export default {
     this.ignorarTildes = ignorarTildes ? ignorarTildes === 'true' : true;
     ///////////////////////////////////////////////////
     (async () => {
-      let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData')).json();
-      console.log(result);
+      let fetchCfg = { method: 'POST', body: 'info' };
+      let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).json();
+      //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).json();
+      //console.log(result);
       this.result = result;
       this.submit();
     })();

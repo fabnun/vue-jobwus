@@ -41,8 +41,8 @@
       <!-- ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" /> -->
       <star-outline-icon @click="favorite" :size="22" v-if="!fav" />
       <star-icon @click="favorite" :size="22" v-if="fav" />
-      <check-circle-outline-icon @click="archive" :size="22" v-if="arch" />
-      <checkbox-blank-circle-outline-icon @click="archive" :size="22" v-if="!arch" />
+      <delete-outline-icon @click="archive" :size="22" v-if="!arch" />
+      <delete-off-outline-icon @click="archive" :size="22" v-if="arch" />
       <dots-vertical-icon :size="22" />
     </div>
     <div class="clear"></div>
@@ -57,8 +57,8 @@ import ChatOutlineIcon from 'vue-material-design-icons/ChatOutline.vue';
 import StarIcon from 'vue-material-design-icons/Star.vue';
 import StarOutlineIcon from 'vue-material-design-icons/StarOutline.vue';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
-import CheckCircleOutlineIcon from 'vue-material-design-icons/CheckCircleOutline.vue';
-import CheckboxBlankCircleOutlineIcon from 'vue-material-design-icons/CheckboxBlankCircleOutline.vue';
+import DeleteOffOutlineIcon from 'vue-material-design-icons/DeleteOffOutline.vue';
+import DeleteOutlineIcon from 'vue-material-design-icons/DeleteOutline.vue';
 
 export default {
   props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'isFavorite', 'isArchived', 'folder'],
@@ -79,8 +79,8 @@ export default {
     StarOutlineIcon,
     DotsVerticalIcon,
     StarIcon,
-    CheckCircleOutlineIcon,
-    CheckboxBlankCircleOutlineIcon,
+    DeleteOutlineIcon,
+    DeleteOffOutlineIcon,
   },
   methods: {
     favorite() {
