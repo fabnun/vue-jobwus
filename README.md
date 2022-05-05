@@ -1,6 +1,8 @@
 # vue-jobwus
 
-Iterfaz desarrollada con vue 2 para mostrar datos de ofertas laborales.
+Iterfaz desarrollada con vue 2 para mostrar, filtrar y gestionas datos de ofertas laborales.
+
+[TODO LIST](TODO.md)
 
 ## Project setup
 

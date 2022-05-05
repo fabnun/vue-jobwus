@@ -20,11 +20,18 @@
         <br />
         OFERTAS SIMILARES
         <br /><br />
-        <span class="copy-job" v-for="(item, idx) in grupo" :key="idx">
+        <div class="copy-job" v-for="(item, idx) in grupo" :key="idx" :title="item.descripcion">
+          <div class="copy-job-buttons">
+            <star-outline-icon @click="favorite" :size="22" v-if="!fav" />
+            <star-icon @click="favorite" :size="22" v-if="fav" />
+            <delete-outline-icon @click="archive" :size="22" v-if="!arch" />
+            <delete-off-outline-icon @click="archive" :size="22" v-if="arch" />
+            <dots-vertical-icon :size="22" />
+          </div>
           <span @click.prevent.stop="load(item.url)" class="titulo">
             <span class="highlight">{{ dateFormat(item.fecha) }}</span> {{ item.titulo }}</span
           >
-        </span>
+        </div>
       </div>
     </div>
     <div class="oferta-buttons">
@@ -116,7 +123,16 @@ export default {
 .copy-job {
   margin-bottom: 0.4em;
   display: block;
+  border: 1.5px solid var(--color);
+  border-radius: var(--radio);
 }
+.copy-job-buttons {
+  float: right;
+}
+.copy-job-buttons span {
+  cursor: pointer;
+}
+
 .oferta {
   background: rgba(35, 25, 0, 0.3);
   line-height: var(--oferta-line-height);

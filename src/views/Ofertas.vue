@@ -117,6 +117,21 @@ export default {
       } else {
         this.favoritos.add(id);
       }
+      let este = this;
+      this.result.clusters
+        .filter((c) => c.includes(id))
+        .forEach((c) => {
+          c.forEach((id2) => {
+            if (id2 !== id) {
+              if (este.favoritos.has(id2)) {
+                este.favoritos.delete(id2);
+              } else {
+                este.favoritos.add(id2);
+              }
+            }
+          });
+        });
+
       this.$forceUpdate();
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
     },
@@ -126,6 +141,20 @@ export default {
       } else {
         this.archivados.add(id);
       }
+      let este = this;
+      this.result.clusters
+        .filter((c) => c.includes(id))
+        .forEach((c) => {
+          c.forEach((id2) => {
+            if (id2 !== id) {
+              if (este.archivados.has(id2)) {
+                este.archivados.delete(id2);
+              } else {
+                este.archivados.add(id2);
+              }
+            }
+          });
+        });
       this.$forceUpdate();
       window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
     },
