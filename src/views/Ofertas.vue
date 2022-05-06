@@ -31,7 +31,7 @@
             v-if="(folder === 'Agrupados' && !item.hidden && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
             :data="resultView.data[item.id]"
             :id="item.id"
-            :ignorarTildes="ignorarTildes"
+            :ignorarTildes="$store.state.ignorarTildes"
             :filtro="filtroFinal"
             :grupo="
               folder === 'Agrupados'
@@ -51,19 +51,12 @@
         <loading />
       </div>
     </div>
-    <div class="modal-container" v-show="modal">
-      <div class="modal" style="user-select: none">
+    <div class="modal-container" v-show="modal" @click="modal = false">
+      <div @click.stop.prevent="">
         <button style="float: right; background: transparent; color: white; cursor: pointer; border: none" @click="modal = false"><close-icon /></button>
-        <p>
-          JOBWUS es una herramienta para hojear ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien búsquedas, marcaje de favoritos y archivado.
-          <br />
-          <a target="_blank" style="color: white" href="https://github.com/fabnun/vue-jobwus">Ver en github</a>
-        </p>
-
-        <br />
-        <h3>Configuración</h3>
-        <input type="checkbox" id="ignorarTildes" v-model="ignorarTildes" />
-        <label class="menu-button" for="ignorarTildes">Ignorar tildes</label>
+        <div class="modal" style="user-select: none; overflow-y: auto">
+          <config v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
+        </div>
       </div>
     </div>
   </div>
@@ -75,11 +68,12 @@ import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
 import _smartPhone from 'detect-mobile-browser';
+import Config from '../components/Config.vue';
 let SmartPhone = _smartPhone(false);
 
 let oldFiltro = null;
 export default {
-  components: { Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading },
+  components: { Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config },
   name: 'Ofertas',
   data() {
     return {
@@ -87,7 +81,6 @@ export default {
       folder: 'Favoritos',
       loading: true,
       modal: false,
-      ignorarTildes: true,
       filtroFinal: [],
       result: null,
       resultView: null,
@@ -96,9 +89,6 @@ export default {
     };
   },
   watch: {
-    ignorarTildes() {
-      window.localStorage.setItem('ignorarTildes', this.ignorarTildes);
-    },
     folder() {
       this.$forceUpdate();
       window.localStorage.setItem('folder', this.folder);
@@ -172,7 +162,7 @@ export default {
     },
     submit() {
       let text = this.$refs.filtro.value.trim();
-      if (this.ignorarTildes) {
+      if (this.$store.state.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
       window.localStorage.setItem('filtro', text);
@@ -250,7 +240,7 @@ export default {
     },
     normalizeText(text) {
       text = text.toLowerCase();
-      if (this.ignorarTildes) {
+      if (this.$store.state.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
       return text.trim();
@@ -274,9 +264,6 @@ export default {
     let filtro = window.localStorage.getItem('filtro');
     filtro = filtro ? filtro : '';
     this.$refs.filtro.value = filtro;
-    ///////////////////////////////////////////////////
-    let ignorarTildes = window.localStorage.getItem('ignorarTildes');
-    this.ignorarTildes = ignorarTildes ? ignorarTildes === 'true' : true;
     ///////////////////////////////////////////////////
     (async () => {
       let fetchCfg = { method: 'POST', body: 'info' };
@@ -329,8 +316,8 @@ export default {
 }
 .modal {
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
-  width: 280px;
-  height: 240px;
+  width: 320px;
+  height: 320px;
   background: var(--menu-background);
   padding: 1em;
   border-radius: var(--radio);

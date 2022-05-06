@@ -23,6 +23,14 @@
   --radio: 0.4em;
 }
 
+strong {
+  font-weight: bolder;
+}
+
+a {
+  color: var(--color);
+}
+
 hr {
   border-color: var(--color) !important;
 }
