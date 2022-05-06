@@ -266,7 +266,7 @@ export default {
     this.$refs.filtro.value = filtro;
     ///////////////////////////////////////////////////
     (async () => {
-      let fetchCfg = { method: 'POST', body: 'info' };
+      let fetchCfg = { method: 'POST', body: localStorage.getItem('cfg') ? localStorage.getItem('cfg') : 'info' };
       let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).json();
       //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).json();
       //console.log(result);
@@ -316,10 +316,10 @@ export default {
 }
 .modal {
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
-  width: 320px;
-  height: 320px;
+  max-width: 320px;
+  height: 360px;
   background: var(--menu-background);
-  padding: 1em;
+  padding: 0.5em;
   border-radius: var(--radio);
   background: rgba(20, 40, 60, 0.88);
   z-index: 9999;

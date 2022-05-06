@@ -4,12 +4,11 @@
   "private": true,
   "scripts": {
     "vue.serve": "vue-cli-service serve",
-    "vue.build": "vue-cli-service build",
-    "firebase.emulators": "firebase emulators:start",
-    "firebase.deploy": "firebase deploy",
+    "vue.build": "vue-cli-service build & firebase deploy --only hosting",
+    "firebase.emulators.all": "firebase emulators:start",
     "firebase.emulators.functions": "firebase emulators:start --only functions",
+    "firebase.deploy.all": "firebase deploy",
     "firebase.deploy.functions": "firebase deploy --only functions",
-    "firebase.deploy.hosting": "firebase deploy --only hosting",
     "firebase.logs.functions": "firebase functions:log",
     "firebase.function.shell": "firebase functions:shell",
     "git.commit.log": "git log --pretty=format:\"%h - %an, %ar : %s\""
