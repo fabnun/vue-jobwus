@@ -20,12 +20,12 @@
         <br />
         OFERTAS SIMILARES
         <br /><br />
-        <div class="copy-job" v-for="(item, idx) in grupo" :key="idx" :title="item.descripcion">
+        <div class="copy-job" v-for="(item, idx) in grupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
           <div class="copy-job-buttons">
-            <star-outline-icon @click="favorite" :size="22" v-if="!fav" />
-            <star-icon @click="favorite" :size="22" v-if="fav" />
-            <delete-outline-icon @click="archive" :size="22" v-if="!arch" />
-            <delete-off-outline-icon @click="archive" :size="22" v-if="arch" />
+            <star-outline-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="!favoritos.has(item.id)" />
+            <star-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="favoritos.has(item.id)" />
+            <delete-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="!archivados.has(item.id)" />
+            <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
             <dots-vertical-icon :size="22" />
           </div>
           <span @click.prevent.stop="load(item.url)" class="titulo">
@@ -68,7 +68,7 @@ import DeleteOffOutlineIcon from 'vue-material-design-icons/DeleteOffOutline.vue
 import DeleteOutlineIcon from 'vue-material-design-icons/DeleteOutline.vue';
 
 export default {
-  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'isFavorite', 'isArchived', 'folder'],
+  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'isFavorite', 'isArchived', 'folder', 'archivados', 'favoritos'],
   data: function () {
     return {
       collapsed: true,
@@ -97,6 +97,12 @@ export default {
     archive() {
       this.arch = !this.arch;
       this.$emit('archive', this.id);
+    },
+    favoriteSimilar(item) {
+      this.$emit('favorite', item, false);
+    },
+    archiveSimilar(item) {
+      this.$emit('archive', item, false);
     },
     load(url) {
       window.open(url, '_blank').focus();
@@ -175,6 +181,6 @@ a {
   clear: both;
 }
 .arch {
-  opacity: 0.5;
+  opacity: 0.3;
 }
 </style>

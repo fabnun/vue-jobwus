@@ -15,12 +15,14 @@
             <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
           </select>
           <span v-if="folder === 'Agrupados'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} similares</span>
-          <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actualizado el {{ new Date(result.updateTime).toLocaleDateString() }} a las {{ new Date(result.updateTime).toLocaleTimeString() }}</span>
+          <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actuazado el {{ new Date(result.updateTime).toLocaleDateString() }} {{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
           <div style="clear: both"></div>
         </div>
         <div v-for="item in resultView.pages" :key="item.id">
           <!-- oculto:{{ item.hidden }} match:{{ filter(item) }} filtros:{{ filtroFinal.length }} grupo:{{ item.grupo }} -->
           <oferta
+            :archivados="archivados"
+            :favoritos="favoritos"
             :folder="folder"
             :isArchived="archivados.has(item.id)"
             :isFavorite="favoritos.has(item.id)"
@@ -50,13 +52,18 @@
       </div>
     </div>
     <div class="modal-container" v-show="modal">
-      <div class="modal">
+      <div class="modal" style="user-select: none">
         <button style="float: right; background: transparent; color: white; cursor: pointer; border: none" @click="modal = false"><close-icon /></button>
+        <p>
+          JOBWUS Es una herramienta para revisar de ofertas laborales extraidas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo busquedas, marcarje de favoritos y archivado.
+          <br />
+          <a target="_blank" style="color: white" href="https://github.com/fabnun/vue-jobwus">Ver en github</a>
+        </p>
+
+        <br />
+        <h3>Configuración</h3>
         <input type="checkbox" id="ignorarTildes" v-model="ignorarTildes" />
-        <label for="ignorarTildes">Ignorar tildes</label><br /><br />
-        <br />
-        <br />
-        <a target="_blank" style="color: white" href="https://github.com/fabnun/vue-jobwus">Ver en github</a>
+        <label class="menu-button" for="ignorarTildes">Ignorar tildes</label>
       </div>
     </div>
   </div>
@@ -93,6 +100,7 @@ export default {
       window.localStorage.setItem('ignorarTildes', this.ignorarTildes);
     },
     folder() {
+      this.$forceUpdate();
       window.localStorage.setItem('folder', this.folder);
     },
   },
@@ -111,50 +119,54 @@ export default {
     }
   },
   methods: {
-    favorite(id) {
+    favorite(id, recursive = true) {
       if (this.favoritos.has(id)) {
         this.favoritos.delete(id);
       } else {
         this.favoritos.add(id);
       }
-      let este = this;
-      this.result.clusters
-        .filter((c) => c.includes(id))
-        .forEach((c) => {
-          c.forEach((id2) => {
-            if (id2 !== id) {
-              if (este.favoritos.has(id2) !== este.favoritos.has(id)) {
-                este.favoritos.delete(id2);
-              } else {
-                este.favoritos.add(id2);
-              }
-            }
-          });
-        });
 
+      if (recursive && this.folder === 'Agrupados') {
+        let este = this;
+        this.result.clusters
+          .filter((c) => c.includes(id))
+          .forEach((c) => {
+            c.forEach((id2) => {
+              if (id2 !== id) {
+                if (este.favoritos.has(id)) {
+                  este.favoritos.add(id2);
+                } else {
+                  este.favoritos.delete(id2);
+                }
+              }
+            });
+          });
+      }
       this.$forceUpdate();
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
     },
-    archive(id) {
+    archive(id, recursive = true) {
       if (this.archivados.has(id)) {
         this.archivados.delete(id);
       } else {
         this.archivados.add(id);
       }
-      let este = this;
-      this.result.clusters
-        .filter((c) => c.includes(id))
-        .forEach((c) => {
-          c.forEach((id2) => {
-            if (id2 !== id) {
-              if (este.archivados.has(id2) !== este.archivados.has(id)) {
-                este.archivados.delete(id2);
-              } else {
-                este.archivados.add(id2);
+      if (recursive && this.folder === 'Agrupados') {
+        let este = this;
+        this.result.clusters
+          .filter((c) => c.includes(id))
+          .forEach((c) => {
+            c.forEach((id2) => {
+              if (id2 !== id) {
+                if (este.archivados.has(id)) {
+                  este.archivados.add(id2);
+                } else {
+                  este.archivados.delete(id2);
+                }
               }
-            }
+            });
           });
-        });
+      }
       this.$forceUpdate();
       window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
     },
