@@ -55,7 +55,7 @@
       <div class="modal" style="user-select: none">
         <button style="float: right; background: transparent; color: white; cursor: pointer; border: none" @click="modal = false"><close-icon /></button>
         <p>
-          JOBWUS Es una herramienta para revisar de ofertas laborales extraidas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo busquedas, marcarje de favoritos y archivado.
+          JOBWUS es una herramienta para hojear ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien búsquedas, marcaje de favoritos y archivado.
           <br />
           <a target="_blank" style="color: white" href="https://github.com/fabnun/vue-jobwus">Ver en github</a>
         </p>
