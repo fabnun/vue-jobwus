@@ -1,6 +1,6 @@
 <template>
   <div class="cfg">
-    <p><strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, marcaje de favoritos y archivado <a target="_blank" style="color: white" @click.stop="" href="https://github.com/fabnun/vue-jobwus">(ver en github)</a></p>
+    <p><strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, lecturas, marcaje de favoritos y archivado <a target="_blank" style="color: white" @click.stop="" href="https://github.com/fabnun/vue-jobwus">(ver en github)</a></p>
     <hr />
     <h3>
       <strong>Palabras Clave : </strong>

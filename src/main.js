@@ -3,10 +3,11 @@ import App from './App.vue';
 import './registerServiceWorker';
 import router from './router';
 import store from './store';
-import MenuIcon from 'vue-material-design-icons/Menu.vue';
+import Speech from 'speak-tts';
 
 Vue.config.productionTip = false;
 new Vue({
+  speech: new Speech(),
   router,
   store,
   render: (h) => h(App),

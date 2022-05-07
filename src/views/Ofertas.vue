@@ -9,13 +9,13 @@
       </div>
     </div>
     <div :class="{ noEvents: modal }">
-      <div v-if="!loading">
+      <div v-if="!loading && result !== null">
         <div style="margin: 0 auto; padding: 0 10px 10px">
           <select v-model="folder" style="outline: none; padding: 0; cursor: pointer; border-radius: var(--radio); text-align: center">
             <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
           </select>
-          <span v-if="folder === 'Agrupados'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} similares</span>
-          <span style="float: right; font-size: 0.8em; line-height: 1.5em">Actuazado el {{ new Date(result.updateTime).toLocaleDateString() }} {{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
+          <span v-if="resultView !== null && folder === 'Agrupados'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} similares</span>
+          <span v-if="result !== null" style="float: right; font-size: 0.8em; line-height: 1.5em">Actuazado el {{ new Date(result.updateTime).toLocaleDateString() }} {{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
           <div style="clear: both"></div>
         </div>
         <div v-for="item in resultView.pages" :key="item.id">
@@ -23,9 +23,11 @@
           <oferta
             :archivados="archivados"
             :favoritos="favoritos"
+            :speechSupport="speechSupport"
             :folder="folder"
             :isArchived="archivados.has(item.id)"
             :isFavorite="favoritos.has(item.id)"
+            @voice="voice"
             @favorite="favorite"
             @archive="archive"
             v-if="(folder === 'Agrupados' && !item.hidden && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
@@ -47,7 +49,7 @@
           />
         </div>
       </div>
-      <div v-if="loading" class="loading">
+      <div v-if="loading || result === null" class="loading">
         <loading />
       </div>
     </div>
@@ -59,6 +61,9 @@
         </div>
       </div>
     </div>
+    <div v-if="stopVoice" class="voice-stop" @click="voiceStop()">
+      <account-tie-voice-off-outline-icon />
+    </div>
   </div>
 </template>
 <script>
@@ -69,14 +74,20 @@ import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
 import _smartPhone from 'detect-mobile-browser';
 import Config from '../components/Config.vue';
+import AccountTieVoiceOffOutlineIcon from 'vue-material-design-icons/AccountTieVoiceOffOutline.vue';
+import Speech from 'speak-tts';
+
+const speech = new Speech();
 let SmartPhone = _smartPhone(false);
 
 let oldFiltro = null;
 export default {
-  components: { Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config },
+  components: { Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon },
   name: 'Ofertas',
   data() {
     return {
+      stopVoice: false,
+      speechSupport: speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
       folder: 'Favoritos',
       loading: true,
@@ -91,6 +102,7 @@ export default {
   watch: {
     folder() {
       this.$forceUpdate();
+      this.submit();
       window.localStorage.setItem('folder', this.folder);
     },
   },
@@ -109,6 +121,38 @@ export default {
     }
   },
   methods: {
+    voiceStop() {
+      if (speech.speaking()) {
+        speech.cancel();
+        this.stopVoice = false;
+      }
+    },
+    voice(id) {
+      let data = this.result.data[id];
+      if (speech.speaking()) {
+        speech.cancel();
+      }
+
+      let fnFixText = (text) => text.replaceAll('(a)', '').replaceAll('(A)', '').replaceAll('/a ', ' ').replaceAll('/as ', ' ').replaceAll('/A ', ' ').replaceAll('/AS ', ' ').replaceAll('(as)', '').replaceAll('(AS)', '');
+      try {
+        speech.speak({
+          text: fnFixText(data.titulo) + '. ' + fnFixText(data.descripcion).toLowerCase(),
+          volume: 1,
+          rate: 1,
+          pitch: 2,
+          splitSentences: true,
+          listeners: {
+            onstart: () => {
+              this.stopVoice = true;
+            },
+            onend: () => {
+              this.stopVoice = false;
+            },
+          },
+        });
+        this.stopVoice = true;
+      } catch (error) {}
+    },
     favorite(id, recursive = true) {
       if (this.favoritos.has(id)) {
         this.favoritos.delete(id);
@@ -198,7 +242,6 @@ export default {
           }
         }
         //////////////////////////////////////////////////////////////////
-
         this.resultView = resultBuild;
         window.scrollTo(0, 0);
         setTimeout(() => {
@@ -208,7 +251,7 @@ export default {
           } else {
             this.$refs.filtro.blur();
           }
-        }, 999);
+        }, 250);
       } else {
         this.filtroFinal = [];
         this.resultView = this.result;
@@ -220,7 +263,7 @@ export default {
           } else {
             this.$refs.filtro.blur();
           }
-        }, 666);
+        }, 500);
       }
     },
 
@@ -277,6 +320,16 @@ export default {
 };
 </script>
 <style>
+.voice-stop {
+  cursor: pointer;
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  padding: 1em;
+  border-radius: 50%;
+  background-color: #f00;
+  color: #fff;
+}
 .loading {
   position: absolute;
   top: 0;
