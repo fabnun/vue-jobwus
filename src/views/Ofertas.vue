@@ -135,6 +135,7 @@ export default {
 
       let fnFixText = (text) => text.replaceAll('(a)', '').replaceAll('(A)', '').replaceAll('/a ', ' ').replaceAll('/as ', ' ').replaceAll('/A ', ' ').replaceAll('/AS ', ' ').replaceAll('(as)', '').replaceAll('(AS)', '');
       try {
+        this.stopVoice = true;
         speech.speak({
           text: fnFixText(data.titulo) + '. ' + fnFixText(data.descripcion).toLowerCase(),
           volume: 1,
@@ -150,7 +151,6 @@ export default {
             },
           },
         });
-        this.stopVoice = true;
       } catch (error) {}
     },
     favorite(id, recursive = true) {
