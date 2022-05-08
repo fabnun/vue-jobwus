@@ -12,8 +12,14 @@
     <hr />
     <strong>Voz : </strong>
     <select class="button" @change="setVoice">
-      <option v-for="item in voiceList" :key="item" :value="item" :selected="item === $store.state.voice">{{ item }}</option>
+      <option v-for="item in voiceList" :key="item" :value="item" :selected="item === voice">{{ item === '' ? 'ninguna' : item }}</option>
     </select>
+    <div v-if="voice !== ''">
+      <strong>Rapidez de lectura: </strong>
+      <select class="button" @change="setSpeed">
+        <option :value="speed" v-for="speed in speeds" :key="speed" :selected="speed === voiceSpeed">{{ speed * 100 }}%</option>
+      </select>
+    </div>
     <hr />
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
     <label class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
@@ -33,12 +39,22 @@ export default {
   props: ['words', 'voiceList'],
   data() {
     return {
+      speeds: [1, 1.25, 1.5, 1.75, 2],
       oldCfg: this.$store.state.words,
+      voiceSpeed: parseFloat(localStorage.getItem('voiceSpeed')) || 1,
+      voice: localStorage.getItem('voice') || null,
     };
   },
   methods: {
     setVoice(e) {
-      this.$store.commit('setVoice', e.target.value);
+      this.voice = e.target.value;
+      localStorage.setItem('voice', this.voice);
+      this.$emit('setVoice', e.target.value);
+    },
+    setSpeed(e) {
+      this.voiceSpeed = parseFloat(e.target.value);
+      localStorage.setItem('voiceSpeed', this.voiceSpeed);
+      this.$emit('setSpeed', e.target.value);
     },
     setCfg(e) {
       if (confirm('¿Estás seguro de que quieres cambiar las palabras clave?')) {
@@ -83,6 +99,12 @@ export default {
       a.download = 'config.json';
       a.click();
     },
+  },
+  mounted() {
+    this.voice = localStorage.getItem('voice') || null;
+    this.voiceSpeed = parseFloat(localStorage.getItem('voiceSpeed') || 1);
+    this.$emit('setVoice', this.voice);
+    this.$emit('setSpeed', this.voiceSpeed);
   },
   computed: {
     ignorarTildes: {

@@ -27,7 +27,7 @@
             :folder="folder"
             :isArchived="archivados.has(item.id)"
             :isFavorite="favoritos.has(item.id)"
-            @voice="voice"
+            @voiceSpeak="voiceSpeak"
             @favorite="favorite"
             @archive="archive"
             v-if="(folder === 'Agrupados' && !item.hidden && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
@@ -57,7 +57,7 @@
       <div @click.stop.prevent="">
         <button style="float: right; background: transparent; color: white; cursor: pointer; border: none" @click="modal = false"><close-icon /></button>
         <div class="modal" style="user-select: none; overflow-y: auto">
-          <config :voiceList="voiceList" v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
+          <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
         </div>
       </div>
     </div>
@@ -89,7 +89,9 @@ export default {
       prepareVoice: false,
       stopVoice: false,
       voiceList: [],
-      speechSupport: speech.hasBrowserSupport(),
+      voice: '',
+      voiceSpeed: 1,
+      speechSupport: this.voice !== '' && speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
       folder: 'Favoritos',
       loading: true,
@@ -123,13 +125,20 @@ export default {
     }
   },
   methods: {
+    setVoice(voice) {
+      this.voice = voice;
+      this.speechSupport = this.voice !== '' && speech.hasBrowserSupport();
+    },
+    setSpeed(speed) {
+      this.voiceSpeed = parseFloat(speed);
+    },
     voiceStop() {
       if (speech.speaking()) {
         speech.cancel();
         this.stopVoice = false;
       }
     },
-    async voice(id) {
+    async voiceSpeak(id) {
       let data = this.result.data[id];
       if (speech.speaking()) {
         speech.cancel();
@@ -148,10 +157,9 @@ export default {
       try {
         this.stopVoice = true;
         this.prepareVoice = true;
-        if (this.$store.state.voice) {
-          speech.setVoice(this.$store.state.voice);
-        }
-        speech.speak({
+        speech.setVoice(this.voice);
+        speech.setRate(this.voiceSpeed);
+        let sp = {
           text: fnFixText(data.titulo) + '. ' + fnFixText(data.descripcion).toLowerCase(),
           listeners: {
             onstart: () => {
@@ -163,7 +171,9 @@ export default {
               this.prepareVoice = false;
             },
           },
-        });
+        };
+        console.log(sp);
+        speech.speak(sp);
       } catch (error) {}
     },
     favorite(id, recursive = true) {
@@ -311,6 +321,7 @@ export default {
           onvoiceschanged: (voices) => {
             voices = voices.map((v) => v.name);
             voices = voices.filter((v) => v.toLowerCase().indexOf('spanish') > -1 || v.toLowerCase().indexOf('español') > -1);
+            voices.unshift('');
             this.voiceList = voices;
           },
         },
@@ -424,7 +435,7 @@ export default {
 }
 .modal {
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
-  max-width: 320px;
+  max-width: 360px;
   height: 360px;
   background: var(--menu-background);
   padding: 0.5em;

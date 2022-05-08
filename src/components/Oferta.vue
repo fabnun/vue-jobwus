@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     voice(id) {
-      this.$emit('voice', id);
+      this.$emit('voiceSpeak', id);
     },
     favorite() {
       this.fav = !this.fav;
