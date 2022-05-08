@@ -57,11 +57,11 @@
       <div @click.stop.prevent="">
         <button style="float: right; background: transparent; color: white; cursor: pointer; border: none" @click="modal = false"><close-icon /></button>
         <div class="modal" style="user-select: none; overflow-y: auto">
-          <config v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
+          <config :voiceList="voiceList" v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
         </div>
       </div>
     </div>
-    <div v-if="stopVoice" class="voice-stop" @click="voiceStop()">
+    <div v-if="stopVoice" :class="{ 'voice-stop': true, 'voice-prepare': prepareVoice }" @click="voiceStop()">
       <account-tie-voice-off-outline-icon />
     </div>
   </div>
@@ -86,7 +86,9 @@ export default {
   name: 'Ofertas',
   data() {
     return {
+      prepareVoice: false,
       stopVoice: false,
+      voiceList: [],
       speechSupport: speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
       folder: 'Favoritos',
@@ -127,27 +129,38 @@ export default {
         this.stopVoice = false;
       }
     },
-    voice(id) {
+    async voice(id) {
       let data = this.result.data[id];
       if (speech.speaking()) {
         speech.cancel();
+        this.stopVoice = false;
+        this.prepareVoice = false;
       }
+      async function wait(delay) {
+        return new Promise((resolve) => {
+          let finalDelay = Math.trunc(delay);
+          setTimeout(resolve, finalDelay);
+        });
+      }
+      await wait(100);
 
       let fnFixText = (text) => text.replaceAll('(a)', '').replaceAll('(A)', '').replaceAll('/a ', ' ').replaceAll('/as ', ' ').replaceAll('/A ', ' ').replaceAll('/AS ', ' ').replaceAll('(as)', '').replaceAll('(AS)', '');
       try {
         this.stopVoice = true;
+        this.prepareVoice = true;
+        if (this.$store.state.voice) {
+          speech.setVoice(this.$store.state.voice);
+        }
         speech.speak({
           text: fnFixText(data.titulo) + '. ' + fnFixText(data.descripcion).toLowerCase(),
-          volume: 1,
-          rate: 1,
-          pitch: 2,
-          splitSentences: true,
           listeners: {
             onstart: () => {
               this.stopVoice = true;
+              this.prepareVoice = false;
             },
             onend: () => {
               this.stopVoice = false;
+              this.prepareVoice = false;
             },
           },
         });
@@ -290,6 +303,22 @@ export default {
     },
   },
   mounted() {
+    speech
+      .init({
+        rate: 1.5,
+        splitSentences: false,
+        listeners: {
+          onvoiceschanged: (voices) => {
+            voices = voices.map((v) => v.name);
+            voices = voices.filter((v) => v.toLowerCase().indexOf('spanish') > -1 || v.toLowerCase().indexOf('español') > -1);
+            this.voiceList = voices;
+          },
+        },
+      })
+      .then((data) => {})
+      .catch((e) => {
+        console.error('An error occured while initializing : ', e);
+      });
     ///////////////////////////////////////////////////
     let favoritos = window.localStorage.getItem('favoritos');
     if (favoritos !== null) {
@@ -330,6 +359,32 @@ export default {
   background-color: #f00;
   color: #fff;
 }
+
+.voice-prepare {
+  -webkit-animation-name: color-transition;
+  animation-name: color-transition;
+  -webkit-animation-duration: 0.5s;
+  animation-duration: 0.5s;
+  -webkit-animation-direction: alternate;
+  animation-direction: alternate;
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  animation-timing-function: linear;
+}
+
+@keyframes color-transition {
+  0% {
+    background-color: red;
+  }
+  50% {
+    background-color: rgba(255, 0, 0, 0.2);
+  }
+  100% {
+    background-color: red;
+  }
+}
+
 .loading {
   position: absolute;
   top: 0;

@@ -10,6 +10,11 @@
     </h3>
     <span>{{ words }}.</span>
     <hr />
+    <strong>Voz : </strong>
+    <select class="button" @change="setVoice">
+      <option v-for="item in voiceList" :key="item" :value="item" :selected="item === $store.state.voice">{{ item }}</option>
+    </select>
+    <hr />
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
     <label class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
     <hr />
@@ -24,15 +29,17 @@
   </div>
 </template>
 <script>
-import { mapState } from 'vuex';
 export default {
-  props: ['words'],
+  props: ['words', 'voiceList'],
   data() {
     return {
       oldCfg: this.$store.state.words,
     };
   },
   methods: {
+    setVoice(e) {
+      this.$store.commit('setVoice', e.target.value);
+    },
     setCfg(e) {
       if (confirm('¿Estás seguro de que quieres cambiar las palabras clave?')) {
         localStorage.setItem('cfg', e.target.value);
