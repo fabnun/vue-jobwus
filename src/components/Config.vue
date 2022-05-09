@@ -12,7 +12,7 @@
     <hr />
     <strong>Voz : </strong>
     <select class="button" @change="setVoice">
-      <option v-for="item in voiceList" :key="item" :value="item" :selected="item === voice">{{ item === '' ? 'ninguna' : item }}</option>
+      <option v-for="item in voiceList" :key="item" :value="item" :selected="item === voice">{{ item === '' ? 'ninguna' : item.substring(item.indexOf(' - ') > -1 ? item.indexOf(' - ') + 3 : 0) }}</option>
     </select>
     <div v-if="voice !== ''">
       <strong>Rapidez de lectura: </strong>
@@ -21,11 +21,16 @@
       </select>
     </div>
     <hr />
+    <strong>Theme: </strong>
+    <select class="button" @change="setTheme">
+      <option :value="theme" v-for="theme in Object.keys(themes.styles)" :key="theme" :selected="themes.themeSelected === theme">{{ theme }}</option>
+    </select>
+    <hr />
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
     <label class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
     <hr />
-    <button @click.stop="exportConfig" class="button">Exportar Setup</button>&nbsp;
-    <button class="button" @click.stop="importConfig">Importar Setup</button>
+    <button @click.stop="exportConfig" class="button"><download-icon class="buttonCfg" />Exportar Setup</button>&nbsp;
+    <button class="button" @click.stop="importConfig"><upload-icon class="buttonCfg" />Importar Setup</button>
 
     <br />
     <br />
@@ -35,10 +40,18 @@
   </div>
 </template>
 <script>
+import DownloadIcon from 'vue-material-design-icons/Download.vue';
+import UploadIcon from 'vue-material-design-icons/Upload.vue';
+
 export default {
   props: ['words', 'voiceList'],
+  components: {
+    DownloadIcon,
+    UploadIcon,
+  },
   data() {
     return {
+      themes: require('../themes.js').default,
       speeds: [1, 1.25, 1.5, 1.75, 2],
       oldCfg: this.$store.state.words,
       voiceSpeed: parseFloat(localStorage.getItem('voiceSpeed')) || 1,
@@ -46,6 +59,9 @@ export default {
     };
   },
   methods: {
+    setTheme(e) {
+      this.themes.setTheme(e.target.value);
+    },
     setVoice(e) {
       this.voice = e.target.value;
       localStorage.setItem('voice', this.voice);
@@ -101,7 +117,7 @@ export default {
     },
   },
   mounted() {
-    this.voice = localStorage.getItem('voice') || null;
+    this.voice = localStorage.getItem('voice') || '';
     this.voiceSpeed = parseFloat(localStorage.getItem('voiceSpeed') || 1);
     this.$emit('setVoice', this.voice);
     this.$emit('setSpeed', this.voiceSpeed);
@@ -119,6 +135,10 @@ export default {
 };
 </script>
 <style scoped>
+.buttonCfg {
+  position: relative;
+  top: 4px;
+}
 .cfg {
   font-size: 0.9em;
 }

@@ -128,9 +128,13 @@ export default {
     setVoice(voice) {
       this.voice = voice;
       this.speechSupport = this.voice !== '' && speech.hasBrowserSupport();
+      speech.cancel();
+      this.stopVoice = false;
     },
     setSpeed(speed) {
       this.voiceSpeed = parseFloat(speed);
+      speech.cancel();
+      this.stopVoice = false;
     },
     voiceStop() {
       if (speech.speaking()) {
@@ -159,7 +163,7 @@ export default {
         this.prepareVoice = true;
         speech.setVoice(this.voice);
         speech.setRate(this.voiceSpeed);
-        let sp = {
+        speech.speak({
           text: fnFixText(data.titulo) + '. ' + fnFixText(data.descripcion).toLowerCase(),
           listeners: {
             onstart: () => {
@@ -171,9 +175,7 @@ export default {
               this.prepareVoice = false;
             },
           },
-        };
-        console.log(sp);
-        speech.speak(sp);
+        });
       } catch (error) {}
     },
     favorite(id, recursive = true) {
@@ -435,12 +437,13 @@ export default {
 }
 .modal {
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
-  max-width: 360px;
-  height: 360px;
+  max-width: 320px;
+  height: 440px;
   background: var(--menu-background);
   padding: 0.5em;
   border-radius: var(--radio);
-  background: rgba(20, 40, 60, 0.88);
+  background: var(--menu-background);
+  border: 1px solid var(--color);
   z-index: 9999;
 }
 

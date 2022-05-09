@@ -1,6 +1,9 @@
 * (DONE) Al marcar como favorito o archivar se aplica tambien a las ofertas similares
 * (DONE) Habilitar botones (favorito y archivar) en ofertas similares
 * (DONE) Al estar sobre una oferta similar mostrar el texto de la descripcion (solo desktop)
+* (DONE) Leer Textos (titulo, descripcion)
+* (DONE) 2 opciones para themes (lo guarda en localstore)
+* Almacenar y cargar desde el localstore el offset y de la pagina
 * Mostrar ofertas agrupadas en todas las carpetas
 * Mejora en el buscador:
     * (javascript,java),(santiago,valparaiso) -> busca ofertas con las palabras clave javascript o java y santiago o valparaiso

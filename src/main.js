@@ -4,10 +4,11 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 import Speech from 'speak-tts';
+import themes from './themes';
+themes.init();
 
 Vue.config.productionTip = false;
 new Vue({
-  speech: new Speech(),
   router,
   store,
   render: (h) => h(App),

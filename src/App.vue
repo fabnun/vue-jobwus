@@ -62,6 +62,7 @@ input {
   background: var(--match-background);
   color: var(--match-color);
   border-radius: var(--radio);
+  font-weight: bolder;
   padding: 0 4px;
 }
 </style>
