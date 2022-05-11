@@ -3,7 +3,9 @@
     <div class="filtro">
       <div class="filtroIn">
         <dots-vertical-icon class="menu-button" @click="modal = !modal" />
-        <h4>JOBWUS</h4>
+        <select v-model="folder" style="outline: none; position: Relative; margin-right: 3px; top: -7px; padding: 0; cursor: pointer; border-radius: var(--radio); text-align: center">
+          <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
+        </select>
         <input spellcheck="false" @keyup.enter="submit" ref="filtro" />
         <magnify-icon class="submit-button" @click="submit" />
       </div>
@@ -11,9 +13,6 @@
     <div :class="{ noEvents: modal }">
       <div v-if="!loading && result !== null">
         <div style="margin: 0 auto; padding: 0 10px 10px">
-          <select v-model="folder" style="outline: none; padding: 0; cursor: pointer; border-radius: var(--radio); text-align: center">
-            <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
-          </select>
           <span v-if="resultView !== null && folder === 'Agrupados'"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} similares</span>
           <span v-if="result !== null" style="float: right; font-size: 0.8em; line-height: 1.5em">Actuazado el {{ new Date(result.updateTime).toLocaleDateString() }} {{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
           <div style="clear: both"></div>
@@ -30,7 +29,7 @@
             @voiceSpeak="voiceSpeak"
             @favorite="favorite"
             @archive="archive"
-            v-if="(folder === 'Agrupados' && !item.hidden && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
+            v-if="true"
             :data="resultView.data[item.id]"
             :id="item.id"
             :ignorarTildes="$store.state.ignorarTildes"
@@ -106,7 +105,9 @@ export default {
   watch: {
     folder() {
       this.$forceUpdate();
-      this.submit();
+      if (this.result !== null) {
+        this.submit();
+      }
       window.localStorage.setItem('folder', this.folder);
     },
   },
@@ -231,6 +232,10 @@ export default {
     },
     submit() {
       let text = this.$refs.filtro.value.trim();
+      if ('/' + text !== document.location.pathname) {
+        this.$router.push({ path: text }).catch(() => {});
+      }
+
       if (this.$store.state.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
@@ -242,21 +247,24 @@ export default {
         .filter((word) => word !== '');
 
       this.loading = true;
-      if (text.length > 0) {
-        this.filtroFinal = final;
+      this.filtroFinal = final;
 
-        //////////////////////////////////////////////////////////////////
-        let resultBuild = {
-          pages: this.result.pages.filter((item) => this.filter(item.id)),
-          data: this.result.data,
-          clusters: this.result.clusters.map((cluster) => {
-            return cluster.filter((id) => !this.archivados.has(id) && this.filter(id));
-          }),
-          config: this.result.config,
-          updateTime: this.result.updateTime,
-        };
-        let firstGroup = new Set();
-        for (let page of resultBuild.pages) {
+      //////////////////////////////////////////////////////////////////
+      let resultBuild = {
+        pages: this.result.pages.filter((item) => {
+          return this.filtrar(item.id) && ((this.folder === 'Agrupados' && !this.archivados.has(item.id)) || (this.folder === 'Favoritos' && this.favoritos.has(item.id)) || (this.folder === 'Archivados' && this.archivados.has(item.id)) || this.folder === 'Todos');
+        }),
+        data: this.result.data,
+        clusters: this.result.clusters.map((cluster) => {
+          return cluster.filter((id) => !this.archivados.has(id) && this.filtrar(id));
+        }),
+        config: this.result.config,
+        updateTime: this.result.updateTime,
+      };
+
+      let firstGroup = new Set();
+      for (let page of resultBuild.pages) {
+        {
           if (page.grupo !== null) {
             if (firstGroup.has(page.grupo)) {
               page.hidden = true;
@@ -266,39 +274,26 @@ export default {
             }
           }
         }
-        //////////////////////////////////////////////////////////////////
-        this.resultView = resultBuild;
-        window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.loading = false;
-          if (!SmartPhone.isAny()) {
-            this.$refs.filtro.focus();
-          } else {
-            this.$refs.filtro.blur();
-          }
-        }, 250);
-      } else {
-        this.filtroFinal = [];
-        this.resultView = this.result;
-        //console.log(this.resultView);
-        setTimeout(() => {
-          this.loading = false;
-          if (!SmartPhone.isAny()) {
-            this.$refs.filtro.focus();
-          } else {
-            this.$refs.filtro.blur();
-          }
-        }, 500);
       }
+      //////////////////////////////////////////////////////////////////
+      this.resultView = resultBuild;
+      window.scrollTo(0, 0);
+      setTimeout(() => {
+        this.loading = false;
+        if (!SmartPhone.isAny()) {
+          this.$refs.filtro.focus();
+        } else {
+          this.$refs.filtro.blur();
+        }
+      }, 250);
     },
 
-    filter(id) {
+    filtrar(id) {
       let data = this.result.data[id];
       let words = this.filtroFinal;
-      if (words.length === 0) return false;
+      if (words.length === 0) return true;
       words = words.map((word) => this.normalizeText(word));
       let text = this.normalizeText(data.titulo + data.descripcion);
-
       for (let word of words) {
         if (text.indexOf(word) > -1) {
           return true;
@@ -346,9 +341,12 @@ export default {
     let folder = window.localStorage.getItem('folder');
     this.folder = this.folders.includes(folder) ? folder : 'Agrupados';
     ///////////////////////////////////////////////////
-    let filtro = window.localStorage.getItem('filtro');
+    let filtro = document.location.pathname;
+
+    filtro = filtro.length > 0 ? filtro.substring(1) : window.localStorage.getItem('filtro');
     filtro = filtro ? filtro : '';
     this.$refs.filtro.value = filtro;
+
     ///////////////////////////////////////////////////
     (async () => {
       let fetchCfg = { method: 'POST', body: localStorage.getItem('cfg') ? localStorage.getItem('cfg') : 'info' };
@@ -463,7 +461,7 @@ export default {
 .filtroIn {
   width: 100%;
   max-width: var(--page-max-width);
-  padding: 0.5em 0 0.5em;
+  padding: 0.5em 0 0.4em;
 }
 
 .filtro h4 {
@@ -483,7 +481,7 @@ export default {
 .filtro input {
   border-radius: var(--radio);
   background: var(--background-input);
-  width: calc(100% - 172px);
+  width: calc(100% - 182px);
   padding: 1px 0.33em 0px;
   position: relative;
   top: -5px;
@@ -495,6 +493,6 @@ export default {
   border: none;
   color: var(--color);
   position: relative;
-  top: 3px;
+  top: 1px;
 }
 </style>

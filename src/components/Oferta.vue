@@ -1,6 +1,7 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !arch) || folder !== 'Agrupados'" :class="{ arch }">
     <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
+      {{ id }}<br />
       <div v-if="filtro.length > 0">
         <span @click.prevent.stop="load(data.url)" href="#" class="titulo">
           <span class="highlight">{{ dateFormat(data.fecha) }}</span>
@@ -188,6 +189,6 @@ a {
   clear: both;
 }
 .arch {
-  opacity: 0.3;
+  opacity: 0.5;
 }
 </style>
