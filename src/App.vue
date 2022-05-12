@@ -5,22 +5,9 @@
 </template>
 <style>
 :root {
-  --background: url('/assets/dark9.jpg') repeat center top;
-  --color: rgba(255, 244, 233, 0.8);
-  --background-input: white;
-  --background-color: black;
-  --font-size: 1.1em;
-  --match-background: rgba(146, 196, 168, 0.1);
-  --match-color: yellow;
-  --oferta-max-height: 5.6em;
-  --oferta-line-height: 1.2em;
-  --oferta-full-max-height: 2048px;
+  --oferta-full-max-height: 3072px;
   --oferta-transition: max-height 0.2s ease-in-out;
   --page-max-width: 1280px;
-  --menu-background: rgba(0, 0, 0, 0.9);
-  --body-margin-top: 3.2em;
-  --favorite-background: rgba(185, 165, 20, 0.2);
-  --radio: 0.4em;
 }
 
 strong {

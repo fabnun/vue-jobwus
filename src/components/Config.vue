@@ -1,19 +1,15 @@
 <template>
   <div class="cfg">
-    <p><strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, lecturas, marcaje de favoritos y archivado <a target="_blank" style="color: white" @click.stop="" href="https://github.com/fabnun/vue-jobwus">(ver en github)</a></p>
+    <br />
+    <strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, lecturas del texto, marcaje de favoritos y archivado. <a target="_blank" @click.stop="" href="https://github.com/fabnun/vue-jobwus">(ver en github)</a>
     <hr />
-    <h3>
-      <strong>Palabras Clave : </strong>
-      <select class="button" @change="setCfg">
-        <option v-for="item in $store.state.wordsList" :key="item" :value="item" :selected="item === $store.state.words">{{ item }}</option>
-      </select>
-    </h3>
-    <span>{{ words }}.</span>
+    <strong>Palabras Clave : </strong> <span>{{ words }}.</span>
     <hr />
-    <strong>Voz : </strong>
+    <strong>Voz: </strong>
     <select class="button" @change="setVoice">
       <option v-for="item in voiceList" :key="item" :value="item" :selected="item === voice">{{ item === '' ? 'ninguna' : item.substring(item.indexOf(' - ') > -1 ? item.indexOf(' - ') + 3 : 0) }}</option>
     </select>
+    <br />(Se recomienda user Edge)
     <div v-if="voice !== ''">
       <strong>Rapidez de lectura: </strong>
       <select class="button" @change="setSpeed">

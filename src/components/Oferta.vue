@@ -2,14 +2,14 @@
   <div v-if="(folder === 'Agrupados' && !arch) || folder !== 'Agrupados'" :class="{ arch }">
     <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
       <div v-if="filtro.length > 0">
-        <span @click.prevent.stop="load(data.url)" href="#" class="titulo">
+        <a @click.stop="" target="_blank" :href="data.url" class="titulo">
           <span class="highlight">{{ dateFormat(data.fecha) }}</span>
-          <span v-html="format(data.titulo)"></span> </span
+          <span v-html="format(data.titulo)"></span> </a
         >-
         <span class="descripcion" v-html="format(data.descripcion)"></span>
       </div>
       <div v-else>
-        <a @click.prevent.stop="load(data.url)" href="#" class="titulo">
+        <a @click.stop="" target="_blank" :href="data.url" class="titulo">
           <span class="highlight">{{ dateFormat(data.fecha) }}</span>
           {{ data.titulo.trim() }}
         </a>
@@ -29,9 +29,9 @@
             <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
             <dots-vertical-icon :size="22" />
           </div>
-          <span @click.prevent.stop="load(item.url)" class="titulo">
+          <a @click.stop="" target="_blank" :href="item.url" class="titulo">
             <span class="highlight">{{ dateFormat(item.fecha) }}</span> <span>{{ item.titulo }}</span>
-          </span>
+          </a>
         </div>
       </div>
     </div>
@@ -110,9 +110,6 @@ export default {
     },
     archiveSimilar(item) {
       this.$emit('archive', item, false);
-    },
-    load(url) {
-      window.open(url, '_blank').focus();
     },
     dateFormat: function (date) {
       return dayjs(date).format('DD/MM/YY');
