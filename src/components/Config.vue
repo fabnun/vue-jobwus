@@ -30,8 +30,9 @@
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
     <label class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
     <hr />
-    <button @click.stop="exportConfig" class="button"><upload-icon class="buttonCfg" />Exportar Localstorage</button>&nbsp;
-    <button class="button" @click.stop="importConfig"><download-icon class="buttonCfg" />Importar Localstorage</button>
+    <button class="button" @click.stop="importConfig"><download-icon class="buttonCfg" />Importar Localstorage</button>&nbsp;
+    <button @click.stop="exportConfig" class="button"><upload-icon class="buttonCfg" />Exportar Localstorage</button>
+
     <!-- <button class="button">undo</button>
     <button class="button">redo</button> -->
     <br />
