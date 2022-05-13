@@ -7,10 +7,10 @@
           <span style="position: relative; top: -0.1em">{{ grupo.length }}</span>
           <content-copy-icon @click.stop.prevent="collapsedSimilar = !collapsedSimilar" :size="18" />
         </label>
-        <span v-if="folder === 'Agrupados'" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
+        <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
         <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!arch" />
         <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="arch" />
-        <span v-if="folder === 'Agrupados'" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span>
+        <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span>
         <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!fav" />
         <star-icon @click.stop.prevent="favorite" :size="22" v-if="fav" />
         <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
