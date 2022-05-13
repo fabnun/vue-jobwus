@@ -1,60 +1,53 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !arch) || folder !== 'Agrupados'" :class="{ arch }">
     <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
-      <div v-if="filtro.length > 0">
-        <a @click.stop="" target="_blank" :href="data.url" class="titulo">
-          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
-          <span v-html="format(data.titulo)"></span> </a
-        >-
-        <span class="descripcion" v-html="format(data.descripcion)"></span>
+      <div class="top">
+        <span class="fecha">{{ dateFormat(data.fecha) }}</span>
+        <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
+          <span style="position: relative; top: -0.1em">{{ grupo.length }}</span>
+          <content-copy-icon @click.stop.prevent="collapsedSimilar = !collapsedSimilar" :size="18" />
+        </label>
+        <span style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
+        <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!arch" />
+        <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="arch" />
+        <span style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length }}</span>
+        <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!fav" />
+        <star-icon @click.stop.prevent="favorite" :size="22" v-if="fav" />
+        <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
+        <!-- <dots-vertical-icon :size="22" /> -->
       </div>
-      <div v-else>
-        <a @click.stop="" target="_blank" :href="data.url" class="titulo">
-          <span class="highlight">{{ dateFormat(data.fecha) }}</span>
-          {{ data.titulo.trim() }}
-        </a>
-        <span class="descripcion" v-text="data.descripcion"></span>
-      </div>
-      <div v-if="grupo.length > 0">
-        <hr />
-        <br />
-        OFERTAS SIMILARES
-        <br /><br />
-        <div class="copy-job" v-for="(item, idx) in grupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
-          <div class="copy-job-buttons">
-            <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" v-if="speechSupport" />
-            <star-outline-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="!favoritos.has(item.id)" />
-            <star-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="favoritos.has(item.id)" />
-            <delete-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="!archivados.has(item.id)" />
-            <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
-            <dots-vertical-icon :size="22" />
-          </div>
-          <a @click.stop="" target="_blank" :href="item.url" class="titulo">
-            <span class="highlight">{{ dateFormat(item.fecha) }}</span> <span>{{ item.titulo }}</span>
+      <div class="contenido">
+        <div v-if="filtro.length > 0">
+          <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
+          <span class="descripcion" v-html="format(data.descripcion)"></span>
+        </div>
+        <div v-else>
+          <a @click.stop="" target="_blank" :href="data.url" class="titulo">
+            {{ data.titulo.trim() }}
           </a>
+          <span class="descripcion" v-text="data.descripcion"></span>
         </div>
       </div>
     </div>
-    <div class="oferta-buttons">
-      <template v-if="grupo.length > 0"
-        >{{ grupo.length }}
-        <content-copy-icon
-          @click="
-            if (collapsed) {
-              collapsed = false;
-            }
-          "
-          :size="18"
-      /></template>
-      <!-- ? <thumb-up-outline-icon :size="18" /> ? <thumb-down-outline-icon :size="18" /> -->
-      <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" v-if="speechSupport" />
-      <star-outline-icon @click="favorite" :size="22" v-if="!fav" />
-      <star-icon @click="favorite" :size="22" v-if="fav" />
-      <delete-outline-icon @click="archive" :size="22" v-if="!arch" />
-      <delete-off-outline-icon @click="archive" :size="22" v-if="arch" />
-      <dots-vertical-icon :size="22" />
+
+    <div v-if="!collapsedSimilar">
+      <div class="copy-job" v-for="(item, idx) in grupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
+        <div class="copy-job-buttons">
+          <delete-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="!archivados.has(item.id)" />
+          <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
+          <star-outline-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="!favoritos.has(item.id)" />
+          <star-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="favoritos.has(item.id)" />
+          <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" :size="22" v-if="speechSupport" />
+          <!-- <dots-vertical-icon :size="22" /> -->
+        </div>
+        {{ dateFormat(item.fecha) }}
+        <div class="clear"></div>
+        <a @click.stop="" target="_blank" :href="item.url" class="titulo">
+          {{ item.titulo }}
+        </a>
+      </div>
     </div>
-    <div class="clear"></div>
+    <br />
   </div>
 </template>
 <script>
@@ -75,6 +68,7 @@ export default {
   data: function () {
     return {
       collapsed: true,
+      collapsedSimilar: true,
       dragStart: 0,
       dragTime: 0,
       fav: this.isFavorite,
@@ -127,26 +121,59 @@ export default {
 };
 </script>
 <style scoped>
+.contenido {
+  padding: 0.3em;
+}
+.top {
+  background: rgba(0, 0, 0, 0.2);
+  text-align: right;
+  padding: 0.2em 0.4em 0;
+  font-weight: bolder;
+}
+.top .fecha {
+  float: left;
+
+  top: 0.1em;
+  position: relative;
+}
+.top span {
+  cursor: pointer;
+  margin-right: 0.6em;
+}
 .fav {
   background: var(--favorite-background) !important;
 }
 .copy-job {
-  margin-bottom: 0.4em;
+  font-size: 0.8em;
+  font-weight: bolder;
+  padding: 0.3em 0 0 0.5em;
   display: block;
+  margin: 0 1em 0 2em;
   border: 1.5px solid var(--color);
   border-radius: var(--radio);
+  position: relative;
+  top: -1px;
+  overflow: hidden;
+  max-height: 3em;
+  background: var(--oferta-background);
 }
-.copy-job-buttons {
-  float: right;
-}
-.copy-job-buttons span {
+
+.copy-job span {
+  padding: 0 1em 0 0;
   cursor: pointer;
 }
 
+.copy-job-buttons {
+  float: right;
+  right: 0em;
+  top: -0.2em;
+  position: relative;
+}
+
 .oferta {
-  background: rgba(35, 25, 0, 0.3);
+  background: var(--oferta-background);
   line-height: var(--oferta-line-height);
-  padding: 0.6em 0.5em 0.5em;
+  padding: 0;
   margin: 0 0.5em;
   border-radius: var(--radio);
   border: 1.5px solid var(--color);
@@ -157,6 +184,7 @@ export default {
 .collapsed {
   max-height: var(--oferta-max-height);
 }
+
 a {
   color: var(--color);
 }
@@ -165,19 +193,17 @@ a {
   text-decoration: underline;
   font-weight: bolder;
   margin-right: 0.5em;
+  position: relative;
+  top: -0.15em;
 }
 .oferta-buttons {
   float: right;
-  border-radius: 0 0 var(--radio) var(--radio);
-  border: 1.5px solid var(--color);
-  padding: 0.1em 0.5em;
-  margin: 0 1em 1em 0;
+  top: -0.5em;
+  right: -1em;
   position: relative;
-  top: -1px;
-  padding-top: 0.3em;
 }
 .oferta-buttons span {
-  padding: 0 1em 0 0;
+  padding: 0 0.8em 0 0;
   cursor: pointer;
 }
 

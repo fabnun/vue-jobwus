@@ -6,7 +6,7 @@
         <select v-model="folder" style="outline: none; position: Relative; margin-right: 3px; top: -5px; padding: 0; cursor: pointer; border-radius: var(--radio); text-align: center">
           <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
         </select>
-        <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" />
+        <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
         <magnify-icon class="submit-button" @click="query" />
       </div>
     </div>
@@ -18,6 +18,7 @@
           <div style="clear: both"></div>
         </div>
         <div v-for="item in resultView.pages" :key="item.id">
+          <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- archivado:{{ archivados.has(item.id) }} -->
           <oferta
             v-if="(!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
             :archivados="archivados"
@@ -37,10 +38,10 @@
               folder === 'Agrupados'
                 ? item.grupo === null
                   ? []
-                  : resultView.clusters[item.grupo]
+                  : result.clusters[item.grupo]
                       .filter((id) => id !== item.id)
                       .map((id) => {
-                        return { id, ...resultView.data[id] };
+                        return { id, ...result.data[id] };
                       })
                 : []
             "
@@ -53,7 +54,7 @@
     </div>
     <div class="modal-container" v-show="modal" @click="modal = false">
       <div @click.stop.prevent="" style="margin-right: -32px">
-        <button class="close-modal" @click="modal = false"><close-icon /></button>
+        <button class="close-modal" @click="modal = false" title="Cerrar"><close-icon /></button>
         <div class="modal" style="user-select: none; overflow-y: auto">
           <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
         </div>
@@ -165,23 +166,6 @@ export default {
       } else {
         this.favoritos.add(id);
       }
-
-      if (recursive && this.folder === 'Agrupados') {
-        let este = this;
-        this.result.clusters
-          .filter((c) => c.includes(id))
-          .forEach((c) => {
-            c.forEach((id2) => {
-              if (id2 !== id) {
-                if (este.favoritos.has(id)) {
-                  este.favoritos.add(id2);
-                } else {
-                  este.favoritos.delete(id2);
-                }
-              }
-            });
-          });
-      }
       this.$forceUpdate();
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
     },
@@ -191,22 +175,19 @@ export default {
       } else {
         this.archivados.add(id);
       }
-      if (recursive && this.folder === 'Agrupados') {
-        let este = this;
-        this.result.clusters
-          .filter((c) => c.includes(id))
-          .forEach((c) => {
-            c.forEach((id2) => {
-              if (id2 !== id) {
-                if (este.archivados.has(id)) {
-                  este.archivados.add(id2);
-                } else {
-                  este.archivados.delete(id2);
-                }
-              }
-            });
-          });
-      }
+      // let arch = this.archivados.has(id);
+      // let grupo = this.resultView.data[id].grupo;
+      // if (this.folder === 'Agrupados' && grupo !== undefined) {
+      //   this.resultView.clusters[grupo].forEach((id) => {
+      //     if (arch) {
+      //       this.archivados.add(id);
+      //     } else {
+      //       this.archivados.delete(id);
+      //     }
+      //   });
+      //   this.updateHidden(this.resultView);
+      // }
+      this.updateHidden(this.resultView);
       this.$forceUpdate();
       window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
     },
@@ -263,19 +244,9 @@ export default {
           config: this.result.config,
           updateTime: this.result.updateTime,
         };
-        let firstGroup = new Set();
-        for (let page of resultBuild.pages) {
-          {
-            if (page.grupo !== null) {
-              if (firstGroup.has(page.grupo)) {
-                page.hidden = true;
-              } else {
-                page.hidden = false;
-                firstGroup.add(page.grupo);
-              }
-            }
-          }
-        }
+
+        this.updateHidden(resultBuild);
+        //console.log(firstGroup);
         this.resultView = resultBuild;
       }
       //////////////////////////////////////////////////////////////////
@@ -287,6 +258,26 @@ export default {
         this.$refs.filtro.focus();
       } else {
         this.$refs.filtro.blur();
+      }
+    },
+    updateHidden(data) {
+      let firstGroup = new Set();
+      for (let page of data.pages) {
+        //Si es una pagina agrupada
+        if (page.grupo !== null) {
+          //Si ya se registro el grupo
+          if (firstGroup.has(page.grupo)) {
+            page.hidden = true;
+          } //Si no se registro el grupo
+          else {
+            if (this.archivados.has(page.id)) {
+              page.hidden = true;
+            } else {
+              firstGroup.add(page.grupo);
+              page.hidden = false;
+            }
+          }
+        }
       }
     },
 
@@ -464,13 +455,11 @@ export default {
   pointer-events: none !important;
 }
 .modal {
-  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
-  max-width: 480px;
+  box-shadow: var(--menu-background);
   height: 480px;
   margin: 0 20px;
   position: relative;
   left: -10px;
-  background: var(--menu-background);
   padding: 0.5em;
   border-radius: var(--radio);
   background: var(--menu-background);

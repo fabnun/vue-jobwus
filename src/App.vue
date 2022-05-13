@@ -9,6 +9,9 @@
   --oferta-transition: max-height 0.2s ease-in-out;
   --page-max-width: 1280px;
 }
+body {
+  margin-bottom: 6em;
+}
 
 strong {
   font-weight: bolder;
@@ -37,12 +40,14 @@ body {
   margin-top: var(--body-margin-top);
   background: var(--background);
   color: var(--color);
-  font-family: 'Open Sans', sans-serif;
+  font-family: var(--font);
   font-size: var(--font-size);
 }
 
-input {
+input,
+select {
   font-size: var(--font-size);
+  font-family: var(--font);
 }
 
 .highlight {
