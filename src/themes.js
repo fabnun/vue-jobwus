@@ -1,4 +1,10 @@
 const themes = {
+  setZoom(zoom) {
+    console.log(zoom, this.zooms[zoom]);
+    localStorage.setItem('zoom', zoom);
+    var root = document.querySelector(':root');
+    root.style.setProperty('--zoom', this.zooms[zoom]);
+  },
   setTheme(theme) {
     localStorage.setItem('theme', theme);
     var root = document.querySelector(':root');
@@ -9,6 +15,14 @@ const themes = {
     this.themeSelected = theme;
   },
   themeSelected: localStorage.getItem('theme') || 'blueLight',
+  themeZoom: localStorage.getItem('zoom') || 'Normal',
+  zooms: {
+    'Mas chico': '0.97',
+    Chico: '0.99',
+    Normal: '1',
+    Grande: '1.01',
+    'Mas grande': '1.03',
+  },
   styles: {
     brownDark: {
       '--background': "url('/assets/dark9.jpg') repeat center top",
@@ -47,6 +61,7 @@ const themes = {
   },
   init() {
     this.setTheme(this.themeSelected);
+    this.setZoom(this.themeZoom);
   },
 };
 

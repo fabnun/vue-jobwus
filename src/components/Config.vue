@@ -21,6 +21,11 @@
     <select class="button" @change="setTheme">
       <option :value="theme" v-for="theme in Object.keys(themes.styles)" :key="theme" :selected="themes.themeSelected === theme">{{ theme }}</option>
     </select>
+    <br />
+    <strong>Zoom: </strong>
+    <select class="button" @change="setZoom">
+      <option :value="zoom" v-for="zoom in Object.keys(themes.zooms)" :key="zoom" :selected="themes.themeZoom === zoom">{{ zoom }}</option>
+    </select>
     <hr />
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
     <label class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
@@ -59,6 +64,9 @@ export default {
     setTheme(e) {
       this.themes.setTheme(e.target.value);
     },
+    setZoom(e) {
+      this.themes.setZoom(e.target.value);
+    },
     setVoice(e) {
       this.voice = e.target.value;
       localStorage.setItem('voice', this.voice);
@@ -87,6 +95,10 @@ export default {
           let config = JSON.parse(e.target.result);
           localStorage.setItem('ignorarTildes', config.ignorarTildes);
           localStorage.setItem('folder', config.folder);
+          localStorage.setItem('zoom', config.zoom);
+          localStorage.setItem('theme', config.theme);
+          localStorage.setItem('voice', config.voice);
+          localStorage.setItem('voiceSpeed', config.voiceSpeed);
           localStorage.setItem('filtro', config.filtro);
           localStorage.setItem('favoritos', config.favoritos);
           localStorage.setItem('archivados', config.archivados);
@@ -104,6 +116,10 @@ export default {
         filtro: localStorage.getItem('filtro'),
         favoritos: localStorage.getItem('favoritos'),
         archivados: localStorage.getItem('archivados'),
+        zoom: localStorage.getItem('zoom'),
+        theme: localStorage.getItem('theme'),
+        voice: localStorage.getItem('voice'),
+        voiceSpeed: localStorage.getItem('voiceSpeed'),
       };
       let file = new Blob([JSON.stringify(config)], { type: 'application/json' });
       let fileURL = URL.createObjectURL(file);

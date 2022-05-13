@@ -9,6 +9,9 @@
   --oferta-transition: max-height 0.2s ease-in-out;
   --page-max-width: 1280px;
 }
+* {
+  zoom: var(--zoom) !important;
+}
 body {
   margin-bottom: 6em;
 }
