@@ -149,12 +149,12 @@ export default {
   padding: 0.3em 0 0 0.5em;
   display: block;
   margin: 0 1em 0 2em;
-  border: 1.5px solid var(--color);
+  border: 1px solid var(--color);
   border-radius: var(--radio);
   position: relative;
   top: -1px;
   overflow: hidden;
-  max-height: 3em;
+  max-height: 3.2em;
 
   background: var(--oferta-background);
 }
