@@ -4,10 +4,10 @@
       <div class="top">
         <span class="fecha">{{ dateFormat(data.fecha) }}</span>
         <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
-          <span style="position: relative; top: -0.1em">{{ grupo.length }}</span>
+          <span style="position: relative; top: -0.1em">{{ grupo.length + 1 }}</span>
           <content-copy-icon @click.stop.prevent="collapsedSimilar = !collapsedSimilar" :size="18" />
         </label>
-        <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length + 1 }}</span>
+        <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
         <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!arch" />
         <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="arch" />
         <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span>
