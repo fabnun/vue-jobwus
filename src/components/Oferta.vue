@@ -155,6 +155,7 @@ export default {
   top: -1px;
   overflow: hidden;
   max-height: 3em;
+
   background: var(--oferta-background);
 }
 
@@ -195,6 +196,7 @@ a {
   margin-right: 0.5em;
   position: relative;
   top: -0.15em;
+  line-height: 1.3em;
 }
 .oferta-buttons {
   float: right;
