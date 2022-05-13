@@ -456,7 +456,8 @@ export default {
 }
 .modal {
   box-shadow: var(--menu-background);
-  height: 480px;
+  max-width: 640px;
+  max-height: 480px;
   margin: 0 20px;
   position: relative;
   left: -10px;

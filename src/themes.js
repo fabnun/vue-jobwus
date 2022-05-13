@@ -32,7 +32,7 @@ const themes = {
       '--font-size': '1em',
       '--match-background': 'rgba(146, 196, 168, 0.1)',
       '--match-color': 'yellow',
-      '--oferta-background': 'rgba(45, 35, 0, 0.4)',
+      '--oferta-background': 'rgba(45, 35, 0, 0.3)',
       '--menu-background': 'rgba(40, 20, 0, 0.9)',
       '--body-margin-top': '3.2em',
       '--favorite-background': 'rgba(185, 165, 20, 0.2)',
