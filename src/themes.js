@@ -8,7 +8,7 @@ const themes = {
     });
     this.themeSelected = theme;
   },
-  themeSelected: localStorage.getItem('theme') || 'brownDark',
+  themeSelected: localStorage.getItem('theme') || 'blueLight',
   styles: {
     brownDark: {
       '--background': "url('/assets/dark9.jpg') repeat center top",
