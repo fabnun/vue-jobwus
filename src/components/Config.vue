@@ -2,8 +2,7 @@
   <div class="cfg">
     <br />
     <strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, lecturas del texto, marcaje de favoritos y archivado. <a target="_blank" @click.stop="" href="https://github.com/fabnun/vue-jobwus">(ver en github)</a>
-    <hr />
-    <strong>Palabras Clave : </strong> <span>{{ words }}.</span>
+
     <hr />
     <strong>Voz: </strong>
     <select class="button" @change="setVoice">
@@ -38,6 +37,8 @@
     <button class="button">redo</button> -->
     <br />
     <br />
+    <hr />
+    <strong>Palabras Clave : </strong> <span>{{ words }}.</span>
     <!-- <h2><strong>Recursos</strong></h2>
     <a target="_blank" href="https://www.npmjs.com/package/vue-material-design-icons">vue-material-design-icons</a><br />
     <a target="_blank" href="https://fonts.google.com/specimen/Roboto">Google Fonts Roboto</a> -->

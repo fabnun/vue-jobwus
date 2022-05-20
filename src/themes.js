@@ -1,6 +1,5 @@
 const themes = {
   setZoom(zoom) {
-    console.log(zoom, this.zooms[zoom]);
     localStorage.setItem('zoom', zoom);
     var root = document.querySelector(':root');
     root.style.setProperty('--zoom', this.zooms[zoom]);
@@ -34,7 +33,7 @@ const themes = {
       '--match-color': 'yellow',
       '--oferta-background': 'rgba(45, 35, 0, 0.3)',
       '--menu-background': 'rgba(40, 20, 0, 0.9)',
-      '--body-margin-top': '3.2em',
+      '--body-margin-top': '5.4em',
       '--favorite-background': 'rgba(185, 165, 20, 0.2)',
       '--radio': '0.6em',
       '--font': "'Open Sans', sans-serif",
@@ -51,7 +50,7 @@ const themes = {
       '--oferta-background': 'rgba(5, 35, 66, 0.1)',
       '--match-color': 'cyan',
       '--menu-background': 'rgba(255,255,255, 0.9)',
-      '--body-margin-top': '3.2em',
+      '--body-margin-top': '5.1em',
       '--favorite-background': 'rgba(20,80,120, 0.3)',
       '--radio': '0.3em',
       '--font': "'Bitter', serif",

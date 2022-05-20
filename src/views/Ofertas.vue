@@ -3,18 +3,30 @@
     <div class="filtro">
       <div class="filtroIn">
         <dots-vertical-icon class="menu-button" @click="modal = !modal" />
-        <select v-model="folder" style="outline: none; position: Relative; margin-right: 3px; top: -5px; padding: 0; cursor: pointer; border-radius: var(--radio); text-align: center">
+        <select v-model="folder" class="searchList2">
           <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
         </select>
         <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
         <magnify-icon class="submit-button" @click="query" />
+        <div style="text-align: left; width: 100%; padding-left: 6px">
+          <undo-icon class="button-icon" @click="doUndo" />
+          <redo-icon class="button-icon" @click="doRedo" />
+          <select class="searchList" ref="searchList">
+            <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
+              {{ item }}
+            </option>
+          </select>
+          <archive-plus-outline-icon class="button-icon" @click="addSearch" />
+          <archive-remove-outline-icon class="button-icon" @click="removeSearch" />
+          <archive-arrow-up-outline-icon class="button-icon" @click="setSearch" />
+        </div>
       </div>
     </div>
     <div :class="{ noEvents: modal }">
       <div v-if="!loading">
         <div style="margin: 0 auto; padding: 0 10px 10px; font-size: 0.8em">
-          <span v-if="resultView !== null"> {{ resultView.pages.length }} resultados - {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }} similares - Favoritos {{ resultView.pages.filter((p) => favoritos.has(p.id)).length }} - Archivados {{ resultView.pages.filter((p) => archivados.has(p.id)).length }}</span>
-          <span v-if="result !== null" style="float: right; line-height: 1.5em">Actuazado el {{ new Date(result.updateTime).toLocaleDateString() }} {{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
+          <span v-if="resultView !== null"> {{ resultView.pages.length }}&nbsp;resultados, {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }}&nbsp;similares, {{ resultView.pages.filter((p) => favoritos.has(p.id)).length }}&nbsp;Favoritos, {{ resultView.pages.filter((p) => archivados.has(p.id)).length }}&nbsp;Archivados</span>
+          <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
           <div style="clear: both"></div>
         </div>
         <div v-for="item in resultView.pages" :key="item.id">
@@ -66,22 +78,28 @@
   </div>
 </template>
 <script>
+import lzString from 'lz-string';
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue';
+import UndoIcon from 'vue-material-design-icons/Undo.vue';
+import RedoIcon from 'vue-material-design-icons/Redo.vue';
+import AccountTieVoiceOffOutlineIcon from 'vue-material-design-icons/AccountTieVoiceOffOutline.vue';
 import CloseIcon from 'vue-material-design-icons/Close.vue';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
+import ArchivePlusOutlineIcon from 'vue-material-design-icons/ArchivePlusOutline.vue';
+import ArchiveRemoveOutlineIcon from 'vue-material-design-icons/ArchiveRemoveOutline.vue';
+import ArchiveArrowUpOutlineIcon from 'vue-material-design-icons/ArchiveArrowUpOutline.vue';
+
 import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
 import _smartPhone from 'detect-mobile-browser';
 import Config from '../components/Config.vue';
-import AccountTieVoiceOffOutlineIcon from 'vue-material-design-icons/AccountTieVoiceOffOutline.vue';
 import Speech from 'speak-tts';
 
 const speech = new Speech();
 let SmartPhone = _smartPhone(false);
 
-let oldFiltro = null;
 export default {
-  components: { Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon },
+  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon },
   name: 'Ofertas',
   data() {
     return {
@@ -101,6 +119,10 @@ export default {
       resultView: null,
       archivados: new Set(),
       favoritos: new Set(),
+      searchList: [],
+      searchListSelect: null,
+      undo: [],
+      redo: [],
     };
   },
   watch: {
@@ -160,38 +182,114 @@ export default {
         });
       } catch (error) {}
     },
-    favorite(id, recursive = true) {
+    favorite(id) {
+      let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
       if (this.favoritos.has(id)) {
         this.favoritos.delete(id);
+        if (lastUndo !== null && lastUndo.type === 'favorite' && lastUndo.id === id) {
+          this.undo.pop();
+        } else {
+          this.undo.push({ type: 'favorite', id });
+        }
       } else {
         this.favoritos.add(id);
+        if (lastUndo !== null && lastUndo.type === 'unfavorite' && lastUndo.id === id) {
+          this.undo.pop();
+        } else {
+          this.undo.push({ type: 'unfavorite', id });
+        }
       }
       this.$forceUpdate();
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
     },
-    archive(id, recursive = true) {
+    archive(id) {
+      let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
       if (this.archivados.has(id)) {
         this.archivados.delete(id);
+        if (lastUndo !== null && lastUndo.type === 'archive' && lastUndo.id === id) {
+          this.undo.pop();
+        } else {
+          this.undo.push({ type: 'archive', id });
+        }
       } else {
         this.archivados.add(id);
+        if (lastUndo !== null && lastUndo.type === 'unarchive' && lastUndo.id === id) {
+          this.undo.pop();
+        } else {
+          this.undo.push({ type: 'unarchive', id });
+        }
       }
-      // let arch = this.archivados.has(id);
-      // let grupo = this.resultView.data[id].grupo;
-      // if (this.folder === 'Agrupados' && grupo !== undefined) {
-      //   this.resultView.clusters[grupo].forEach((id) => {
-      //     if (arch) {
-      //       this.archivados.add(id);
-      //     } else {
-      //       this.archivados.delete(id);
-      //     }
-      //   });
-      //   this.updateHidden(this.resultView);
-      // }
       this.updateHidden(this.resultView);
       this.$forceUpdate();
       window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
     },
+    doRedo() {
+      let lastRedo = this.redo.pop();
+      if (lastRedo !== undefined) {
+        this.undo.push(lastRedo);
+        if (lastRedo.type === 'favorite') {
+          this.favoritos.delete(lastRedo.id);
+        } else if (lastRedo.type === 'unfavorite') {
+          this.favoritos.add(lastRedo.id);
+        } else if (lastRedo.type === 'archive') {
+          this.archivados.delete(lastRedo.id);
+        } else if (lastRedo.type === 'unarchive') {
+          this.archivados.add(lastRedo.id);
+        }
+        this.updateHidden(this.resultView);
+        this.$forceUpdate();
+      }
+    },
+    doUndo() {
+      let lastUndo = this.undo.pop();
+      if (lastUndo !== undefined) {
+        this.redo.push(lastUndo);
+        if (lastUndo.type === 'favorite') {
+          this.favoritos.add(lastUndo.id);
+        } else if (lastUndo.type === 'unfavorite') {
+          this.favoritos.delete(lastUndo.id);
+        } else if (lastUndo.type === 'archive') {
+          this.archivados.add(lastUndo.id);
+        } else if (lastUndo.type === 'unarchive') {
+          this.archivados.delete(lastUndo.id);
+        }
+        this.updateHidden(this.resultView);
+        this.$forceUpdate();
+      }
+    },
+    setSearch() {
+      this.$refs.filtro.value = this.$refs.searchList.value;
+      this.query();
+    },
+    trimPlus() {
+      this.$refs.filtro.value = this.$refs.filtro.value
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/\s*,\s*/g, ', ')
+        .trim();
+    },
+
+    addSearch() {
+      this.trimPlus();
+      let seach = this.$refs.filtro.value;
+      this.$refs.filtro.value = seach;
+
+      if (this.searchList.indexOf(seach) === -1) {
+        this.searchList.push(seach);
+        this.searchListSelect = seach;
+        this.$forceUpdate();
+        window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
+      }
+    },
+    removeSearch() {
+      let seach = this.searchListSelect;
+      let index = this.searchList.indexOf(seach);
+      this.searchList.splice(index, 1);
+      this.$forceUpdate();
+      window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
+    },
     query() {
+      this.trimPlus();
       this.loading = true;
 
       let search = this.$refs.filtro.value;
@@ -303,6 +401,7 @@ export default {
       }
       return false;
     },
+
     normalizeText(text) {
       text = text.toLowerCase();
       if (this.$store.state.ignorarTildes) {
@@ -322,6 +421,7 @@ export default {
             voices = voices.filter((v) => v.toLowerCase().indexOf('spanish') > -1 || v.toLowerCase().indexOf('español') > -1);
             voices.unshift('');
             this.voiceList = voices;
+            this.$forceUpdate();
           },
         },
       })
@@ -333,6 +433,11 @@ export default {
     let favoritos = window.localStorage.getItem('favoritos');
     if (favoritos !== null) {
       this.favoritos = new Set(favoritos.split(','));
+    }
+    ///////////////////////////////////////////////////
+    let searchList = window.localStorage.getItem('searchList');
+    if (searchList !== null) {
+      this.searchList = JSON.parse(searchList);
     }
     ///////////////////////////////////////////////////
     let archivados = window.localStorage.getItem('archivados');
@@ -348,16 +453,36 @@ export default {
     ///////////////////////////////////////////////////
     (async () => {
       let fetchCfg = { method: 'POST', body: this.$route.params.cfg ? this.$route.params.cfg.trim() : 'info' };
-      let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).json();
-      //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).json();
-      //console.log(result);
-      this.result = result;
+      let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
+      //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
+      let uncompress = lzString.decompressFromBase64(result);
+      this.result = JSON.parse(uncompress);
       this.query();
     })();
   },
 };
 </script>
 <style>
+.searchList2 {
+  position: relative;
+  top: -0.26em;
+  padding: 0;
+  outline: none;
+  border-radius: var(--radio);
+}
+.searchList {
+  margin: 0 5px;
+  position: relative;
+  width: calc(100% - 174px);
+  top: -5px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: var(--radio);
+}
+.button-icon {
+  margin: 0.2em;
+  cursor: pointer;
+}
 .oferta-num {
   padding: 0.2em;
   font-size: 0.8em;
@@ -484,7 +609,7 @@ export default {
 .filtroIn {
   width: 100%;
   max-width: var(--page-max-width);
-  padding: 0.5em 0 0.4em;
+  padding: 0.5em 0 0.1em;
 }
 .filtro select {
   font-size: 1em;
