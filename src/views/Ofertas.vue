@@ -11,7 +11,7 @@
         <div style="text-align: left; width: 100%; padding-left: 6px">
           <undo-icon class="button-icon" @click="doUndo" />
           <redo-icon class="button-icon" @click="doRedo" />
-          <select class="searchList" ref="searchList">
+          <select class="searchList" ref="searchList" @change="setSearch(false)">
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
             </option>
@@ -257,9 +257,13 @@ export default {
         this.$forceUpdate();
       }
     },
-    setSearch() {
-      this.$refs.filtro.value = this.$refs.searchList.value;
-      this.query();
+    setSearch(query = false) {
+      this.searchListSelect = this.$refs.searchList.value;
+      if (this.searchListSelect !== null) {
+        this.$refs.filtro.value = this.searchListSelect;
+        window.localStorage.setItem('searchListSelect', this.searchListSelect);
+        if (query) this.query();
+      }
     },
     trimPlus() {
       this.$refs.filtro.value = this.$refs.filtro.value
@@ -272,7 +276,6 @@ export default {
     addSearch() {
       this.trimPlus();
       let seach = this.$refs.filtro.value;
-      this.$refs.filtro.value = seach;
 
       if (this.searchList.indexOf(seach) === -1) {
         this.searchList.push(seach);
@@ -435,6 +438,7 @@ export default {
       this.favoritos = new Set(favoritos.split(','));
     }
     ///////////////////////////////////////////////////
+    this.searchListSelect = window.localStorage.getItem('searchListSelect');
     let searchList = window.localStorage.getItem('searchList');
     if (searchList !== null) {
       this.searchList = JSON.parse(searchList);
@@ -451,6 +455,7 @@ export default {
     this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.trim() : '';
 
     ///////////////////////////////////////////////////
+
     (async () => {
       let fetchCfg = { method: 'POST', body: this.$route.params.cfg ? this.$route.params.cfg.trim() : 'info' };
       let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
