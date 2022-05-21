@@ -110,10 +110,10 @@ export default {
     },
     format(text) {
       if (this.ignorarTildes) {
-        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        text = ' ' + text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') + ' ';
       }
       return text
-        .replace(new RegExp(this.filtro.join('|'), 'gi'), '<span class="highlight">$&</span>')
+        .replace(new RegExp(this.filtro.join('[^a-zA-Z]|[^a-zA-Z]'), 'gi'), '<span class="highlight">$&</span>')
         .replace(/\s+/g, ' ')
         .trim();
     },
