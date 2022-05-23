@@ -636,10 +636,11 @@ export default {
 .filtro input {
   border-radius: var(--radio);
   background: var(--background-input);
-  width: calc(100% - 192px);
+  width: calc(100% - 198px);
   padding: 1px 0.33em 0px;
   position: relative;
   top: -4px;
+  margin-left: 4px;
   outline: none;
   border: 1px solid var(--background-color);
   color: var(--background-color);
