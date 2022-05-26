@@ -30,36 +30,40 @@
           <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
           <div style="clear: both"></div>
         </div>
-        <div v-for="item in resultView.pages" :key="item.id">
-          <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- archivado:{{ archivados.has(item.id) }} -->
-          <oferta
-            v-if="(!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
-            :archivados="archivados"
-            :favoritos="favoritos"
-            :speechSupport="speechSupport"
-            :folder="folder"
-            :isArchived="archivados.has(item.id)"
-            :isFavorite="favoritos.has(item.id)"
-            @voiceSpeak="voiceSpeak"
-            @favorite="favorite"
-            @archive="archive"
-            :data="resultView.data[item.id]"
-            :id="item.id"
-            :ignorarTildes="$store.state.ignorarTildes"
-            :filtro="filtroFinal"
-            :grupo="
-              folder === 'Agrupados'
-                ? item.grupo === null
-                  ? []
-                  : result.clusters[item.grupo]
-                      .filter((id) => id !== item.id)
-                      .map((id) => {
-                        return { id, ...result.data[id] };
-                      })
-                : []
-            "
-          />
-        </div>
+        <vue-paginate-scroll v-if="resultView.pages.length" :src="resultView.pages" :per-scroll="20">
+          <template slot-scope="{ data, currentScroll, lastScroll }">
+            <div v-for="item in data" :key="item.id">
+              <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- archivado:{{ archivados.has(item.id) }} -->
+              <oferta
+                v-if="(!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
+                :archivados="archivados"
+                :favoritos="favoritos"
+                :speechSupport="speechSupport"
+                :folder="folder"
+                :isArchived="archivados.has(item.id)"
+                :isFavorite="favoritos.has(item.id)"
+                @voiceSpeak="voiceSpeak"
+                @favorite="favorite"
+                @archive="archive"
+                :data="resultView.data[item.id]"
+                :id="item.id"
+                :ignorarTildes="$store.state.ignorarTildes"
+                :filtro="filtroFinal"
+                :grupo="
+                  folder === 'Agrupados'
+                    ? item.grupo === null
+                      ? []
+                      : result.clusters[item.grupo]
+                          .filter((id) => id !== item.id)
+                          .map((id) => {
+                            return { id, ...result.data[id] };
+                          })
+                    : []
+                "
+              />
+            </div>
+          </template>
+        </vue-paginate-scroll>
       </div>
       <div v-else class="loading">
         <loading />
@@ -79,6 +83,7 @@
   </div>
 </template>
 <script>
+import VuePaginateScroll from 'vue-paginate-scroll';
 import lzString from 'lz-string';
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue';
 import UndoIcon from 'vue-material-design-icons/Undo.vue';
@@ -100,7 +105,7 @@ const speech = new Speech();
 let SmartPhone = _smartPhone(false);
 
 export default {
-  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon },
+  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon, VuePaginateScroll },
   name: 'Ofertas',
   data() {
     return {
