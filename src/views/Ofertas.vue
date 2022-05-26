@@ -30,40 +30,37 @@
           <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
           <div style="clear: both"></div>
         </div>
-        <vue-paginate-scroll v-if="resultView.pages.length" :src="resultView.pages" :per-scroll="20">
-          <template slot-scope="{ data, currentScroll, lastScroll }">
-            <div v-for="item in data" :key="item.id">
-              <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- archivado:{{ archivados.has(item.id) }} -->
-              <oferta
-                v-if="(!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos'"
-                :archivados="archivados"
-                :favoritos="favoritos"
-                :speechSupport="speechSupport"
-                :folder="folder"
-                :isArchived="archivados.has(item.id)"
-                :isFavorite="favoritos.has(item.id)"
-                @voiceSpeak="voiceSpeak"
-                @favorite="favorite"
-                @archive="archive"
-                :data="resultView.data[item.id]"
-                :id="item.id"
-                :ignorarTildes="$store.state.ignorarTildes"
-                :filtro="filtroFinal"
-                :grupo="
-                  folder === 'Agrupados'
-                    ? item.grupo === null
-                      ? []
-                      : result.clusters[item.grupo]
-                          .filter((id) => id !== item.id)
-                          .map((id) => {
-                            return { id, ...result.data[id] };
-                          })
-                    : []
-                "
-              />
-            </div>
-          </template>
-        </vue-paginate-scroll>
+        <div v-for="item in resultView.pages" :key="item.id">
+          <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- hiddenPage:{{ item.hiddenPage }} ---- archivado:{{ archivados.has(item.id) }} ---- favorito:{{ favoritos.has(item.id) }} -->
+
+          <oferta
+            v-if="item.hiddenPage > 0 && item.hiddenPage < paginaSize && ((!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos')"
+            :archivados="archivados"
+            :favoritos="favoritos"
+            :speechSupport="speechSupport"
+            :folder="folder"
+            :isArchived="archivados.has(item.id)"
+            :isFavorite="favoritos.has(item.id)"
+            @voiceSpeak="voiceSpeak"
+            @favorite="favorite"
+            @archive="archive"
+            :data="resultView.data[item.id]"
+            :id="item.id"
+            :ignorarTildes="$store.state.ignorarTildes"
+            :filtro="filtroFinal"
+            :grupo="
+              folder === 'Agrupados'
+                ? item.grupo === null
+                  ? []
+                  : result.clusters[item.grupo]
+                      .filter((id) => id !== item.id)
+                      .map((id) => {
+                        return { id, ...result.data[id] };
+                      })
+                : []
+            "
+          />
+        </div>
       </div>
       <div v-else class="loading">
         <loading />
@@ -83,7 +80,6 @@
   </div>
 </template>
 <script>
-import VuePaginateScroll from 'vue-paginate-scroll';
 import lzString from 'lz-string';
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue';
 import UndoIcon from 'vue-material-design-icons/Undo.vue';
@@ -102,10 +98,11 @@ import Config from '../components/Config.vue';
 import Speech from 'speak-tts';
 
 const speech = new Speech();
+
 let SmartPhone = _smartPhone(false);
 
 export default {
-  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon, VuePaginateScroll },
+  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon },
   name: 'Ofertas',
   data() {
     return {
@@ -123,6 +120,7 @@ export default {
       filtroFinalPlus: [],
       result: null,
       resultView: null,
+      paginaSize: 20,
       archivados: new Set(),
       favoritos: new Set(),
       searchList: [],
@@ -242,6 +240,7 @@ export default {
         } else if (lastRedo.type === 'unarchive') {
           this.archivados.add(lastRedo.id);
         }
+        debugger;
         this.updateHidden(this.resultView);
         this.$forceUpdate();
       }
@@ -259,6 +258,7 @@ export default {
         } else if (lastUndo.type === 'unarchive') {
           this.archivados.delete(lastUndo.id);
         }
+        debugger;
         this.updateHidden(this.resultView);
         this.$forceUpdate();
       }
@@ -339,10 +339,11 @@ export default {
       this.filtroFinalPlus = this.filtroFinalPlus.map((word) => (word.startsWith('+') === true ? word.substring(1) : word));
 
       //////////////////////////////////////////////////////////////////
+      let resultBuild;
       if (this.filtroFinal.length === 0) {
-        this.resultView = this.result;
+        resultBuild = this.result;
       } else {
-        let resultBuild = {
+        resultBuild = {
           pages: this.result.pages.filter((item) => {
             return this.filtrar(item.id);
           }),
@@ -353,15 +354,14 @@ export default {
           config: this.result.config,
           updateTime: this.result.updateTime,
         };
-
-        this.updateHidden(resultBuild);
-        //console.log(firstGroup);
-        this.resultView = resultBuild;
       }
+      this.updateHidden(resultBuild);
+      this.resultView = resultBuild;
       //////////////////////////////////////////////////////////////////
 
       window.scrollTo(0, 0);
       this.loading = false;
+      this.paginaSize = 20;
 
       try {
         if (!SmartPhone.isAny()) {
@@ -372,15 +372,28 @@ export default {
       } catch (error) {
         console.error(error);
       }
+
+      let este = this;
+      window.onscroll = function (ev) {
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
+          este.paginaSize = este.paginaSize + 20;
+          este.$forceUpdate();
+          console.log(este.paginaSize);
+        }
+      };
+      este.$forceUpdate();
     },
     updateHidden(data) {
       let firstGroup = new Set();
+      let paginationHideCount = 0;
+      let agrupados = this.folder === 'Agrupados';
       for (let page of data.pages) {
         //Si es una pagina agrupada
-        if (page.grupo !== null) {
+        if (agrupados && page.grupo !== null) {
           //Si ya se registro el grupo
           if (firstGroup.has(page.grupo)) {
             page.hidden = true;
+            page.hiddenPage = 0;
           } //Si no se registro el grupo
           else {
             if (this.archivados.has(page.id)) {
@@ -388,7 +401,15 @@ export default {
             } else {
               firstGroup.add(page.grupo);
               page.hidden = false;
+              paginationHideCount++;
+              page.hiddenPage = paginationHideCount;
             }
+          }
+        } else {
+          page.hidden = false;
+          if (!agrupados || !this.archivados.has(page.id)) {
+            paginationHideCount++;
+            page.hiddenPage = paginationHideCount;
           }
         }
       }
