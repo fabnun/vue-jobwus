@@ -8,16 +8,17 @@
         </select>
         <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
         <magnify-icon class="submit-button" @click="query" />
-        <div style="text-align: left; width: 100%; padding-left: 6px">
+        <div style="text-align: left; width: 100%; padding-left: 27px">
           <undo-icon class="button-icon" @click="doUndo" />
           <redo-icon class="button-icon" @click="doRedo" />
+          <archive-plus-outline-icon class="button-icon" @click="addSearch" />
+          <archive-remove-outline-icon class="button-icon" @click="removeSearch" />
           <select class="searchList" ref="searchList" @change="setSearch(false)">
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
             </option>
           </select>
-          <archive-plus-outline-icon class="button-icon" @click="addSearch" />
-          <archive-remove-outline-icon class="button-icon" @click="removeSearch" />
+
           <archive-arrow-up-outline-icon class="button-icon" @click="setSearch" />
         </div>
       </div>
@@ -268,6 +269,7 @@ export default {
     trimPlus() {
       this.$refs.filtro.value = this.$refs.filtro.value
         .toLowerCase()
+        .replace(/[^\d\w,\s]+/g, '')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
@@ -279,6 +281,7 @@ export default {
 
       if (this.searchList.indexOf(seach) === -1) {
         this.searchList.push(seach);
+        this.searchList.sort();
         this.searchListSelect = seach;
         this.$forceUpdate();
         window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
@@ -355,10 +358,14 @@ export default {
       window.scrollTo(0, 0);
       this.loading = false;
 
-      if (!SmartPhone.isAny()) {
-        this.$refs.filtro.focus();
-      } else {
-        this.$refs.filtro.blur();
+      try {
+        if (!SmartPhone.isAny()) {
+          this.$refs.filtro.focus();
+        } else {
+          this.$refs.filtro.blur();
+        }
+      } catch (error) {
+        console.error(error);
       }
     },
     updateHidden(data) {
@@ -442,6 +449,7 @@ export default {
     let searchList = window.localStorage.getItem('searchList');
     if (searchList !== null) {
       this.searchList = JSON.parse(searchList);
+      this.searchList.sort();
     }
     ///////////////////////////////////////////////////
     let archivados = window.localStorage.getItem('archivados');
@@ -476,9 +484,9 @@ export default {
   border-radius: var(--radio);
 }
 .searchList {
-  margin: 0 5px;
+  margin: 0 4px 0 2px;
   position: relative;
-  width: calc(100% - 174px);
+  width: calc(100% - 188px);
   top: -5px;
   padding: 0;
   cursor: pointer;

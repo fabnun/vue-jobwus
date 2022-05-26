@@ -112,8 +112,19 @@ export default {
       if (this.ignorarTildes) {
         text = ' ' + text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') + ' ';
       }
+
+      let sorted = [...this.filtro];
+      sorted.sort((a, b) => {
+        if (a.startsWith(b)) {
+          return -1;
+        }
+        if (b.startsWith(a)) {
+          return 1;
+        }
+        return a > b ? 1 : -1;
+      });
       return text
-        .replace(new RegExp(this.filtro.join('[^a-zA-Z]|[^a-zA-Z]'), 'gi'), '<span class="highlight">$&</span>')
+        .replace(new RegExp('[^a-zA-Z]?' + sorted.join('|[^a-zA-Z]') + '[^a-zA-Z]?', 'gi'), '<span class="highlight">$&</span>')
         .replace(/\s+/g, ' ')
         .trim();
     },
@@ -127,7 +138,7 @@ export default {
 .top {
   background: rgba(0, 0, 0, 0.2);
   text-align: right;
-  padding: 0.2em 0.4em 0;
+  padding: 0.2em 0 0 0.4em;
   font-weight: bolder;
 }
 .top .fecha {

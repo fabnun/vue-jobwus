@@ -16,11 +16,11 @@ const themes = {
   themeSelected: localStorage.getItem('theme') || 'blueLight',
   themeZoom: localStorage.getItem('zoom') || 'Normal',
   zooms: {
-    'Mas chico': '0.97',
+    'Mas chico': '0.98',
     Chico: '0.99',
     Normal: '1',
     Grande: '1.01',
-    'Mas grande': '1.03',
+    'Mas grande': '1.02',
   },
   styles: {
     brownDark: {
@@ -43,8 +43,8 @@ const themes = {
     blueLight: {
       '--background': "url('/assets/paper2.jpg') repeat center top",
       '--color': 'rgba(20,30,40, 1)',
-      '--background-input': 'black',
-      '--background-color': 'white',
+      '--background-input': 'white',
+      '--background-color': 'black',
       '--font-size': '1.1em',
       '--match-background': 'rgba(20,30,40, 0.3)',
       '--oferta-background': 'rgba(5, 35, 66, 0.1)',
