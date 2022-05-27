@@ -138,8 +138,16 @@ export default {
       window.localStorage.setItem('folder', this.folder);
     },
   },
-
+  created() {
+    window.addEventListener('scroll', this.handleScroll);
+  },
   methods: {
+    handleScroll(ev) {
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
+        this.paginaSize = Math.trunc(this.paginaSize * 2);
+        //console.log('paginaSize', this.paginaSize);
+      }
+    },
     setVoice(voice) {
       this.voice = voice;
       this.speechSupport = this.voice !== '' && speech.hasBrowserSupport();
@@ -233,15 +241,19 @@ export default {
         this.undo.push(lastRedo);
         if (lastRedo.type === 'favorite') {
           this.favoritos.delete(lastRedo.id);
+          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
         } else if (lastRedo.type === 'unfavorite') {
           this.favoritos.add(lastRedo.id);
+          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
         } else if (lastRedo.type === 'archive') {
           this.archivados.delete(lastRedo.id);
+          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
         } else if (lastRedo.type === 'unarchive') {
           this.archivados.add(lastRedo.id);
+          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
         }
-        debugger;
-        this.updateHidden(this.resultView);
+        if (this.folder === 'Agrupados') this.updateHidden(this.resultView);
+
         this.$forceUpdate();
       }
     },
@@ -251,15 +263,18 @@ export default {
         this.redo.push(lastUndo);
         if (lastUndo.type === 'favorite') {
           this.favoritos.add(lastUndo.id);
+          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
         } else if (lastUndo.type === 'unfavorite') {
           this.favoritos.delete(lastUndo.id);
+          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
         } else if (lastUndo.type === 'archive') {
           this.archivados.add(lastUndo.id);
+          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
         } else if (lastUndo.type === 'unarchive') {
           this.archivados.delete(lastUndo.id);
+          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
         }
-        debugger;
-        this.updateHidden(this.resultView);
+        if (this.folder === 'Agrupados') this.updateHidden(this.resultView);
         this.$forceUpdate();
       }
     },
@@ -373,44 +388,70 @@ export default {
         console.error(error);
       }
 
-      let este = this;
-      window.onscroll = function (ev) {
-        if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
-          este.paginaSize = este.paginaSize + 20;
-          este.$forceUpdate();
-          console.log(este.paginaSize);
-        }
-      };
-      este.$forceUpdate();
+      // let este = this;
+      // window.onscroll = function (ev) {
+      //   if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
+      //     este.paginaSize = este.paginaSize + 20;
+      //     este.$forceUpdate();
+      //   }
+      // };
+      // este.$forceUpdate();
     },
     updateHidden(data) {
       let firstGroup = new Set();
       let paginationHideCount = 0;
-      let agrupados = this.folder === 'Agrupados';
-      for (let page of data.pages) {
-        //Si es una pagina agrupada
-        if (agrupados && page.grupo !== null) {
-          //Si ya se registro el grupo
-          if (firstGroup.has(page.grupo)) {
-            page.hidden = true;
-            page.hiddenPage = 0;
-          } //Si no se registro el grupo
-          else {
-            if (this.archivados.has(page.id)) {
+      if (this.folder === 'Agrupados') {
+        for (let page of data.pages) {
+          //Si es una pagina agrupada
+          if (page.grupo !== null) {
+            //Si ya se registro el grupo
+            if (firstGroup.has(page.grupo)) {
               page.hidden = true;
-            } else {
-              firstGroup.add(page.grupo);
-              page.hidden = false;
+              page.hiddenPage = 0;
+            } //Si no se registro el grupo
+            else {
+              if (this.archivados.has(page.id)) {
+                page.hidden = true;
+              } else {
+                firstGroup.add(page.grupo);
+                page.hidden = false;
+                paginationHideCount++;
+                page.hiddenPage = paginationHideCount;
+              }
+            }
+          } else {
+            page.hidden = false;
+            if (!this.archivados.has(page.id)) {
               paginationHideCount++;
               page.hiddenPage = paginationHideCount;
             }
           }
-        } else {
-          page.hidden = false;
-          if (!agrupados || !this.archivados.has(page.id)) {
+        }
+      } else if (this.folder === 'Favoritos') {
+        for (let page of data.pages) {
+          if (!this.favoritos.has(page.id)) {
+            page.hidden = true;
+          } else {
+            page.hidden = false;
             paginationHideCount++;
             page.hiddenPage = paginationHideCount;
           }
+        }
+      } else if (this.folder === 'Archivados') {
+        for (let page of data.pages) {
+          if (!this.archivados.has(page.id)) {
+            page.hidden = true;
+          } else {
+            page.hidden = false;
+            paginationHideCount++;
+            page.hiddenPage = paginationHideCount;
+          }
+        }
+      } else {
+        for (let page of data.pages) {
+          page.hidden = false;
+          paginationHideCount++;
+          page.hiddenPage = paginationHideCount;
         }
       }
     },
@@ -496,8 +537,29 @@ export default {
       //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
       let uncompress = lzString.decompressFromBase64(result);
       this.result = JSON.parse(uncompress);
+      console.log(this.result);
       this.query();
     })();
+
+    const debounce = (func, wait) => {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    };
+
+    this.handleDebouncedScroll = debounce(this.handleScroll, 500);
+    window.addEventListener('scroll', this.handleDebouncedScroll);
+  },
+  beforeDestroy() {
+    // I switched the example from `destroyed` to `beforeDestroy`
+    // to exercise your mind a bit. This lifecycle method works too.
+    window.removeEventListener('scroll', this.handleDebouncedScroll);
   },
 };
 </script>
