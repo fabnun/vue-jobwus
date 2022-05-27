@@ -1,6 +1,5 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id) }">
-    {{ archivados.has(id) }} {{ favoritos.has(id) }}
     <div class="oferta" :class="{ collapsed, fav: favoritos.has(id) }" @click="collapsed = !collapsed">
       <div class="top">
         <span class="fecha">{{ dateFormat(data.fecha) }}</span>

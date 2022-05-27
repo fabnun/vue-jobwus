@@ -535,6 +535,7 @@ export default {
       //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
       let uncompress = lzString.decompressFromBase64(result);
       this.result = JSON.parse(uncompress);
+      console.log(this.result);
       this.query();
     })();
 
