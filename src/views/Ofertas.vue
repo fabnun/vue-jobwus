@@ -118,7 +118,7 @@ export default {
       filtroFinalPlus: [],
       result: null,
       resultView: null,
-      paginaSize: 40,
+      paginaSize: 20,
       archivados: new Set(),
       favoritos: new Set(),
       searchList: [],
@@ -142,7 +142,7 @@ export default {
   methods: {
     handleScroll(ev) {
       if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
-        this.paginaSize = this.paginaSize + 40;
+        this.paginaSize = Math.trunc(this.paginaSize * 1.5);
       }
     },
     setVoice(voice) {
