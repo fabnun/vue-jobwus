@@ -1,6 +1,7 @@
 <template>
-  <div v-if="(folder === 'Agrupados' && !arch) || folder !== 'Agrupados'" :class="{ arch }">
-    <div class="oferta" :class="{ collapsed, fav }" @click="collapsed = !collapsed">
+  <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id) }">
+    {{ archivados.has(id) }} {{ favoritos.has(id) }}
+    <div class="oferta" :class="{ collapsed, fav: favoritos.has(id) }" @click="collapsed = !collapsed">
       <div class="top">
         <span class="fecha">{{ dateFormat(data.fecha) }}</span>
         <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
@@ -8,11 +9,11 @@
           <content-copy-icon @click.stop.prevent="collapsedSimilar = !collapsedSimilar" :size="18" />
         </label>
         <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
-        <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!arch" />
-        <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="arch" />
+        <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!archivados.has(id)" />
+        <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="archivados.has(id)" />
         <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span>
-        <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!fav" />
-        <star-icon @click.stop.prevent="favorite" :size="22" v-if="fav" />
+        <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
+        <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />
         <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
         <!-- <dots-vertical-icon :size="22" /> -->
       </div>
@@ -64,15 +65,13 @@ import DeleteOutlineIcon from 'vue-material-design-icons/DeleteOutline.vue';
 import AccountTieVoiceOutlineIcon from 'vue-material-design-icons/AccountTieVoiceOutline.vue';
 
 export default {
-  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'isFavorite', 'isArchived', 'folder', 'archivados', 'favoritos', 'speechSupport'],
+  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
   data: function () {
     return {
       collapsed: true,
       collapsedSimilar: true,
       dragStart: 0,
       dragTime: 0,
-      fav: this.isFavorite,
-      arch: this.isArchived,
     };
   },
   components: {
@@ -87,16 +86,15 @@ export default {
     DeleteOffOutlineIcon,
     AccountTieVoiceOutlineIcon,
   },
+
   methods: {
     voice(id) {
       this.$emit('voiceSpeak', id);
     },
     favorite() {
-      this.fav = !this.fav;
       this.$emit('favorite', this.id);
     },
     archive() {
-      this.arch = !this.arch;
       this.$emit('archive', this.id);
     },
     favoriteSimilar(item) {

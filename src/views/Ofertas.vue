@@ -39,8 +39,6 @@
             :favoritos="favoritos"
             :speechSupport="speechSupport"
             :folder="folder"
-            :isArchived="archivados.has(item.id)"
-            :isFavorite="favoritos.has(item.id)"
             @voiceSpeak="voiceSpeak"
             @favorite="favorite"
             @archive="archive"
@@ -537,7 +535,6 @@ export default {
       //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
       let uncompress = lzString.decompressFromBase64(result);
       this.result = JSON.parse(uncompress);
-      console.log(this.result);
       this.query();
     })();
 
@@ -714,6 +711,15 @@ export default {
 }
 .filtro select {
   font-size: 1em;
+  .noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+  }
 }
 .filtro h4 {
   padding: 0 4px 0 0;

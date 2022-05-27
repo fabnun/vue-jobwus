@@ -11,7 +11,8 @@
     "firebase.deploy.functions": "firebase deploy --only functions",
     "firebase.logs.functions": "firebase functions:log",
     "firebase.function.shell": "firebase functions:shell",
-    "git.commit.log": "git log --pretty=format:\"%h - %an, %ar : %s\""
+    "git.commit.log": "git log --pretty=format:\"%h - %an, %ar : %s\"",
+    "git.commit.amend": "git commit --amend"
   },
   "dependencies": {
     "core-js": "^3.6.5",
