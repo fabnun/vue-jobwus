@@ -18,50 +18,51 @@
               {{ item }}
             </option>
           </select>
-
           <archive-arrow-up-outline-icon class="button-icon" @click="setSearch" />
         </div>
       </div>
     </div>
     <div :class="{ noEvents: modal }">
-      <div v-if="!loading">
-        <div style="margin: 0 auto; padding: 0 10px 10px; font-size: 0.8em">
-          <span v-if="resultView !== null"> {{ resultView.pages.length }}&nbsp;resultados, {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }}&nbsp;similares, {{ resultView.pages.filter((p) => favoritos.has(p.id)).length }}&nbsp;Favoritos, {{ resultView.pages.filter((p) => archivados.has(p.id)).length }}&nbsp;Archivados</span>
-          <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
-          <div style="clear: both"></div>
-        </div>
-        <div v-for="item in resultView.pages" :key="item.id">
-          <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- hiddenPage:{{ item.hiddenPage }} ---- archivado:{{ archivados.has(item.id) }} ---- favorito:{{ favoritos.has(item.id) }} -->
+      <div @scroll="scroll" id="ofertas" ref="ofertasDiv">
+        <div v-if="!loading" class="container">
+          <div style="margin: 0 auto; padding: 0 10px 10px; font-size: 0.8em">
+            <span v-if="resultView !== null"> {{ resultView.pages.length }}&nbsp;resultados, {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }}&nbsp;similares, {{ resultView.pages.filter((p) => favoritos.has(p.id)).length }}&nbsp;Favoritos, {{ resultView.pages.filter((p) => archivados.has(p.id)).length }}&nbsp;Archivados</span>
+            <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
+            <div style="clear: both"></div>
+          </div>
+          <div v-for="item in resultView.pages" :key="item.id">
+            <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- hiddenPage:{{ item.hiddenPage }} ---- archivado:{{ archivados.has(item.id) }} ---- favorito:{{ favoritos.has(item.id) }} -->
 
-          <oferta
-            v-if="item.hiddenPage > 0 && item.hiddenPage < paginaSize && ((!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos')"
-            :archivados="archivados"
-            :favoritos="favoritos"
-            :speechSupport="speechSupport"
-            :folder="folder"
-            @voiceSpeak="voiceSpeak"
-            @favorite="favorite"
-            @archive="archive"
-            :data="resultView.data[item.id]"
-            :id="item.id"
-            :ignorarTildes="$store.state.ignorarTildes"
-            :filtro="filtroFinal"
-            :grupo="
-              folder === 'Agrupados'
-                ? item.grupo === null
-                  ? []
-                  : result.clusters[item.grupo]
-                      .filter((id) => id !== item.id)
-                      .map((id) => {
-                        return { id, ...result.data[id] };
-                      })
-                : []
-            "
-          />
+            <oferta
+              v-if="item.hiddenPage > 0 && item.hiddenPage < paginaSize && ((!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos')"
+              :archivados="archivados"
+              :favoritos="favoritos"
+              :speechSupport="speechSupport"
+              :folder="folder"
+              @voiceSpeak="voiceSpeak"
+              @favorite="favorite"
+              @archive="archive"
+              :data="resultView.data[item.id]"
+              :id="item.id"
+              :ignorarTildes="$store.state.ignorarTildes"
+              :filtro="filtroFinal"
+              :grupo="
+                folder === 'Agrupados'
+                  ? item.grupo === null
+                    ? []
+                    : result.clusters[item.grupo]
+                        .filter((id) => id !== item.id)
+                        .map((id) => {
+                          return { id, ...result.data[id] };
+                        })
+                  : []
+              "
+            />
+          </div>
         </div>
-      </div>
-      <div v-else class="loading">
-        <loading />
+        <div v-else class="loading">
+          <loading />
+        </div>
       </div>
     </div>
     <div class="modal-container" v-show="modal" @click="modal = false">
@@ -140,9 +141,23 @@ export default {
     window.addEventListener('scroll', this.handleScroll);
   },
   methods: {
-    handleScroll(ev) {
-      if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
-        this.paginaSize = Math.trunc(this.paginaSize * 1.5);
+    debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    },
+    scroll(ev) {
+      //this.handleDebouncedScroll = debounce(this.handleScroll, 500);
+      let target = ev.target;
+      //console.log(target.scrollTop, target.clientHeight, target.scrollHeight);
+      if (target.scrollTop + target.clientHeight * 1.2 >= target.scrollHeight) {
+        this.paginaSize = this.paginaSize + 20;
       }
     },
     setVoice(voice) {
@@ -371,7 +386,12 @@ export default {
       this.resultView = resultBuild;
       //////////////////////////////////////////////////////////////////
 
-      window.scrollTo(0, 0);
+      try {
+        this.$refs.ofertasDiv.scrollTop = 0;
+      } catch (error) {
+        console.log(error);
+      }
+
       this.loading = false;
       this.paginaSize = 20;
 
@@ -525,33 +545,23 @@ export default {
       //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
       let uncompress = lzString.decompressFromBase64(result);
       this.result = JSON.parse(uncompress);
-      console.log(this.result);
       this.query();
     })();
-
-    const debounce = (func, wait) => {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    };
-
-    this.handleDebouncedScroll = debounce(this.handleScroll, 500);
-    window.addEventListener('scroll', this.handleDebouncedScroll);
-  },
-  beforeDestroy() {
-    // I switched the example from `destroyed` to `beforeDestroy`
-    // to exercise your mind a bit. This lifecycle method works too.
-    window.removeEventListener('scroll', this.handleDebouncedScroll);
   },
 };
 </script>
 <style>
+#ofertas {
+  position: fixed;
+  margin: 0 auto;
+  top: var(--body-margin-top);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: scroll;
+  padding-top: 0.6em;
+  padding-bottom: 50%;
+}
 .searchList2 {
   position: relative;
   top: -0.26em;
