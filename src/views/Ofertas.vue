@@ -118,7 +118,7 @@ export default {
       filtroFinalPlus: [],
       result: null,
       resultView: null,
-      paginaSize: 20,
+      paginaSize: 40,
       archivados: new Set(),
       favoritos: new Set(),
       searchList: [],
@@ -142,8 +142,7 @@ export default {
   methods: {
     handleScroll(ev) {
       if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
-        this.paginaSize = Math.trunc(this.paginaSize * 2);
-        //console.log('paginaSize', this.paginaSize);
+        this.paginaSize = this.paginaSize + 40;
       }
     },
     setVoice(voice) {
@@ -385,15 +384,6 @@ export default {
       } catch (error) {
         console.error(error);
       }
-
-      // let este = this;
-      // window.onscroll = function (ev) {
-      //   if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
-      //     este.paginaSize = este.paginaSize + 20;
-      //     este.$forceUpdate();
-      //   }
-      // };
-      // este.$forceUpdate();
     },
     updateHidden(data) {
       let firstGroup = new Set();
