@@ -26,7 +26,7 @@
       <div @scroll="scroll" id="ofertas" ref="ofertasDiv">
         <div v-if="!loading" class="container">
           <div style="margin: 0 auto; padding: 0 10px 10px; font-size: 0.8em">
-            <span v-if="resultView !== null"> {{ resultView.pages.length }}&nbsp;resultados, {{ resultView.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }}&nbsp;similares, {{ resultView.pages.filter((p) => favoritos.has(p.id)).length }}&nbsp;Favoritos, {{ resultView.pages.filter((p) => archivados.has(p.id)).length }}&nbsp;Archivados</span>
+            <span v-if="resultView !== null"> {{ result.pages.length }}&nbsp;resultados, {{ result.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }}&nbsp;similares, {{ resultView.pages.filter((p) => favoritos.has(p.id)).length }}&nbsp;Favoritos, {{ resultView.pages.filter((p) => archivados.has(p.id)).length }}&nbsp;Archivados</span>
             <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
             <div style="clear: both"></div>
           </div>
@@ -59,6 +59,7 @@
               "
             />
           </div>
+          <div id="footer"></div>
         </div>
         <div v-else class="loading">
           <loading />
@@ -156,7 +157,7 @@ export default {
       //this.handleDebouncedScroll = debounce(this.handleScroll, 500);
       let target = ev.target;
       //console.log(target.scrollTop, target.clientHeight, target.scrollHeight);
-      if (target.scrollTop + target.clientHeight * 1.2 >= target.scrollHeight) {
+      if (target.scrollTop + target.clientHeight + 240 >= target.scrollHeight) {
         this.paginaSize = this.paginaSize + 20;
       }
     },
@@ -560,7 +561,9 @@ export default {
   bottom: 0;
   overflow-y: scroll;
   padding-top: 0.6em;
-  padding-bottom: 50%;
+}
+#footer {
+  min-height: 480px;
 }
 .searchList2 {
   position: relative;
