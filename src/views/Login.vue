@@ -1,6 +1,7 @@
 <template>
   <div class="p-3 pt-2">
     <div class="form container card p-3 shadow bg-secondary">
+      <a href="https://vue-forum-app.herokuapp.com/">foro referencia</a>
       <h2>Acceso</h2>
       <input type="text" placeholder="Email" v-model="usuario" />
       <input type="password" placeholder="Clave" @keyup.enter="login" v-model="password" />

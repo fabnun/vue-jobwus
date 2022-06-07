@@ -4,6 +4,7 @@
       <div class="filtroIn">
         <div class="cell" @click="modal = !modal">
           <dots-vertical-icon class="menu-button" />
+          <!-- <account-icon class="menu-button"/> -->
         </div>
         <div class="cell">
           <select v-model="folder" class="searchList2">
@@ -16,7 +17,8 @@
         </div>
         <div class="cell">
           <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
-          <select class="searchList" ref="searchList" @change="setSearch(false)">
+          <select class="searchList" ref="searchList" @click="setSearch()">
+            <option></option>
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
             </option>
@@ -95,6 +97,7 @@ import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 import ArchivePlusOutlineIcon from 'vue-material-design-icons/ArchivePlusOutline.vue';
 import ArchiveRemoveOutlineIcon from 'vue-material-design-icons/ArchiveRemoveOutline.vue';
 import ArchiveArrowUpOutlineIcon from 'vue-material-design-icons/ArchiveArrowUpOutline.vue';
+import AccountIcon from 'vue-material-design-icons/Account.vue';
 
 import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
@@ -107,7 +110,7 @@ const speech = new Speech();
 let SmartPhone = _smartPhone(false);
 
 export default {
-  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon },
+  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon, AccountIcon },
   name: 'Ofertas',
   data() {
     return {
@@ -132,6 +135,7 @@ export default {
       searchListSelect: null,
       undo: [],
       redo: [],
+      searchClick: true,
     };
   },
   watch: {
@@ -297,12 +301,13 @@ export default {
       }
     },
     setSearch(query = false) {
-      this.searchListSelect = this.$refs.searchList.value;
-      if (this.searchListSelect !== null) {
+      if (!this.searchClick) {
+        this.searchListSelect = this.$refs.searchList.value;
         this.$refs.filtro.value = this.searchListSelect;
         window.localStorage.setItem('searchListSelect', this.searchListSelect);
         if (query) this.query();
       }
+      this.searchClick = !this.searchClick;
     },
     trimPlus() {
       this.$refs.filtro.value = this.$refs.filtro.value
@@ -315,22 +320,25 @@ export default {
 
     addSearch() {
       this.trimPlus();
-      let seach = this.$refs.filtro.value;
-
-      if (this.searchList.indexOf(seach) === -1) {
-        this.searchList.push(seach);
-        this.searchList.sort();
-        this.searchListSelect = seach;
+      let search = this.$refs.filtro.value;
+      if (this.searchList.indexOf(search) === -1) {
+        if (search.length > 0) {
+          this.searchList.push(search);
+          this.searchList.sort();
+        }
+        this.searchListSelect = search;
         this.$forceUpdate();
         window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
       }
     },
     removeSearch() {
-      let seach = this.searchListSelect;
-      let index = this.searchList.indexOf(seach);
-      this.searchList.splice(index, 1);
-      this.$forceUpdate();
-      window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
+      let search = this.searchListSelect;
+      if (search.length > 0 && confirm(`¿Elimino: ${search}?`)) {
+        let index = this.searchList.indexOf(search);
+        this.searchList.splice(index, 1);
+        this.$forceUpdate();
+        window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
+      }
     },
     query() {
       this.trimPlus();

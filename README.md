@@ -7,7 +7,7 @@ Es un extractor de ofertas laborales obtenidas desde los siguientes portales de 
 <https://www.empleospublicos.cl>
 <https://www.trabajando.cl>
 
-Finalizado el proceso de extracción, las ofertas son filtradas por palabras clave y son agrupadas en los siguientes grupos
+Finalizada la extracción, las ofertas son filtradas por palabras clave y son agrupadas en los siguientes grupos
 <https://jobwus.com/compliance>
 <https://jobwus.com/info>
 <https://jobwus.com/sts>
@@ -17,4 +17,4 @@ Dentro de cada grupo se calcula la similitud entre ofertas mediante <https://git
 
 El agrupamiento funciona relativamente bien, pero ideal seria que se agrupara solo ofertas duplicadas. En un futuro esto se podría mejorar utilizando aprendizaje automático.
 
-Este repositorio contiene parte frontend desarrollada con [vue2](https://vuejs.org) y firebase [firebase](https://firebase.google.com/)
+Este repositorio contiene la parte frontend del proyecto desarrollado con [vue2](https://vuejs.org) y firebase [firebase](https://firebase.google.com/)
