@@ -8,7 +8,7 @@
       <div class="row">
         <div class="col-sm-6 col-12 mt-3"><button class="btn btn-secondary text-dark p-0 w-100" @click="resetModal">¿Olvido su Clave?</button></div>
         <div class="col-sm-6 col-12 mt-3"><button class="btn btn-secondary text-dark p-0 w-100" @click="verifyAccountModal">Reenviar Verificación</button></div>
-        <div class="col-sm-6 col-12 mt-3"><router-link class="btn btn-secondary text-dark p-0 w-100" to="/registro"> Registrar Cuenta </router-link></div>
+        <div class="col-sm-6 col-12 mt-3"><router-link class="btn btn-secondary text-dark p-0 w-100" to="registro"> Registrar Cuenta </router-link></div>
       </div>
     </div>
   </div>
@@ -47,12 +47,6 @@ export default {
     // });
   },
   methods: {
-    notification(type, message) {
-      console.log({
-        type,
-        message,
-      });
-    },
     verifyAccountModal() {
       bus.$emit(
         'MODAL',
@@ -65,19 +59,21 @@ export default {
       );
     },
     resetModal() {
-      bus.$emit(
-        'MODAL',
-        'resetClave',
-        '¿Olvido su Clave?',
-        `<p>Se enviara un correo a <strong>${this.usuario}</strong>
-			 	con instrucciones para asignar una nueva contraseña</p>`,
-        ['Proceder', 'Cancelar'],
-        ['primary']
-      );
+      if (
+        confirm(`Se enviara un correo a <strong>${this.usuario}</strong>
+			 	con instrucciones para asignar una nueva contraseña</p>`)
+      ) {
+        auth.sendPasswordResetEmail(this.usuario).then(
+          () => {
+            this.notification('Enviamos un email para reestablecer su clave, revise su correo ' + this.usuario);
+          },
+          (error) => this.notification(error, 'error')
+        );
+      }
     },
     verifyAccount() {
       //bus.$off('MODAL_CLICK')
-      signInWithEmailAndPassword(this.usuario, this.password).then(
+      signInWithEmailAndPassword(auth, this.usuario, this.password).then(
         (userCredential) => {
           console.log(userCredential.user.emailVerified);
           if (userCredential.user.emailVerified) {
@@ -97,7 +93,7 @@ export default {
     },
     reset() {
       //bus.$off('MODAL_CLICK')
-      sendPasswordResetEmail(this.usuario).then(
+      sendPasswordResetEmail(auth, this.usuario).then(
         () => {
           this.notification('Enviamos un email para reestablecer su clave, revise su correo ' + this.usuario);
         },
@@ -105,11 +101,11 @@ export default {
       );
     },
     login() {
-      signInWithEmailAndPassword(this.usuario, this.password).then(
+      signInWithEmailAndPassword(auth, this.usuario, this.password).then(
         (userCredential) => {
           if (userCredential.user.emailVerified) {
             this.notification('Sesión Iniciada.');
-            this.$router.replace('/buscar/');
+            this.$router.replace('..');
           } else {
             this.notification(
               `Su correo <strong>${userCredential.user.email}</strong> esta registrado,

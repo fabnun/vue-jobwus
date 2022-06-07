@@ -37,7 +37,8 @@
     <hr />
     <button class="button" @click.stop="importConfig"><download-icon class="buttonCfg" />Importar Localstorage</button>&nbsp;
     <button @click.stop="exportConfig" class="button"><upload-icon class="buttonCfg" />Exportar Localstorage</button>
-
+    nbsp;
+    <button @click.stop="logout" class="button"><upload-icon class="buttonCfg" />LOGOUT</button>
     <!-- <button class="button">undo</button>
     <button class="button">redo</button> -->
     <br />
@@ -48,16 +49,18 @@
     <div style="display: grid; justify-content: center; align-content: center; height: 128px">
       <a href="https://twitter.com/jobwus" style="text-decoration: none" target="_blank">
         <twitter-icon class="button-icon" />
-        width: calc(100% - 2em) !important;
         <span style="position: relative; top: -6px">@jobwus</span>
       </a>
     </div>
-    <!-- <h2><strong>Recursos</strong></h2>
-    <a target="_blank" href="https://www.npmjs.com/package/vue-material-design-icons">vue-material-design-icons</a><br />
-    <a target="_blank" href="https://fonts.google.com/specimen/Roboto">Google Fonts Roboto</a> -->
   </div>
 </template>
 <script>
+import { initializeApp } from 'firebase/app';
+import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
+import firebaseConfig from '../firebaseConfig';
+initializeApp(firebaseConfig);
+const auth = getAuth();
+
 import DownloadIcon from 'vue-material-design-icons/Download.vue';
 import UploadIcon from 'vue-material-design-icons/Upload.vue';
 import twitterIcon from 'vue-material-design-icons/Twitter.vue';
@@ -79,6 +82,15 @@ export default {
     };
   },
   methods: {
+    logout() {
+      debugger;
+      sendPasswordResetEmail(auth).then(
+        () => {
+          this.notification('Enviamos un email para reestablecer su clave, revise su correo ');
+        },
+        (error) => this.notification(error, 'error')
+      );
+    },
     setTheme(e) {
       this.themes.setTheme(e.target.value);
     },
