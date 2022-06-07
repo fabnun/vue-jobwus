@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.appmaker.lhpumy",
+      "sha256_cert_fingerprints": ["BF:A7:C9:71:77:CB:57:BE:59:DC:BE:CD:7F:69:F4:D2:B9:4D:64:90:5C:FF:7E:04:98:BC:F0:3D:42:B4:95:48"]
+    }
+  }
+]

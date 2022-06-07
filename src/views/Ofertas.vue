@@ -2,23 +2,28 @@
   <div class="container">
     <div class="filtro">
       <div class="filtroIn">
-        <dots-vertical-icon class="menu-button" @click="modal = !modal" />
-        <select v-model="folder" class="searchList2">
-          <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
-        </select>
-        <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
-        <magnify-icon class="submit-button" @click="query" />
-        <div style="text-align: left; width: 100%; padding-left: 27px">
+        <div class="cell" @click="modal = !modal">
+          <dots-vertical-icon class="menu-button" />
+        </div>
+        <div class="cell">
+          <select v-model="folder" class="searchList2">
+            <option v-for="item in folders" :value="item" :key="item" :selected="item === folder">{{ item }}</option>
+          </select>
           <undo-icon class="button-icon" @click="doUndo" />
           <redo-icon class="button-icon" @click="doRedo" />
           <archive-plus-outline-icon class="button-icon" @click="addSearch" />
           <archive-remove-outline-icon class="button-icon" @click="removeSearch" />
+        </div>
+        <div class="cell">
+          <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
           <select class="searchList" ref="searchList" @change="setSearch(false)">
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
             </option>
           </select>
-          <archive-arrow-up-outline-icon class="button-icon" @click="setSearch" />
+        </div>
+        <div class="cell" @click="query">
+          <magnify-icon class="menu-button" />
         </div>
       </div>
     </div>
@@ -69,7 +74,7 @@
     <div class="modal-container" v-show="modal" @click="modal = false">
       <div @click.stop.prevent="" style="margin-right: -32px">
         <button class="close-modal" @click="modal = false" title="Cerrar"><close-icon /></button>
-        <div class="modal" style="user-select: none; overflow-y: auto">
+        <div class="modal" style="overflow-y: auto">
           <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
         </div>
       </div>
@@ -565,18 +570,18 @@ export default {
 #footer {
   min-height: 480px;
 }
+.cell {
+  margin: 0.2em;
+}
+
 .searchList2 {
   position: relative;
-  top: -0.26em;
   padding: 0;
   outline: none;
   border-radius: var(--radio);
 }
 .searchList {
-  margin: 0 4px 0 2px;
   position: relative;
-  width: calc(100% - 188px);
-  top: -5px;
   padding: 0;
   cursor: pointer;
   border-radius: var(--radio);
@@ -641,12 +646,6 @@ export default {
   align-items: center;
   justify-content: center;
 }
-.submit-button {
-  position: relative;
-  top: 3px;
-  padding-left: 4px;
-  cursor: pointer;
-}
 .status {
   /*fix*/
   display: none !important;
@@ -684,11 +683,11 @@ export default {
 .modal {
   box-shadow: var(--menu-background);
   max-width: 640px;
-  max-height: 480px;
+  max-height: 260px;
   margin: 0 20px;
   position: relative;
   left: -10px;
-  padding: 0.5em;
+  padding: 1em;
   border-radius: var(--radio);
   background: var(--menu-background);
   border: 1px solid var(--color);
@@ -697,6 +696,9 @@ export default {
 
 .menu-button {
   cursor: pointer;
+  position: relative;
+  top: 0.9em !important;
+  left: -0.15em;
 }
 .filtro {
   position: fixed;
@@ -709,21 +711,18 @@ export default {
   z-index: 1;
 }
 .filtroIn {
-  width: 100%;
-  max-width: var(--page-max-width);
-  padding: 0.5em 0 0.1em;
+  position: relative;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 32px 152px 1fr 32px;
+  max-width: calc(var(--page-max-width) - 42px);
 }
-.filtro select {
+.filtro select,
+.filtro input {
+  margin-bottom: 0.2em;
+  width: 100%;
   font-size: 1em;
-  .noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
-  }
+  user-select: none;
 }
 .filtro h4 {
   padding: 0 4px 0 0;
@@ -734,20 +733,11 @@ export default {
   top: -3px;
 }
 
-.filtro div {
-  margin-right: 4px;
-  text-align: center;
-  display: inline-block;
-}
 .filtro input {
   border-radius: var(--radio);
   background: var(--background-input);
-  width: calc(100% - 198px);
-  padding: 1px 0.33em 0px;
-  position: relative;
-  top: -4px;
-  margin-left: 4px;
   outline: none;
+  width: calc(100% - 6px);
   border: 1px solid var(--background-color);
   color: var(--background-color);
 }
@@ -755,6 +745,5 @@ export default {
   border: none;
   color: var(--color);
   position: relative;
-  top: 1px;
 }
 </style>

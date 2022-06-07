@@ -1,7 +1,11 @@
 <template>
   <div class="cfg">
     <br />
-    <strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, lecturas del texto, marcaje de favoritos y archivado.
+    <strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online de Chile, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, lecturas del texto, marcaje de favoritos y archivado.<br />
+    <br />
+    Esta es una versión beta, lo que significa que se estarán ajustando la selección de ofertas y también puede cambiar la agrupación por similitud. La parte frontend del proyecto está disponible en:<br /><br />
+    https://github.com/fabnun/vue-jobwus
+
     <hr />
     <strong>Voz: </strong>
     <select class="button" @change="setVoice">
@@ -14,7 +18,7 @@
         <option :value="speed" v-for="speed in speeds" :key="speed" :selected="speed === voiceSpeed">{{ speed * 100 }}%</option>
       </select>
     </div>
-    Para mejores resultados, se recomienda usar Microsoft Edge.
+    Para mejores resultados de la lectura de texto, se recomienda usar Microsoft Edge.
     <hr />
     <strong>Theme: </strong>
     <select class="button" @change="setTheme">
@@ -28,6 +32,8 @@
     <hr />
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
     <label class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
+    <br />
+    <br />
     <hr />
     <button class="button" @click.stop="importConfig"><download-icon class="buttonCfg" />Importar Localstorage</button>&nbsp;
     <button @click.stop="exportConfig" class="button"><upload-icon class="buttonCfg" />Exportar Localstorage</button>
@@ -38,6 +44,14 @@
     <br />
     <hr />
     <strong>Palabras Clave : </strong> <span>{{ words }}.</span>
+
+    <div style="display: grid; justify-content: center; align-content: center; height: 128px">
+      <a href="https://twitter.com/jobwus" style="text-decoration: none" target="_blank">
+        <twitter-icon class="button-icon" />
+        width: calc(100% - 2em) !important;
+        <span style="position: relative; top: -6px">@jobwus</span>
+      </a>
+    </div>
     <!-- <h2><strong>Recursos</strong></h2>
     <a target="_blank" href="https://www.npmjs.com/package/vue-material-design-icons">vue-material-design-icons</a><br />
     <a target="_blank" href="https://fonts.google.com/specimen/Roboto">Google Fonts Roboto</a> -->
@@ -46,12 +60,14 @@
 <script>
 import DownloadIcon from 'vue-material-design-icons/Download.vue';
 import UploadIcon from 'vue-material-design-icons/Upload.vue';
+import twitterIcon from 'vue-material-design-icons/Twitter.vue';
 
 export default {
   props: ['words', 'voiceList'],
   components: {
     DownloadIcon,
     UploadIcon,
+    twitterIcon,
   },
   data() {
     return {

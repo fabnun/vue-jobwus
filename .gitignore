@@ -4,6 +4,7 @@ dist
 .firebase
 .firebaserc
 firebase.json
+firebaseConfig.js
 firestore-debug.json
 firestore.indexes.json
 firestore.rules
