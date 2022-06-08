@@ -307,12 +307,13 @@ export default {
       if (query) this.query();
     },
     trimPlus() {
-      this.$refs.filtro.value = this.$refs.filtro.value
+      let newValue = this.$refs.filtro.value
         .toLowerCase()
-        .replace(/[^\d\w,\+\s]+/g, '')
+        .replace(/[^\d\wáéíóúüñ,\+\s]+/g, ' ')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
+      this.$refs.filtro.value = newValue;
     },
 
     addSearch() {
@@ -340,7 +341,6 @@ export default {
     query() {
       this.trimPlus();
       this.loading = true;
-
       let search = this.$refs.filtro.value;
       search = search ? search.trim() : '';
 
@@ -482,13 +482,15 @@ export default {
       let words2 = this.filtroFinalPlus.map((word) => this.normalizeText(word));
       let text = this.normalizeText(data.titulo + data.descripcion);
       if (words2.length > 0) {
-        let regexp = '[^a-zA-Z](' + words2.join('[^a-zA-Z]|') + '[^a-zA-Z])+';
+        let regexp = '[^a-zA-Z]+(' + words2.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
+        console.log(regexp);
         let found = text.match(new RegExp(regexp, 'gi')) !== null;
         if (found) {
           return true;
         }
       } else {
-        let regexp = '[^a-zA-Z](' + words.join('[^a-zA-Z]|') + '[^a-zA-Z])+';
+        let regexp = '[^a-zA-Z]+(' + words.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
+        console.log(regexp);
         let found = text.match(new RegExp(regexp, 'gi')) !== null;
         if (found) {
           return true;

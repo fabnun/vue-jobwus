@@ -121,7 +121,7 @@ export default {
         }
         return a > b ? 1 : -1;
       });
-      let regexp = '[^a-zA-Z](' + sorted.join('[^a-zA-Z]|') + '[^a-zA-Z])+';
+      let regexp = '[^a-zA-Z]+(' + sorted.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
       text = text.replace(new RegExp(regexp, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
       return text;
     },
