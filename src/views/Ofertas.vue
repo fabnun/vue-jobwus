@@ -309,7 +309,7 @@ export default {
     trimPlus() {
       let newValue = this.$refs.filtro.value
         .toLowerCase()
-        .replace(/[^\d\wáéíóúüñ,\+\s]+/g, ' ')
+        .replace(/[^\d\áéíóúüñw,\+\s]+/g, ' ')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
