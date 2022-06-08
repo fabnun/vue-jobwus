@@ -17,7 +17,7 @@
         </div>
         <div class="cell">
           <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
-          <select class="searchList" ref="searchList" @click="setSearch()">
+          <select class="searchList" ref="searchList" @change="setSearch()">
             <option></option>
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
@@ -301,18 +301,15 @@ export default {
       }
     },
     setSearch(query = false) {
-      if (!this.searchClick) {
-        this.searchListSelect = this.$refs.searchList.value;
-        this.$refs.filtro.value = this.searchListSelect;
-        window.localStorage.setItem('searchListSelect', this.searchListSelect);
-        if (query) this.query();
-      }
-      this.searchClick = !this.searchClick;
+      this.searchListSelect = this.$refs.searchList.value;
+      this.$refs.filtro.value = this.searchListSelect;
+      window.localStorage.setItem('searchListSelect', this.searchListSelect);
+      if (query) this.query();
     },
     trimPlus() {
       this.$refs.filtro.value = this.$refs.filtro.value
         .toLowerCase()
-        .replace(/[^\d\w,\s]+/g, '')
+        .replace(/[^\d\w,\+\s]+/g, '')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
@@ -485,17 +482,16 @@ export default {
       let words2 = this.filtroFinalPlus.map((word) => this.normalizeText(word));
       let text = this.normalizeText(data.titulo + data.descripcion);
       if (words2.length > 0) {
-        for (let word of words2) {
-          if (!text.includes(word)) {
-            return false;
-          }
+        let regexp = '[^a-zA-Z](' + words2.join('[^a-zA-Z]|') + '[^a-zA-Z])+';
+        let found = text.match(new RegExp(regexp, 'gi')) !== null;
+        if (found) {
+          return true;
         }
-        return true;
       } else {
-        for (let word of words) {
-          if (text.includes(word)) {
-            return true;
-          }
+        let regexp = '[^a-zA-Z](' + words.join('[^a-zA-Z]|') + '[^a-zA-Z])+';
+        let found = text.match(new RegExp(regexp, 'gi')) !== null;
+        if (found) {
+          return true;
         }
       }
       return false;
@@ -537,7 +533,7 @@ export default {
     this.searchListSelect = window.localStorage.getItem('searchListSelect');
     let searchList = window.localStorage.getItem('searchList');
     if (searchList !== null) {
-      this.searchList = JSON.parse(searchList);
+      this.searchList = JSON.parse(searchList).filter((n) => n !== '');
       this.searchList.sort();
     }
     ///////////////////////////////////////////////////
@@ -579,7 +575,7 @@ export default {
   min-height: 480px;
 }
 .cell {
-  margin: 0.2em;
+  margin: 0.3em 0.2em 0.1em 0.3em;
 }
 
 .searchList2 {

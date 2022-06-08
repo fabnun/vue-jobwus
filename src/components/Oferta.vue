@@ -107,8 +107,9 @@ export default {
     },
     format(text) {
       if (this.ignorarTildes) {
-        text = ' ' + text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') + ' ';
+        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
+      text = ' ' + text + ' ';
 
       let sorted = [...this.filtro];
       sorted.sort((a, b) => {
@@ -120,10 +121,9 @@ export default {
         }
         return a > b ? 1 : -1;
       });
-      return text
-        .replace(new RegExp('[^a-zA-Z]?' + sorted.join('|[^a-zA-Z]') + '[^a-zA-Z]?', 'gi'), '<span class="highlight">$&</span>')
-        .replace(/\s+/g, ' ')
-        .trim();
+      let regexp = '[^a-zA-Z](' + sorted.join('[^a-zA-Z]|') + '[^a-zA-Z])+';
+      text = text.replace(new RegExp(regexp, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
+      return text;
     },
   },
 };

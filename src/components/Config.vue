@@ -31,14 +31,12 @@
     </select>
     <hr />
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
-    <label class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
-    <br />
+    <label style="position: relative; top: -0px !important; margin-left: 10px" class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
     <br />
     <hr />
     <button class="button" @click.stop="importConfig"><download-icon class="buttonCfg" />Importar Localstorage</button>&nbsp;
     <button @click.stop="exportConfig" class="button"><upload-icon class="buttonCfg" />Exportar Localstorage</button>
-    nbsp;
-    <button @click.stop="logout" class="button"><upload-icon class="buttonCfg" />LOGOUT</button>
+    <!-- <button @click.stop="logout" class="button"><upload-icon class="buttonCfg" />LOGOUT</button> -->
     <!-- <button class="button">undo</button>
     <button class="button">redo</button> -->
     <br />
