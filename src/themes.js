@@ -13,7 +13,7 @@ const themes = {
     });
     this.themeSelected = theme;
   },
-  themeSelected: localStorage.getItem('theme') || 'blueLight',
+  themeSelected: localStorage.getItem('theme') || 'brownDark',
   themeZoom: localStorage.getItem('zoom') || 'Normal',
   zooms: {
     'Mas chico': '0.98',
@@ -41,7 +41,7 @@ const themes = {
       '--toolbar-background': 'rgb(32, 29, 18)',
     },
     blueLight: {
-      '--background': "url('/assets/paper2.jpg') repeat center top",
+      '--background': "url('/assets/paper3.jpg') repeat center top",
       '--color': 'rgba(20,30,40, 1)',
       '--background-input': 'white',
       '--background-color': 'black',
@@ -50,7 +50,7 @@ const themes = {
       '--oferta-background': 'rgba(5, 35, 66, 0.1)',
       '--match-color': 'cyan',
       '--menu-background': 'rgba(255,255,255, 0.9)',
-      '--favorite-background': 'rgba(20,80,120, 0.3)',
+      '--favorite-background': 'rgba(20,120,120, 0.3)',
       '--radio': '0.3em',
       '--font': "'Bitter', serif",
       '--oferta-max-height': '7.4em',

@@ -1,7 +1,7 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id) }">
-    <div class="oferta" :class="{ collapsed, fav: favoritos.has(id) }" @click="collapsed = !collapsed">
-      <div class="contenido">
+    <div class="oferta" :class="{ collapsed, fav: favoritos.has(id) }">
+      <div class="contenido" @click="collapsed = !collapsed">
         <div v-if="filtro.length > 0">
           <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
           <span class="descripcion" v-html="format(data.descripcion)"></span>
@@ -14,19 +14,25 @@
         </div>
       </div>
       <div class="top">
-        <span class="fecha">{{ dateFormat(data.fecha) }}</span>
-        <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
-          <span style="position: relative; top: -0.1em">{{ grupo.length + 1 }}</span>
-          <content-copy-icon @click.stop.prevent="collapsedSimilar = !collapsedSimilar" :size="18" />
-        </label>
-        <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
-        <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!archivados.has(id)" />
-        <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="archivados.has(id)" />
-        <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span>
-        <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
-        <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />
-        <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
-        <!-- <dots-vertical-icon :size="22" /> -->
+        <label class="fecha">{{ dateFormat(data.fecha) }}</label>
+        <div style="text-align: center; cursor: pointer" @click="collapsed = !collapsed">
+          <chevron-up-icon v-if="!collapsed"></chevron-up-icon>
+          <chevron-down-icon v-if="collapsed"></chevron-down-icon>
+        </div>
+        <div style="white-space: nowrap">
+          <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
+            <span style="position: relative; top: -0.1em">{{ grupo.length + 1 }}</span>
+            <content-copy-icon @click.stop.prevent="collapsedSimilar = !collapsedSimilar" :size="18" />
+          </label>
+          <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
+          <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!archivados.has(id)" />
+          <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="archivados.has(id)" />
+          <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span>
+          <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
+          <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />
+          <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
+          <!-- <dots-vertical-icon :size="22" /> -->
+        </div>
       </div>
     </div>
 
@@ -62,6 +68,8 @@ import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 import DeleteOffOutlineIcon from 'vue-material-design-icons/DeleteOffOutline.vue';
 import DeleteOutlineIcon from 'vue-material-design-icons/DeleteOutline.vue';
 import AccountTieVoiceOutlineIcon from 'vue-material-design-icons/AccountTieVoiceOutline.vue';
+import ChevronUpIcon from 'vue-material-design-icons/ChevronUp.vue';
+import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue';
 
 export default {
   props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
@@ -84,6 +92,8 @@ export default {
     DeleteOutlineIcon,
     DeleteOffOutlineIcon,
     AccountTieVoiceOutlineIcon,
+    ChevronUpIcon,
+    ChevronDownIcon,
   },
   computed: {
     reordenGrupo: function () {
@@ -146,16 +156,21 @@ export default {
 </script>
 <style scoped>
 .contenido {
-  padding: 0.3em;
+  padding: 0.3em 0.3em 1em;
 }
 .top {
   background: var(--toolbar-background);
   text-align: right;
-  padding: 0.2em 0 0 0.4em;
+  max-height: 1.6em;
+  padding: 0.3em 0 0 0.4em;
   font-weight: bolder;
   position: -webkit-sticky;
   position: sticky;
   bottom: -1px;
+  -webkit-box-shadow: -1px -1px 10px 5px rgba(0, 0, 0, 0.47);
+  box-shadow: -1px -1px 10px 5px rgba(0, 0, 0, 0.47);
+  display: grid;
+  grid-template-columns: 78px 100fr 1fr;
 }
 .top .fecha {
   float: left;
