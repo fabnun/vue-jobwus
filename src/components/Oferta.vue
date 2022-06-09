@@ -90,6 +90,9 @@ export default {
       let este = this;
       return this.grupo.sort((a, b) => {
         let result = 0;
+        if (a.titulo === este.data.titulo) {
+          return -10000;
+        }
         let ta = a.titulo.trim().toLowerCase();
         let tb = b.titulo.trim().toLowerCase();
         result += ta === tb ? 0 : ta > tb ? 1 : -1;
