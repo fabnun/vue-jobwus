@@ -309,7 +309,7 @@ export default {
     trimPlus() {
       let newValue = this.$refs.filtro.value
         .toLowerCase()
-        .replace(/[^\d\áéíóúüñw,\+\s]+/g, ' ')
+        .replace(/[^\d\wáéíóúüñ,\+\s]+/g, ' ')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
@@ -480,18 +480,18 @@ export default {
       if (this.filtroFinal.length === 0) return true;
       let words = this.filtroFinal.map((word) => this.normalizeText(word));
       let words2 = this.filtroFinalPlus.map((word) => this.normalizeText(word));
-      let text = this.normalizeText(data.titulo + data.descripcion);
+
+      let text = this.normalizeText(data.titulo + ' ' + data.descripcion);
+      text = ' ' + text + ' ';
       if (words2.length > 0) {
-        let regexp = '[^a-zA-Z]+(' + words2.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
-        console.log(regexp);
-        let found = text.match(new RegExp(regexp, 'gi')) !== null;
+        let rgx = '[^a-zA-Z]+(' + words2.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
+        let found = text.match(new rgx(rgx, 'gi')) !== null;
         if (found) {
           return true;
         }
       } else {
-        let regexp = '[^a-zA-Z]+(' + words.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
-        console.log(regexp);
-        let found = text.match(new RegExp(regexp, 'gi')) !== null;
+        let rgx = '[^a-zA-Z]+(' + words.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
+        let found = text.match(new RegExp(rgx, 'gi')) !== null;
         if (found) {
           return true;
         }
@@ -553,11 +553,18 @@ export default {
 
     (async () => {
       let fetchCfg = { method: 'POST', body: this.$route.params.cfg ? this.$route.params.cfg.trim() : 'info' };
-      let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
-      //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
-      let uncompress = lzString.decompressFromBase64(result);
-      this.result = JSON.parse(uncompress);
-      this.query();
+      try {
+        let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
+        //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
+        let uncompress = lzString.decompressFromBase64(result);
+        this.result = JSON.parse(uncompress);
+        this.query();
+      } catch (error) {
+        this.loading = false;
+        this.$forceUpdate();
+        console.error(error);
+        this.notification(error, 'error');
+      }
     })();
   },
 };

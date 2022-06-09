@@ -1,6 +1,18 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id) }">
     <div class="oferta" :class="{ collapsed, fav: favoritos.has(id) }" @click="collapsed = !collapsed">
+      <div class="contenido">
+        <div v-if="filtro.length > 0">
+          <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
+          <span class="descripcion" v-html="format(data.descripcion)"></span>
+        </div>
+        <div v-else>
+          <a @click.stop="" target="_blank" :href="data.url" class="titulo">
+            {{ data.titulo.trim() }}
+          </a>
+          <span class="descripcion" v-text="data.descripcion"></span>
+        </div>
+      </div>
       <div class="top">
         <span class="fecha">{{ dateFormat(data.fecha) }}</span>
         <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
@@ -16,22 +28,10 @@
         <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
         <!-- <dots-vertical-icon :size="22" /> -->
       </div>
-      <div class="contenido">
-        <div v-if="filtro.length > 0">
-          <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
-          <span class="descripcion" v-html="format(data.descripcion)"></span>
-        </div>
-        <div v-else>
-          <a @click.stop="" target="_blank" :href="data.url" class="titulo">
-            {{ data.titulo.trim() }}
-          </a>
-          <span class="descripcion" v-text="data.descripcion"></span>
-        </div>
-      </div>
     </div>
 
     <div v-if="!collapsedSimilar">
-      <div class="copy-job" v-for="(item, idx) in grupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
+      <div class="copy-job" v-for="(item, idx) in reordenGrupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
         <div class="copy-job-buttons">
           <delete-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="!archivados.has(item.id)" />
           <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
@@ -85,6 +85,19 @@ export default {
     DeleteOffOutlineIcon,
     AccountTieVoiceOutlineIcon,
   },
+  computed: {
+    reordenGrupo: function () {
+      let este = this;
+      return this.grupo.sort((a, b) => {
+        let result = 0;
+        let ta = a.titulo.trim().toLowerCase();
+        let tb = b.titulo.trim().toLowerCase();
+        result += ta === tb ? 0 : ta > tb ? 1 : -1;
+        result += a.fecha > b.fecha ? -0.1 : 0.1;
+        return result;
+      });
+    },
+  },
 
   methods: {
     voice(id) {
@@ -121,8 +134,8 @@ export default {
         }
         return a > b ? 1 : -1;
       });
-      let regexp = '[^a-zA-Z]+(' + sorted.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
-      text = text.replace(new RegExp(regexp, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
+      let rgx = '[^a-zA-Z](' + sorted.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z])+';
+      text = text.replace(new RegExp(rgx, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
       return text;
     },
   },
@@ -133,10 +146,13 @@ export default {
   padding: 0.3em;
 }
 .top {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--toolbar-background);
   text-align: right;
   padding: 0.2em 0 0 0.4em;
   font-weight: bolder;
+  position: -webkit-sticky;
+  position: sticky;
+  bottom: -1px;
 }
 .top .fecha {
   float: left;
@@ -168,8 +184,10 @@ export default {
 }
 
 .copy-job span {
-  padding: 0 1em 0 0;
+  top: 0.2em !important;
+  padding: 0 0.5em 0 0;
   cursor: pointer;
+  position: relative;
 }
 
 .copy-job-buttons {
