@@ -713,11 +713,12 @@ export default {
 .noEvents {
   pointer-events: none !important;
 }
+
 .modal {
   box-shadow: var(--menu-background);
   max-width: 640px;
   max-height: 260px;
-  margin: 0 20px;
+  margin: 0 44px 0 34px !important;
   position: relative;
   left: -10px;
   padding: 1em;
@@ -725,6 +726,13 @@ export default {
   background: var(--menu-background);
   border: 1px solid var(--color);
   z-index: 9999;
+}
+
+.modal-container div {
+  top: 0px;
+  left: -10px;
+  padding: 8px;
+  max-width: 640px;
 }
 
 .menu-button {

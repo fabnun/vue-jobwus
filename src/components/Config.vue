@@ -1,12 +1,5 @@
 <template>
   <div class="cfg">
-    <br />
-    <strong>JOBWUS</strong> es una herramienta para "hojear" ofertas laborales extraídas desde bolsas de trabajo online de Chile, las cuales son agrupadas por similitud, ordenadas por fecha, permitiendo tambien realizar búsquedas, lecturas del texto, marcaje de favoritos y archivado.<br />
-    <br />
-    Esta es una versión beta, lo que significa que se estarán ajustando la selección de ofertas y también puede cambiar la agrupación por similitud. La parte frontend del proyecto está disponible en:<br /><br />
-    https://github.com/fabnun/vue-jobwus
-
-    <hr />
     <strong>Voz: </strong>
     <select class="button" @change="setVoice">
       <option v-for="item in voiceList" :key="item" :value="item" :selected="item === voice">{{ item === '' ? 'ninguna' : item.substring(item.indexOf(' - ') > -1 ? item.indexOf(' - ') + 3 : 0) }}</option>
@@ -18,7 +11,7 @@
         <option :value="speed" v-for="speed in speeds" :key="speed" :selected="speed === voiceSpeed">{{ speed * 100 }}%</option>
       </select>
     </div>
-    Para mejores resultados de la lectura de texto, se recomienda usar Microsoft Edge.
+    Para mejores resultados de la lectura se recomienda usar Microsoft Edge.
     <hr />
     <strong>Theme: </strong>
     <select class="button" @change="setTheme">
@@ -41,10 +34,39 @@
     <br />
     <br />
     <hr />
-    <strong>Palabras Clave : </strong> <span>{{ words }}.</span>
+    <p></p>
+
+    <h1>¿QUE ES JOBWUS?</h1>
+    <br />
+
+    <p>
+      Es un extractor de ofertas laborales obtenidas desde los siguientes portales de empleos en Chile:<br /><br />
+      <a href="#" @click="go('https://www.bne.cl', true)">bne.cl</a><br />
+      <a href="#" @click="go('ttps://www.chiletrabajos.cl', true)">chiletrabajos.cl</a><br />
+      <a href="#" @click="go('https://www.computrabajo.cl', true)">computrabajo.cl</a><br />
+      <a href="#" @click="go('https://www.empleospublicos.cl', true)">empleospublicos.cl</a><br />
+      <a href="#" @click="go('https://www.trabajando.cl', true)">trabajando.cl</a><br />
+    </p>
+    <br />
+    <p>
+      Finalizada la extracción, las ofertas son filtradas por palabras clave y son agrupadas en las siguientes categorias:<br /><br />
+      <a href="#" @click="go('/compliance')">https://jobwus.com/compliance</a><br />
+      <a href="#" @click="go('/info')">https://jobwus.com/info</a><br />
+      <a href="#" @click="go('/sts')">https://jobwus.com/sts</a><br />
+      <a href="#" @click="go('/profes')"> https://jobwus.com/profes</a><br />
+    </p>
+    <br />
+    <p>Dentro de cada categoria se calcula la similitud entre ofertas mediante <a href="#" @click="go('https://github.com/stephenjjbrown/string-similarity-js', true)" target="_blank">string-similarity-js</a> y se agrupan ofertas similares usando <a href="#" @click="go('https://github.com/deestan/set-clustering', true)" target="_blank">set-clustering</a></p>
+    <br />
+    <p>El agrupamiento que se realiza 2 veces al día retorna grupos de ofertas similares, pero más útil sería poder identificar con seguridad las ofertas duplicadas. En un futuro esto se podrá mejorar utilizando aprendizaje automático, que tambien ayudara a hacer un mejor match de las ofertas seleccionadas.</p>
+    <br />
+    <p>
+      El repositorio github de la parte frontend del proyecto esta en<br />
+      <a href="#" @click="go('https://github.com/fabnun/vue-jobwus', true)" target="_blank">fabnun/vue-jobwus</a>
+    </p>
 
     <div style="display: grid; justify-content: center; align-content: center; height: 128px">
-      <a href="https://twitter.com/jobwus" style="text-decoration: none" target="_blank">
+      <a href="#" @click="go('https://twitter.com/jobwus', true)" style="text-decoration: none" target="_blank">
         <twitter-icon class="button-icon" />
         <span style="position: relative; top: -6px">@jobwus</span>
       </a>
@@ -79,6 +101,13 @@ export default {
     };
   },
   methods: {
+    go(url, blank = false) {
+      if (blank) {
+        window.open(url, '_blank');
+      } else {
+        window.location.href = url;
+      }
+    },
     logout() {
       debugger;
       sendPasswordResetEmail(auth).then(

@@ -3,11 +3,11 @@
     <div :id="id" class="oferta" :class="{ collapsed, fav: favoritos.has(id) }">
       <div @click="collapseDoubleClick" class="contenido">
         <div v-if="filtro.length > 0">
-          <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
+          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo)"> </a> -
           <span class="descripcion" v-html="format(data.descripcion)"></span>
         </div>
         <div v-else>
-          <a @click.stop="" target="_blank" :href="data.url" class="titulo">
+          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo">
             {{ data.titulo.trim() }}
           </a>
           <span class="descripcion" v-text="data.descripcion"></span>
@@ -223,7 +223,7 @@ export default {
   border-radius: 6px;
 }
 .focus > div:first-child {
-  border: 3px solid red !important;
+  border: 2px solid red !important;
 }
 
 .focus > div:not(:first-child) > div {
