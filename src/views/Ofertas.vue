@@ -46,9 +46,12 @@
               :favoritos="favoritos"
               :speechSupport="speechSupport"
               :folder="folder"
+              :itemFocus="itemFocus"
               @voiceSpeak="voiceSpeak"
               @favorite="favorite"
               @archive="archive"
+              @goto="goto"
+              @focus="focus"
               :data="resultView.data[item.id]"
               :id="item.id"
               :ignorarTildes="$store.state.ignorarTildes"
@@ -119,6 +122,9 @@ export default {
       voiceList: [],
       voice: '',
       voiceSpeed: 1,
+      y: 0,
+      itemFocus: '123',
+      idAjustado: null,
       speechSupport: this.voice !== '' && speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
       folder: 'Favoritos',
@@ -150,7 +156,12 @@ export default {
   created() {
     window.addEventListener('scroll', this.handleScroll);
   },
+
   methods: {
+    focus(id) {
+      this.itemFocus = id;
+      this.$forceUpdate();
+    },
     debounce(func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -162,6 +173,7 @@ export default {
         timeout = setTimeout(later, wait);
       };
     },
+
     scroll(ev) {
       //this.handleDebouncedScroll = debounce(this.handleScroll, 500);
       let target = ev.target;
@@ -353,6 +365,14 @@ export default {
       }
       setTimeout(this.submit, 200);
     },
+    goto(id, collapsed) {
+      const element = document.getElementById(id);
+      if (collapsed) {
+        let countInterval = 0;
+        this.idAjustado = id;
+      }
+    },
+
     submit() {
       let search = this.$route.params.search;
       search = search ? search.trim() : '';

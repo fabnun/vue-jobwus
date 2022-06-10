@@ -10,7 +10,7 @@
   --page-max-width: 1280px;
   --body-margin-top: 4.2em;
 }
-* {
+body {
   zoom: var(--zoom) !important;
 }
 body {

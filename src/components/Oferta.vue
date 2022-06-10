@@ -1,7 +1,7 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id) }">
-    <div class="oferta" :class="{ collapsed, fav: favoritos.has(id) }">
-      <div class="contenido" @click="collapsed = !collapsed">
+    <div :id="id" class="oferta" :class="{ collapsed, fav: favoritos.has(id), focus: id === itemFocus }">
+      <div class="contenido" @click="collapse">
         <div v-if="filtro.length > 0">
           <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
           <span class="descripcion" v-html="format(data.descripcion)"></span>
@@ -15,7 +15,7 @@
       </div>
       <div class="top">
         <label class="fecha">{{ dateFormat(data.fecha) }}</label>
-        <div style="text-align: center; cursor: pointer" @click="collapsed = !collapsed">
+        <div style="text-align: center; cursor: pointer" @click="collapse">
           <chevron-up-icon v-if="!collapsed"></chevron-up-icon>
           <chevron-down-icon v-if="collapsed"></chevron-down-icon>
         </div>
@@ -72,13 +72,14 @@ import ChevronUpIcon from 'vue-material-design-icons/ChevronUp.vue';
 import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue';
 
 export default {
-  props: ['data', 'grupo', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
+  props: ['data', 'grupo', 'itemFocus', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
   data: function () {
     return {
       collapsed: true,
       collapsedSimilar: true,
       dragStart: 0,
       dragTime: 0,
+      y: 0,
     };
   },
   components: {
@@ -113,6 +114,13 @@ export default {
   },
 
   methods: {
+    collapse() {
+      if (!this.collapsed) {
+        this.goto(this.id, event.clientY, document.getElementById(this.id).clientHeight);
+      }
+      this.$emit('focus', this.id);
+      this.collapsed = !this.collapsed;
+    },
     voice(id) {
       this.$emit('voiceSpeak', id);
     },
@@ -155,6 +163,9 @@ export default {
 };
 </script>
 <style scoped>
+.focus {
+  border: 2px solid red !important;
+}
 .contenido {
   padding: 0.3em 0.3em 1em;
 }

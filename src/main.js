@@ -12,6 +12,8 @@ import firebaseConfig from './firebaseConfig';
 initializeApp(firebaseConfig);
 Vue.use(VueToast);
 themes.init();
+console.log(themes);
+
 Vue.config.productionTip = false;
 
 const errores = {
@@ -82,6 +84,7 @@ let user = undefined;
 
 onAuthStateChanged(getAuth(), (_user) => {
   user = _user;
+
   if (vueinitialize) {
     Vue.mixin({
       methods: {
@@ -90,6 +93,25 @@ onAuthStateChanged(getAuth(), (_user) => {
         },
         getUser() {
           return user;
+        },
+        goto(id, y) {
+          const element = document.getElementById(id);
+          const ofertasDiv = document.getElementById('ofertas');
+          let offset = element.offsetTop;
+          let count = 0;
+          let interval = setInterval(() => {
+            let pos = Math.max(0, offset + 120 - y);
+            let nowPos = ofertasDiv.scrollTop;
+            if (count < 100 && Math.abs(nowPos - pos) > 3) {
+              ofertasDiv.scrollTop = nowPos + (pos - nowPos) * 0.2;
+              count++;
+            } else {
+              ofertasDiv.scrollTop = pos;
+              this.idAjustado = null;
+              clearInterval(interval);
+              return;
+            }
+          }, 20);
         },
         notification: function (message, type = 'info', dismissible = true, duration = 5000) {
           if (typeof message === 'object') {
