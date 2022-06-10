@@ -100,10 +100,10 @@ onAuthStateChanged(getAuth(), (_user) => {
           let offset = element.offsetTop;
           let count = 0;
           let interval = setInterval(() => {
-            let pos = Math.max(0, offset + 120 - y);
+            let pos = Math.max(0, offset + 126 - y);
             let nowPos = ofertasDiv.scrollTop;
-            if (count < 100 && Math.abs(nowPos - pos) > 3) {
-              ofertasDiv.scrollTop = nowPos + (pos - nowPos) * 0.2;
+            if (count < 60 && Math.abs(nowPos - pos) > 3) {
+              ofertasDiv.scrollTop = nowPos + (pos - nowPos) * 0.3;
               count++;
             } else {
               ofertasDiv.scrollTop = pos;

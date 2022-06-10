@@ -6,7 +6,7 @@
 <style>
 :root {
   --oferta-full-max-height: 3072px;
-  --oferta-transition: max-height 0.2s ease-in-out;
+  --oferta-transition: max-height 0.2s;
   --page-max-width: 1280px;
   --body-margin-top: 4.2em;
 }

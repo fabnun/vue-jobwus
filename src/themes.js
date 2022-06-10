@@ -41,7 +41,7 @@ const themes = {
       '--favorite-background': 'rgba(185, 165, 20, 0.2)',
       '--radio': '0.6em',
       '--font': "'Open Sans', sans-serif",
-      '--oferta-max-height': '7.4em',
+      '--oferta-max-height': '7.2em',
       '--oferta-line-height': '1.3em',
       '--toolbar-background': 'rgb(32, 29, 18)',
     },

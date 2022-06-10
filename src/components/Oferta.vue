@@ -1,6 +1,6 @@
 <template>
-  <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id) }">
-    <div :id="id" class="oferta" :class="{ collapsed, fav: favoritos.has(id), focus: id === itemFocus }">
+  <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id), focus: id === itemFocus }">
+    <div :id="id" class="oferta" :class="{ collapsed, fav: favoritos.has(id) }">
       <div class="contenido" @click="collapse">
         <div v-if="filtro.length > 0">
           <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
@@ -13,21 +13,35 @@
           <span class="descripcion" v-text="data.descripcion"></span>
         </div>
       </div>
-      <div class="top">
+      <div class="top" @click="$emit('focus', id)">
         <label class="fecha">{{ dateFormat(data.fecha) }}</label>
         <div style="text-align: center; cursor: pointer" @click="collapse">
           <chevron-up-icon v-if="!collapsed"></chevron-up-icon>
           <chevron-down-icon v-if="collapsed"></chevron-down-icon>
         </div>
-        <div style="white-space: nowrap">
+        <div style="white-space: nowrap; position: relative; top: -6px">
           <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
             <span style="position: relative; top: -0.1em">{{ grupo.length + 1 }}</span>
-            <content-copy-icon @click.stop.prevent="collapsedSimilar = !collapsedSimilar" :size="18" />
+            <content-copy-icon
+              @click.stop.prevent="
+                collapsedSimilar = !collapsedSimilar;
+                $emit('focus', id);
+              "
+              :size="18"
+            />
           </label>
-          <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => archivados.has(item.id)).length }}</span>
-          <delete-outline-icon @click.stop.prevent="archive" :size="22" v-if="!archivados.has(id)" />
-          <delete-off-outline-icon @click.stop.prevent="archive" :size="22" v-if="archivados.has(id)" />
-          <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span>
+          <div v-if="folder === 'Agrupados'" style="display: inline-block; padding: 0; margin: 0; width: 0; height: 0; z-index: 1000; opacity: 0.2; color: white; height: 32px; vertical-align: text-bottom">
+            <div @click.stop.prevent="archive" :style="`height: ${note}px; top: 6px`" class="progreso">&nbsp;</div>
+          </div>
+          <delete-outline-icon @click.stop.prevent="archive" style="z-index: 100" :size="22" v-if="!archivados.has(id)" />
+          <delete-off-outline-icon @click.stop.prevent="archive" style="z-index: 100" :size="22" v-if="archivados.has(id)" />
+
+          <!-- <span v-if="folder === 'Agrupados' && grupo.length > 0" style="position: relative; top: -0.2em">{{ grupo.filter((item) => favoritos.has(item.id)).length + (favoritos.has(id) ? 1 : 0) }}</span> -->
+
+          <div v-if="folder === 'Agrupados'" style="display: inline-block; padding: 0; margin: 0; width: 0; height: 0; z-index: 1000; opacity: 0.2; color: white; height: 32px; vertical-align: text-bottom">
+            <div @click.stop.prevent="favorite" :style="`height: ${note2}px; top: 6px; background:green`" class="progreso">&nbsp;</div>
+          </div>
+
           <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
           <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />
           <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
@@ -97,6 +111,26 @@ export default {
     ChevronDownIcon,
   },
   computed: {
+    note() {
+      if (!this.grupo || !this.grupo.length === 0) {
+        return 20;
+      }
+      let total = parseFloat(this.grupo.length + 1);
+      let archi = parseFloat(this.grupo.filter((item) => this.archivados.has(item.id)).length + (this.archivados.has(this.id) ? 1 : 0));
+      let result = (22.0 * archi) / total;
+      result = Math.min(22, Math.floor(result) * 1.1);
+      return result;
+    },
+    note2() {
+      if (!this.grupo || !this.grupo.length === 0) {
+        return 20;
+      }
+      let total = parseFloat(this.grupo.length + 1);
+      let archi = parseFloat(this.grupo.filter((item) => this.favoritos.has(item.id)).length + (this.favoritos.has(this.id) ? 1 : 0));
+      let result = (22.0 * archi) / total;
+      result = Math.min(22, Math.floor(result) * 1.1);
+      return result;
+    },
     reordenGrupo: function () {
       let este = this;
       return this.grupo.sort((a, b) => {
@@ -125,15 +159,18 @@ export default {
       this.$emit('voiceSpeak', id);
     },
     favorite() {
+      this.$emit('focus', this.id);
       this.$emit('favorite', this.id);
     },
     archive() {
       this.$emit('archive', this.id);
     },
     favoriteSimilar(item) {
+      this.$emit('focus', this.id);
       this.$emit('favorite', item, false);
     },
     archiveSimilar(item) {
+      this.$emit('focus', this.id);
       this.$emit('archive', item, false);
     },
     dateFormat: function (date) {
@@ -163,10 +200,24 @@ export default {
 };
 </script>
 <style scoped>
-.focus {
-  border: 2px solid red !important;
+.progreso {
+  cursor: pointer;
+  display: inline-block;
+  background: red;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  left: 2px;
+  min-width: 18px !important;
+  border-radius: 6px;
 }
-.contenido {
+.focus > div:first-child {
+  border: 3px solid red !important;
+}
+.focus > div:not(:first-child) > div {
+  border: 1px solid red;
+}
+.focus .contenido {
   padding: 0.3em 0.3em 1em;
 }
 .top {
