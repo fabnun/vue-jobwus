@@ -1,7 +1,7 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id), focus: id === itemFocus }">
     <div :id="id" class="oferta" :class="{ collapsed, fav: favoritos.has(id) }">
-      <div class="contenido" @click="collapse">
+      <div @click="collapse2" class="contenido">
         <div v-if="filtro.length > 0">
           <a @click.stop="" target="_blank" :href="data.url" class="titulo"> <span v-html="format(data.titulo)"></span> </a>-
           <span class="descripcion" v-html="format(data.descripcion)"></span>
@@ -148,6 +148,18 @@ export default {
   },
 
   methods: {
+    collapse2() {
+      let time = Date.now();
+      this.$emit('focus', this.id);
+      if (time - this.prevTime < 500) {
+        if (!this.collapsed) {
+          this.goto(this.id, event.clientY, document.getElementById(this.id).clientHeight);
+        }
+        this.collapsed = !this.collapsed;
+        this.collapsedSimilar = !this.collapsedSimilar;
+      }
+      this.prevTime = time;
+    },
     collapse() {
       if (!this.collapsed) {
         this.goto(this.id, event.clientY, document.getElementById(this.id).clientHeight);
