@@ -24,8 +24,7 @@
     <select class="button" @change="setTheme">
       <option :value="theme" v-for="theme in Object.keys(themes.styles)" :key="theme" :selected="themes.themeSelected === theme">{{ theme }}</option>
     </select>
-    <br />
-    <strong>Zoom: </strong>
+    <strong> Zoom: </strong>
     <select class="button" @change="setZoom">
       <option :value="zoom" v-for="zoom in Object.keys(themes.zooms)" :key="zoom" :selected="themes.themeZoom === zoom">{{ zoom }}</option>
     </select>

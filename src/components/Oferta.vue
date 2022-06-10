@@ -21,7 +21,7 @@
         </div>
         <div style="white-space: nowrap; position: relative; top: -6px">
           <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
-            <span style="position: relative; top: -0.1em">{{ grupo.length + 1 }}</span>
+            <span style="position: relative; top: -0.1em; cursor: text">{{ grupo.length + 1 }}</span>
             <content-copy-icon
               @click.stop.prevent="
                 collapsedSimilar = !collapsedSimilar;
@@ -214,10 +214,18 @@ export default {
 .focus > div:first-child {
   border: 3px solid red !important;
 }
+
 .focus > div:not(:first-child) > div {
-  border: 1px solid red;
+  border-top: 1px solid red;
+  border-right: 1px solid red;
+  border-bottom: none;
+  border-left: 1px solid red;
 }
-.focus .contenido {
+.focus > div:not(:first-child) > div:last-child {
+  border-bottom: 1px solid red;
+}
+
+.contenido {
   padding: 0.3em 0.3em 1em;
 }
 .top {
@@ -253,14 +261,19 @@ export default {
   padding: 0.3em 0 0 0.5em;
   display: block;
   margin: 0 1em 0 2em;
-  border: 1px solid var(--color);
+  border-bottom: none;
+  border-right: 1px solid var(--color);
+  border-top: 1px solid var(--color);
+  border-left: 1px solid var(--color);
   border-radius: var(--radio);
   position: relative;
   top: -1px;
   overflow: hidden;
   max-height: 3.2em;
-
   background: var(--oferta-background);
+}
+.copy-job:last-child {
+  border-bottom: 1px solid var(--color);
 }
 
 .copy-job span {
