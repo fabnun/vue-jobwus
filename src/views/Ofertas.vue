@@ -123,7 +123,8 @@ export default {
       voice: '',
       voiceSpeed: 1,
       y: 0,
-      itemFocus: '123',
+      itemFocus: null,
+      lastItemFocus: null,
       idAjustado: null,
       speechSupport: this.voice !== '' && speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
@@ -169,6 +170,7 @@ export default {
       console.log('Height', this.height);
     },
     focus(id) {
+      this.lastItemFocus = this.itemFocus;
       this.itemFocus = id;
       this.$forceUpdate();
     },
@@ -273,6 +275,9 @@ export default {
           this.undo.pop();
         } else {
           this.undo.push({ type: 'unarchive', id });
+        }
+        if (this.folder === 'Agrupados' && this.itemFocus === id) {
+          this.itemFocus = this.lastItemFocus;
         }
       }
       this.updateHidden(this.resultView);
