@@ -79,7 +79,7 @@
     <div class="modal-container" v-show="modal" @click="modal = false">
       <div @click.stop.prevent="" style="margin-right: -32px">
         <button class="close-modal" @click="modal = false" title="Cerrar"><close-icon /></button>
-        <div class="modal" style="overflow-y: auto">
+        <div class="modal" :style="`height: ${height - (50 * (height - 180)) / 200}px`">
           <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
         </div>
       </div>
@@ -141,6 +141,7 @@ export default {
       searchListSelect: null,
       undo: [],
       redo: [],
+      height: 0,
       searchClick: true,
     };
   },
@@ -158,6 +159,15 @@ export default {
   },
 
   methods: {
+    resize() {
+      const orientation = window.screen.orientation.type;
+      if (orientation === 'portrait-primary') {
+        this.height = window.innerHeight;
+      } else if (orientation === 'landscape-primary') {
+        this.height = window.innerHeight;
+      }
+      console.log('Height', this.height);
+    },
     focus(id) {
       this.itemFocus = id;
       this.$forceUpdate();
@@ -528,6 +538,8 @@ export default {
     },
   },
   mounted() {
+    window.addEventListener('resize', this.resize);
+    this.resize();
     speech
       .init({
         rate: 1.5,
@@ -703,7 +715,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  top: 0;
+  top: -12px;
   left: 0;
   width: 100%;
   height: 107%;
@@ -715,12 +727,10 @@ export default {
 }
 
 .modal {
+  overflow-y: auto;
   box-shadow: var(--menu-background);
   max-width: 640px;
-  max-height: 260px;
-  margin: 0 44px 0 34px !important;
-  position: relative;
-  left: -10px;
+  margin: 0 60px 0 34px !important;
   padding: 1em;
   border-radius: var(--radio);
   background: var(--menu-background);
