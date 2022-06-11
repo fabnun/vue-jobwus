@@ -10,6 +10,10 @@
   --page-max-width: 1280px;
   --body-margin-top: 4.2em;
 }
+h1 {
+  font-size: 1.2em;
+  font-weight: bolder;
+}
 body {
   zoom: var(--zoom) !important;
 }

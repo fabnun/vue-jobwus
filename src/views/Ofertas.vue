@@ -699,7 +699,7 @@ export default {
   z-index: 10000;
   width: 28px;
   padding: 2px 2px 0 0;
-  top: 6px;
+  top: 0px;
   position: relative;
   left: -44px;
   float: right;
@@ -715,12 +715,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  top: -12px;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 107%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.75);
   z-index: 9999;
+  box-shadow: rgba(50, 50, 93, 0.6) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.6) 0px 18px 36px -18px inset;
 }
 .noEvents {
   pointer-events: none !important;
@@ -729,13 +730,15 @@ export default {
 .modal {
   overflow-y: auto;
   box-shadow: var(--menu-background);
-  max-width: 640px;
+  max-width: 720px;
   margin: 0 60px 0 34px !important;
   padding: 1em;
+
   border-radius: var(--radio);
   background: var(--menu-background);
   border: 1px solid var(--color);
   z-index: 9999;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
 }
 
 .modal-container div {
