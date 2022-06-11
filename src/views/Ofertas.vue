@@ -170,7 +170,9 @@ export default {
       console.log('Height', this.height);
     },
     focus(id) {
-      this.lastItemFocus = this.itemFocus;
+      if (this.lastItemFocus !== id) {
+        this.lastItemFocus = this.itemFocus;
+      }
       this.itemFocus = id;
       this.$forceUpdate();
     },
@@ -433,6 +435,7 @@ export default {
       //////////////////////////////////////////////////////////////////
 
       try {
+        this.itemFocus = this.resultView.pages.find((item) => !item.hidden).id;
         this.$refs.ofertasDiv.scrollTop = 0;
       } catch (error) {
         console.log(error);
