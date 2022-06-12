@@ -8,7 +8,7 @@
   --oferta-full-max-height: 3072px;
   --oferta-transition: max-height 0.2s;
   --page-max-width: 1280px;
-  --body-margin-top: 4.1em;
+  --body-margin-top: 3.7em;
 }
 h1 {
   font-size: 1.2em;

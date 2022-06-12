@@ -13,7 +13,7 @@
           <undo-icon class="button-icon" @click="doUndo" />
           <redo-icon class="button-icon" @click="doRedo" />
           <archive-plus-outline-icon class="button-icon" @click="addSearch" />
-          <archive-remove-outline-icon class="button-icon" @click="removeSearch" />
+          <archive-remove-outline-icon class="button-icon" @click="editSearch" />
         </div>
         <div class="cell">
           <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
@@ -101,6 +101,7 @@ import ArchivePlusOutlineIcon from 'vue-material-design-icons/ArchivePlusOutline
 import ArchiveRemoveOutlineIcon from 'vue-material-design-icons/ArchiveRemoveOutline.vue';
 import ArchiveArrowUpOutlineIcon from 'vue-material-design-icons/ArchiveArrowUpOutline.vue';
 import AccountIcon from 'vue-material-design-icons/Account.vue';
+import offline from 'offline';
 
 import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
@@ -167,7 +168,6 @@ export default {
       } else if (orientation === 'landscape-primary') {
         this.height = window.innerHeight;
       }
-      console.log('Height', this.height);
     },
     focus(id) {
       if (this.lastItemFocus !== id) {
@@ -358,6 +358,7 @@ export default {
         window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
       }
     },
+    editSearch() {},
     removeSearch() {
       let search = this.searchListSelect;
       if (search.length > 0 && confirm(`¿Elimino: ${search}?`)) {
@@ -385,7 +386,6 @@ export default {
     goto(id, collapsed) {
       const element = document.getElementById(id);
       if (collapsed) {
-        let countInterval = 0;
         this.idAjustado = id;
       }
     },
@@ -435,7 +435,6 @@ export default {
       //////////////////////////////////////////////////////////////////
 
       try {
-        this.itemFocus = this.resultView.pages.find((item) => !item.hidden).id;
         this.$refs.ofertasDiv.scrollTop = 0;
       } catch (error) {
         console.log(error);
@@ -594,17 +593,34 @@ export default {
     (async () => {
       let fetchCfg = { method: 'POST', body: this.$route.params.cfg ? this.$route.params.cfg.trim() : 'info' };
       try {
-        let result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
-        //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
-        let uncompress = lzString.decompressFromBase64(result);
-        this.result = JSON.parse(uncompress);
-        this.query();
+        let result;
+        if (offline()) {
+          result = window.localStorage.lastFetch;
+        } else {
+          result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
+          //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
+          window.localStorage.setItem('lastFetch', result);
+        }
+        if (result !== undefined) {
+          let uncompress = lzString.decompressFromBase64(result);
+          this.result = JSON.parse(uncompress);
+          this.notification('Datos recuperados de localstorage', 'info');
+        }
       } catch (error) {
-        this.loading = false;
-        this.$forceUpdate();
+        let result = window.localStorage.lastFetch;
+        if (result !== undefined) {
+          let uncompress = lzString.decompressFromBase64(result);
+          this.result = JSON.parse(uncompress);
+          this.notification('Datos recuperados de localstorage', 'info');
+        } else {
+          this.result = { pages: [] };
+        }
         console.error(error);
         this.notification(error, 'error');
       }
+      this.$forceUpdate();
+      this.loading = false;
+      this.query();
     })();
   },
 };

@@ -100,7 +100,9 @@ onAuthStateChanged(getAuth(), (_user) => {
           let offset = element.offsetTop;
           let count = 0;
           let interval = setInterval(() => {
-            let pos = Math.max(0, offset + 86 - y);
+            let zoom = themes.getZoom();
+
+            let pos = Math.max(0, offset + 130 - y / zoom);
             let nowPos = ofertasDiv.scrollTop;
             if (count < 60 && Math.abs(nowPos - pos) > 3) {
               ofertasDiv.scrollTop = nowPos + (pos - nowPos) * 0.3;

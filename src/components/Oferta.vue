@@ -153,6 +153,7 @@ export default {
       this.$emit('focus', this.id);
       if (time - this.prevTime < 500) {
         if (!this.collapsed) {
+          //console.log(event.screenY);
           this.goto(this.id, event.clientY, document.getElementById(this.id).clientHeight);
         }
         this.collapsed = !this.collapsed;
@@ -161,6 +162,7 @@ export default {
     },
     collapse() {
       if (!this.collapsed) {
+        //console.log(event.screenY);
         this.goto(this.id, event.clientY, document.getElementById(this.id).clientHeight);
       }
       this.$emit('focus', this.id);
@@ -223,17 +225,11 @@ export default {
   border-radius: 6px;
 }
 .focus > div:first-child {
-  border: 2px solid red !important;
+  box-shadow: rgba(3, 214, 78, 0.4) 0px 0px 0px 4px;
 }
 
 .focus > div:not(:first-child) > div {
-  border-top: 1px solid red;
-  border-right: 1px solid red;
-  border-bottom: none;
-  border-left: 1px solid red;
-}
-.focus > div:not(:first-child) > div:last-child {
-  border-bottom: 1px solid red;
+  box-shadow: rgba(3, 214, 78, 0.3) 0px 0px 0px 2px;
 }
 
 .contenido {
