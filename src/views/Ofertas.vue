@@ -367,26 +367,27 @@ export default {
         this.$refs.filter.value = 'filtro.' + Date.now();
         this.modalType = 'editSearch2';
         this.modal = true;
+      } else {
+        this.notification('Debe ingresar palabras claves para agregar un filtro');
       }
     },
     eliminarFiltro() {
       let name = this.$refs.filter.value.trim();
-      if (confirm('esta seguro de eliminar el filtro ' + name + '?')) {
-        delete this.searchConfig[name];
-        this.searchList = Object.keys(this.searchConfig);
-        window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
-        this.searchListSelect = '';
-        this.modal = false;
-        this.$forceUpdate();
+      if (name !== '') {
+        if (confirm('esta seguro de eliminar el filtro ' + name + '?')) {
+          delete this.searchConfig[name];
+          this.searchList = Object.keys(this.searchConfig);
+          window.localStorage.setItem('searchConfig2', JSON.stringify(this.searchConfig));
+          this.searchListSelect = '';
+          this.modal = false;
+          this.$forceUpdate();
+        }
       }
     },
     guardarFiltro() {
       let name = this.$refs.filter.value.trim();
       let value = this.trimPlus2(this.$refs.words.value.trim());
       if (name.length > 0 && value.length > 0) {
-        if (this.searchListSelect !== name) {
-          delete this.searchConfig[name];
-        }
         this.searchConfig[name] = {
           filtro: value,
           tipo: 'busqueda',
@@ -394,8 +395,10 @@ export default {
         this.searchList = Object.keys(this.searchConfig);
         this.searchListSelect = name;
         this.$refs.filtro.value = value;
-        window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
+        window.localStorage.setItem('searchConfig2', JSON.stringify(this.searchConfig));
         this.modal = false;
+      } else {
+        this.notification('ingrese un las palabras clave y el nombre del filtro');
       }
     },
     setSearch(event) {
@@ -649,7 +652,7 @@ export default {
     }
     ///////////////////////////////////////////////////
 
-    let searchConfig = window.localStorage.getItem('searchConfig');
+    let searchConfig = window.localStorage.getItem('searchConfig2');
     if (searchConfig === null) {
       let searchList = window.localStorage.getItem('searchList');
       searchConfig = {};
@@ -666,7 +669,7 @@ export default {
       }
       this.searchList = searchList;
       this.searchConfig = searchConfig;
-      window.localStorage.setItem('searchConfig', JSON.stringify(searchConfig));
+      window.localStorage.setItem('searchConfig2', JSON.stringify(searchConfig));
     } else {
       this.searchConfig = JSON.parse(searchConfig);
       this.searchList = Object.keys(this.searchConfig);
@@ -865,7 +868,7 @@ export default {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.75);
-  z-index: 9999;
+  z-index: 999;
   box-shadow: rgba(50, 50, 93, 0.6) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.6) 0px 18px 36px -18px inset;
 }
 .noEvents {
