@@ -432,7 +432,6 @@ export default {
         }
         this.searchListSelect = search;
         this.$forceUpdate();
-        window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
       }
     },
     editFiltro() {
@@ -445,15 +444,7 @@ export default {
         this.notification('Seleccione un filtro para editar');
       }
     },
-    removeSearch() {
-      let search = this.searchListSelect;
-      if (search.length > 0 && confirm(`¿Elimino: ${search}?`)) {
-        let index = this.searchList.indexOf(search);
-        this.searchList.splice(index, 1);
-        this.$forceUpdate();
-        window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
-      }
-    },
+
     query() {
       this.trimPlus();
       this.loading = true;
@@ -670,6 +661,8 @@ export default {
             tipo: 'busqueda',
           };
         });
+      } else {
+        searchList = [];
       }
       this.searchList = searchList;
       this.searchConfig = searchConfig;
@@ -679,7 +672,6 @@ export default {
       this.searchList = Object.keys(this.searchConfig);
     }
     this.searchList.sort();
-
     this.searchListSelect = '';
 
     ///////////////////////////////////////////////////
