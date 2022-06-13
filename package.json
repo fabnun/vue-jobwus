@@ -20,7 +20,6 @@
     "detect-mobile-browser": "^5.0.0",
     "firebase": "^9.8.2",
     "lz-string": "^1.4.4",
-    "offline": "^0.0.1",
     "register-service-worker": "^1.7.1",
     "speak-tts": "^2.0.8",
     "vue": "^2.6.11",

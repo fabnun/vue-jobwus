@@ -2,7 +2,13 @@
   <div class="container">
     <div class="filtro">
       <div class="filtroIn">
-        <div class="cell" @click="modal = !modal">
+        <div
+          class="cell"
+          @click="
+            modalType = 'config';
+            modal = !modal;
+          "
+        >
           <dots-vertical-icon class="menu-button" />
           <!-- <account-icon class="menu-button"/> -->
         </div>
@@ -12,12 +18,12 @@
           </select>
           <undo-icon class="button-icon" @click="doUndo" />
           <redo-icon class="button-icon" @click="doRedo" />
-          <archive-plus-outline-icon class="button-icon" @click="addSearch" />
-          <archive-remove-outline-icon class="button-icon" @click="editSearch" />
+          <archive-plus-outline-icon class="button-icon" @click="addFiltro" />
+          <archive-remove-outline-icon class="button-icon" @click="editFiltro" />
         </div>
         <div class="cell">
           <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
-          <select class="searchList" ref="searchList" @change="setSearch()">
+          <select @click="setSearch" class="searchList" ref="searchList">
             <option></option>
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
@@ -80,7 +86,30 @@
       <div @click.stop.prevent="" style="margin-right: -32px">
         <button class="close-modal" @click="modal = false" title="Cerrar"><close-icon /></button>
         <div class="modal" :style="`height: ${height - (50 * (height - 180)) / 200}px`">
-          <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="result !== null" :words="result.config.okWords.join(', ')"></config>
+          <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="modalType === 'config' && result !== null" :words="result.config.okWords.join(', ')"></config>
+
+          <div v-if="modalType === 'editSearch' || modalType === 'editSearch2'" class="edit-search">
+            <h1>Palabras claves separadas por coma</h1>
+            <textarea ref="words" rows="6" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
+            <!-- <p>Color:</p>
+            <select>
+              <option v-for="(item, idx) in highlightColors" :key="idx" ref="color">{{ item }}</option>
+            </select>
+             <p>Tipo:</p>
+            <select>
+              <option>Busqueda</option>
+              <option>Marcaje</option>
+            </select> -->
+            <br />
+            <br />
+            <p>Nombre de la búsqueda</p>
+            <input type="text" ref="filter" autocapitalize="none" />
+            <br />
+            <br />
+            <br />
+            <BUTTON @click="guardarFiltro">Guardar {{ modalType === 'editSearch2' ? 'Nuevo' : '' }}</BUTTON>
+            <BUTTON v-if="modalType === 'editSearch'" @click="eliminarFiltro">Eliminar</BUTTON>
+          </div>
         </div>
       </div>
     </div>
@@ -101,7 +130,6 @@ import ArchivePlusOutlineIcon from 'vue-material-design-icons/ArchivePlusOutline
 import ArchiveRemoveOutlineIcon from 'vue-material-design-icons/ArchiveRemoveOutline.vue';
 import ArchiveArrowUpOutlineIcon from 'vue-material-design-icons/ArchiveArrowUpOutline.vue';
 import AccountIcon from 'vue-material-design-icons/Account.vue';
-import offline from 'offline';
 
 import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
@@ -118,6 +146,8 @@ export default {
   name: 'Ofertas',
   data() {
     return {
+      highlightColors: ['cyan', 'green', 'orange', 'purple', 'red', 'yellow'],
+      realHighlightColors: ['red', 'green', 'orange', 'purple', 'red', 'yellow'],
       prepareVoice: false,
       stopVoice: false,
       voiceList: [],
@@ -132,6 +162,7 @@ export default {
       folder: 'Favoritos',
       loading: true,
       modal: false,
+      modalType: 'editSearch',
       filtroFinal: [],
       filtroFinalPlus: [],
       result: null,
@@ -140,6 +171,7 @@ export default {
       archivados: new Set(),
       favoritos: new Set(),
       searchList: [],
+      searchConfig: {},
       searchListSelect: null,
       undo: [],
       redo: [],
@@ -329,20 +361,65 @@ export default {
         this.$forceUpdate();
       }
     },
-    setSearch(query = false) {
-      this.searchListSelect = this.$refs.searchList.value;
-      this.$refs.filtro.value = this.searchListSelect;
-      window.localStorage.setItem('searchListSelect', this.searchListSelect);
-      if (query) this.query();
+    addFiltro() {
+      if (this.$refs.filtro.value.trim().length > 0) {
+        this.$refs.words.value = this.$refs.filtro.value;
+        this.$refs.filter.value = 'filtro.' + Date.now();
+        this.modalType = 'editSearch2';
+        this.modal = true;
+      }
+    },
+    eliminarFiltro() {
+      let name = this.$refs.filter.value.trim();
+      if (confirm('esta seguro de eliminar el filtro ' + name + '?')) {
+        delete this.searchConfig[name];
+        this.searchList = Object.keys(this.searchConfig);
+        window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
+        this.searchListSelect = '';
+        this.modal = false;
+        this.$forceUpdate();
+      }
+    },
+    guardarFiltro() {
+      let name = this.$refs.filter.value.trim();
+      let value = this.trimPlus2(this.$refs.words.value.trim());
+      if (name.length > 0 && value.length > 0) {
+        if (this.searchListSelect !== name) {
+          delete this.searchConfig[name];
+        }
+        this.searchConfig[name] = {
+          filtro: value,
+          tipo: 'busqueda',
+        };
+        this.searchList = Object.keys(this.searchConfig);
+        this.searchListSelect = name;
+        this.$refs.filtro.value = value;
+        window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
+        this.modal = false;
+      }
+    },
+    setSearch(event) {
+      if (event.button === -1) {
+        this.searchListSelect = this.$refs.searchList.value;
+        if (this.searchListSelect === '') {
+          this.$refs.filtro.value = '';
+        } else {
+          this.$refs.filtro.value = this.searchConfig[this.searchListSelect].filtro;
+        }
+        window.localStorage.setItem('searchListSelect', this.searchListSelect);
+      }
     },
     trimPlus() {
-      let newValue = this.$refs.filtro.value
+      this.$refs.filtro.value = this.trimPlus2(this.$refs.filtro.value);
+    },
+    trimPlus2(val) {
+      let newValue = val
         .toLowerCase()
         .replace(/[^\d\wáéíóúüñ,\+\s]+/g, ' ')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
-      this.$refs.filtro.value = newValue;
+      return newValue;
     },
 
     addSearch() {
@@ -358,7 +435,16 @@ export default {
         window.localStorage.setItem('searchList', JSON.stringify(this.searchList));
       }
     },
-    editSearch() {},
+    editFiltro() {
+      if (this.searchListSelect !== '') {
+        this.$refs.words.value = this.searchConfig[this.searchListSelect].filtro;
+        this.$refs.filter.value = this.searchListSelect;
+        this.modalType = 'editSearch';
+        this.modal = true;
+      } else {
+        this.notification('Seleccione un filtro para editar');
+      }
+    },
     removeSearch() {
       let search = this.searchListSelect;
       if (search.length > 0 && confirm(`¿Elimino: ${search}?`)) {
@@ -571,12 +657,31 @@ export default {
       this.favoritos = new Set(favoritos.split(','));
     }
     ///////////////////////////////////////////////////
-    this.searchListSelect = window.localStorage.getItem('searchListSelect');
-    let searchList = window.localStorage.getItem('searchList');
-    if (searchList !== null) {
-      this.searchList = JSON.parse(searchList).filter((n) => n !== '');
-      this.searchList.sort();
+
+    let searchConfig = window.localStorage.getItem('searchConfig');
+    if (searchConfig === null) {
+      let searchList = window.localStorage.getItem('searchList');
+      searchConfig = {};
+      if (searchList !== null) {
+        searchList = JSON.parse(searchList);
+        searchList.forEach((search, idx) => {
+          searchConfig['filtro ' + idx] = {
+            filtro: search,
+            tipo: 'busqueda',
+          };
+        });
+      }
+      this.searchList = searchList;
+      this.searchConfig = searchConfig;
+      window.localStorage.setItem('searchConfig', JSON.stringify(searchConfig));
+    } else {
+      this.searchConfig = JSON.parse(searchConfig);
+      this.searchList = Object.keys(this.searchConfig);
     }
+    this.searchList.sort();
+
+    this.searchListSelect = '';
+
     ///////////////////////////////////////////////////
     let archivados = window.localStorage.getItem('archivados');
     if (archivados !== null) {
@@ -594,8 +699,9 @@ export default {
       let fetchCfg = { method: 'POST', body: this.$route.params.cfg ? this.$route.params.cfg.trim() : 'info' };
       try {
         let result;
-        if (offline()) {
+        if (!navigator.onLine) {
           result = window.localStorage.lastFetch;
+          this.notification('Datos recuperados de localstorage (offline)', 'info');
         } else {
           result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
           //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
@@ -604,7 +710,6 @@ export default {
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
           this.result = JSON.parse(uncompress);
-          this.notification('Datos recuperados de localstorage', 'info');
         }
       } catch (error) {
         let result = window.localStorage.lastFetch;
@@ -626,6 +731,30 @@ export default {
 };
 </script>
 <style>
+.edit-search select,
+.edit-search textarea,
+.edit-search input {
+  padding: 4px;
+  width: 100%;
+  border-radius: 4px;
+  border: none;
+  margin: 4px 8px 18px 0px;
+}
+.edit-search button {
+  width: calc(100% + 1px);
+  height: 36px;
+  background: red;
+  border-radius: 4px;
+  border: none;
+  margin: 4px 8px 18px 0px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.edit-search input,
+.edit-search textarea {
+  width: calc(100% - 8px) !important;
+}
 #ofertas {
   position: fixed;
   margin: 0 auto;

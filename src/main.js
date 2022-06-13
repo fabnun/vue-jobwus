@@ -12,7 +12,6 @@ import firebaseConfig from './firebaseConfig';
 initializeApp(firebaseConfig);
 Vue.use(VueToast);
 themes.init();
-console.log(themes);
 
 Vue.config.productionTip = false;
 
