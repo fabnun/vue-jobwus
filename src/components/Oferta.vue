@@ -44,7 +44,7 @@
 
           <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
           <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />
-          <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport" />
+          <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
       </div>
@@ -57,7 +57,7 @@
           <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
           <star-outline-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="!favoritos.has(item.id)" />
           <star-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="favoritos.has(item.id)" />
-          <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" :size="22" v-if="speechSupport" />
+          <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" :size="22" v-if="speechSupport && voice2 !== ''" />
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
         {{ dateFormat(item.fecha) }}
@@ -86,7 +86,7 @@ import ChevronUpIcon from 'vue-material-design-icons/ChevronUp.vue';
 import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue';
 
 export default {
-  props: ['data', 'grupo', 'itemFocus', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
+  props: ['data', 'voice2', 'grupo', 'itemFocus', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
   data: function () {
     return {
       collapsed: true,

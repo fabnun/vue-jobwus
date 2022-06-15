@@ -18,12 +18,13 @@
           </select>
           <undo-icon class="button-icon" @click="doUndo" />
           <redo-icon class="button-icon" @click="doRedo" />
-          <archive-plus-outline-icon class="button-icon" @click="addFiltro" />
-          <archive-remove-outline-icon class="button-icon" @click="editFiltro" />
+          <playlist-plus-icon class="button-icon" @click="addFiltro" />
+          <playlist-edit-icon class="button-icon" @click="editFiltro" />
         </div>
         <div class="cell">
           <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
-          <select @click="setSearch" class="searchList" ref="searchList">
+
+          <select class="searchList" ref="searchList" @change="setSearch">
             <option></option>
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
@@ -60,6 +61,7 @@
               @focus="focus"
               :data="resultView.data[item.id]"
               :id="item.id"
+              :voice2="voice"
               :ignorarTildes="$store.state.ignorarTildes"
               :filtro="filtroFinal"
               :grupo="
@@ -126,10 +128,9 @@ import RedoIcon from 'vue-material-design-icons/Redo.vue';
 import AccountTieVoiceOffOutlineIcon from 'vue-material-design-icons/AccountTieVoiceOffOutline.vue';
 import CloseIcon from 'vue-material-design-icons/Close.vue';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
-import ArchivePlusOutlineIcon from 'vue-material-design-icons/ArchivePlusOutline.vue';
-import ArchiveRemoveOutlineIcon from 'vue-material-design-icons/ArchiveRemoveOutline.vue';
-import ArchiveArrowUpOutlineIcon from 'vue-material-design-icons/ArchiveArrowUpOutline.vue';
 import AccountIcon from 'vue-material-design-icons/Account.vue';
+import PlaylistEditIcon from 'vue-material-design-icons/PlaylistEdit.vue';
+import PlaylistPlusIcon from 'vue-material-design-icons/PlaylistPlus.vue';
 
 import Oferta from '../components/Oferta.vue';
 import Loading from '../components/Loading.vue';
@@ -142,7 +143,7 @@ const speech = new Speech();
 let SmartPhone = _smartPhone(false);
 
 export default {
-  components: { ArchiveArrowUpOutlineIcon, ArchiveRemoveOutlineIcon, ArchivePlusOutlineIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon, AccountIcon },
+  components: { PlaylistEditIcon, PlaylistPlusIcon, UndoIcon, RedoIcon, Oferta, MagnifyIcon, DotsVerticalIcon, CloseIcon, Loading, Config, AccountTieVoiceOffOutlineIcon, AccountIcon },
   name: 'Ofertas',
   data() {
     return {
@@ -245,7 +246,7 @@ export default {
         this.stopVoice = false;
       }
     },
-    async voiceSpeak(id) {
+    voiceSpeak(id) {
       let data = this.result.data[id];
       if (speech.speaking()) {
         speech.cancel();
@@ -257,6 +258,7 @@ export default {
       try {
         this.stopVoice = true;
         this.prepareVoice = true;
+        console.log(this.voice, this.voiceSpeed, this.itemFocus);
         speech.setVoice(this.voice);
         speech.setRate(this.voiceSpeed);
         speech.speak({
@@ -272,7 +274,9 @@ export default {
             },
           },
         });
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+      }
     },
     favorite(id) {
       let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
@@ -402,15 +406,15 @@ export default {
       }
     },
     setSearch(event) {
-      if (event.button === -1) {
-        this.searchListSelect = this.$refs.searchList.value;
-        if (this.searchListSelect === '') {
-          this.$refs.filtro.value = '';
-        } else {
-          this.$refs.filtro.value = this.searchConfig[this.searchListSelect].filtro;
-        }
-        window.localStorage.setItem('searchListSelect', this.searchListSelect);
+      //if (event.button === -1) {
+      this.searchListSelect = this.$refs.searchList.value;
+      if (this.searchListSelect === '') {
+        this.$refs.filtro.value = '';
+      } else {
+        this.$refs.filtro.value = this.searchConfig[this.searchListSelect].filtro;
       }
+      window.localStorage.setItem('searchListSelect', this.searchListSelect);
+      //}
     },
     trimPlus() {
       this.$refs.filtro.value = this.trimPlus2(this.$refs.filtro.value);
@@ -623,22 +627,28 @@ export default {
       }
       return text.trim();
     },
+    onvoiceschanged(voices) {
+      voices = voices.map((v) => v.name);
+      voices = voices.filter((v) => v.toLowerCase().indexOf('spanish') > -1 || v.toLowerCase().indexOf('español') > -1);
+      voices.unshift('');
+      this.voiceList = voices;
+      this.voice = localStorage.getItem('voice');
+      this.voice = this.voice || '';
+      this.voiceSpeed = localStorage.getItem('voiceSpeed');
+      this.voiceSpeed = parseFloat(this.voiceSpeed) || 1;
+      this.$forceUpdate();
+    },
   },
   mounted() {
     window.addEventListener('resize', this.resize);
     this.resize();
+    let este = this;
     speech
       .init({
         rate: 1.5,
         splitSentences: false,
         listeners: {
-          onvoiceschanged: (voices) => {
-            voices = voices.map((v) => v.name);
-            voices = voices.filter((v) => v.toLowerCase().indexOf('spanish') > -1 || v.toLowerCase().indexOf('español') > -1);
-            voices.unshift('');
-            this.voiceList = voices;
-            this.$forceUpdate();
-          },
+          onvoiceschanged: this.onvoiceschanged,
         },
       })
       .then((data) => {})

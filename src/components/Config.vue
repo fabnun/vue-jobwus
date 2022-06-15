@@ -115,7 +115,6 @@ export default {
       }
     },
     logout() {
-      debugger;
       sendPasswordResetEmail(auth).then(
         () => {
           this.notification('Enviamos un email para reestablecer su clave, revise su correo ');
