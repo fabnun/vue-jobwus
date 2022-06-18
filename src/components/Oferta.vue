@@ -205,8 +205,10 @@ export default {
         }
         return a > b ? 1 : -1;
       });
-      let rgx = '[^a-zA-Z](' + sorted.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z])+';
-      text = text.replace(new RegExp(rgx, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
+      if (sorted.length > 0) {
+        let rgx = '[^a-zA-Z](' + sorted.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z])+';
+        text = text.replace(new RegExp(rgx, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
+      }
       if (text === '') {
         text = title ? 'Sin Título' : 'Sin Descrición';
       }
