@@ -715,6 +715,7 @@ export default {
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
           this.result = JSON.parse(uncompress);
+          console.log(uncompress);
         }
       } catch (error) {
         let result = window.localStorage.lastFetch;

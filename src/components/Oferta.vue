@@ -3,13 +3,11 @@
     <div :id="id" class="oferta" :class="{ collapsed, fav: favoritos.has(id) }">
       <div @click="collapseDoubleClick" class="contenido">
         <div v-if="filtro.length > 0">
-          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo)"> </a> -
+          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
           <span class="descripcion" v-html="format(data.descripcion)"></span>
         </div>
         <div v-else>
-          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo">
-            {{ data.titulo.trim() }}
-          </a>
+          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"></a>
           <span class="descripcion" v-text="data.descripcion"></span>
         </div>
       </div>
@@ -21,7 +19,10 @@
         </div>
         <div style="white-space: nowrap; position: relative; top: -6px">
           <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
-            <span style="position: relative; top: -0.1em; cursor: text">{{ grupo.length + 1 }}</span>
+            <span style="position: relative; top: -0.1em; cursor: text">
+              {{ this.grupo.filter((item) => this.favoritos.has(item.id) || this.archivados.has(item.id)).length + (this.archivados.has(this.id) || this.favoritos.has(this.id) ? 1 : 0) }}
+              / {{ grupo.length + 1 }}</span
+            >
             <content-copy-icon
               @click.stop.prevent="
                 collapsedSimilar = !collapsedSimilar;
@@ -63,7 +64,7 @@
         {{ dateFormat(item.fecha) }}
         <div class="clear"></div>
         <a @click.stop="" target="_blank" :href="item.url" class="titulo">
-          {{ item.titulo }}
+          {{ item.titulo === undefined || item.titulo === null || item.titulo.trim().length === 0 ? 'sin titulo' : item.titulo }}
         </a>
       </div>
     </div>
@@ -140,8 +141,7 @@ export default {
         }
         let ta = a.titulo.trim().toLowerCase();
         let tb = b.titulo.trim().toLowerCase();
-        result += ta === tb ? 0 : ta > tb ? 1 : -1;
-        result += a.fecha > b.fecha ? -0.1 : 0.1;
+        result += a.fecha > b.fecha ? -1 : 1;
         return result;
       });
     },
@@ -189,7 +189,7 @@ export default {
     dateFormat: function (date) {
       return dayjs(date).format('DD/MM/YY');
     },
-    format(text) {
+    format(text, title) {
       if (this.ignorarTildes) {
         text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       }
@@ -207,6 +207,9 @@ export default {
       });
       let rgx = '[^a-zA-Z](' + sorted.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z])+';
       text = text.replace(new RegExp(rgx, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
+      if (text === '') {
+        text = title ? 'Sin Título' : 'Sin Descrición';
+      }
       return text;
     },
   },
@@ -251,8 +254,8 @@ export default {
 }
 .top .fecha {
   float: left;
-
   top: 0.1em;
+  left: -1em;
   position: relative;
 }
 .top span {
