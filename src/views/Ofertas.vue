@@ -643,18 +643,29 @@ export default {
     window.addEventListener('resize', this.resize);
     this.resize();
     let este = this;
-    speech
-      .init({
-        rate: 1.5,
-        splitSentences: false,
-        listeners: {
-          onvoiceschanged: this.onvoiceschanged,
-        },
-      })
-      .then((data) => {})
-      .catch((e) => {
-        console.error('An error occured while initializing : ', e);
-      });
+    let initVoicesCount = 0;
+    let initVoices = () => {
+      speech
+        .init({
+          rate: 1.5,
+          splitSentences: false,
+          listeners: {
+            onvoiceschanged: this.onvoiceschanged,
+          },
+        })
+        .then((data) => {})
+        .catch((e) => {
+          initVoicesCount++;
+          if (initVoicesCount < 4) {
+            initVoices();
+          } else {
+            alert('ERROR\n\n' + JSON.stringify(e));
+            console.error('An error occured while initializing : ', e);
+          }
+        });
+    };
+    initVoices();
+
     ///////////////////////////////////////////////////
     let favoritos = window.localStorage.getItem('favoritos');
     if (favoritos !== null) {
@@ -715,7 +726,7 @@ export default {
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
           this.result = JSON.parse(uncompress);
-          console.log(uncompress);
+          //console.log(uncompress);
         }
       } catch (error) {
         let result = window.localStorage.lastFetch;
