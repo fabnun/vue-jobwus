@@ -161,6 +161,8 @@ export default {
           localStorage.setItem('voice', config.voice);
           localStorage.setItem('voiceSpeed', config.voiceSpeed);
           localStorage.setItem('filtro', config.filtro);
+          localStorage.setItem('searchConfig', config.searchConfig);
+          localStorage.setItem('searchListSelect', config.searchListSelect);
           localStorage.setItem('favoritos', config.favoritos);
           localStorage.setItem('archivados', config.archivados);
           location.reload();
@@ -175,6 +177,8 @@ export default {
         ignorarTildes: localStorage.getItem('ignorarTildes'),
         folder: localStorage.getItem('folder'),
         filtro: localStorage.getItem('filtro'),
+        searchConfig: localStorage.getItem('searchConfig'),
+        searchListSelect: localStorage.getItem('searchListSelect'),
         favoritos: localStorage.getItem('favoritos'),
         archivados: localStorage.getItem('archivados'),
         zoom: localStorage.getItem('zoom'),

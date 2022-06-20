@@ -93,21 +93,18 @@
           <div v-if="modalType === 'editSearch' || modalType === 'editSearch2'" class="edit-search">
             <h1>Palabras claves separadas por coma</h1>
             <textarea ref="words" rows="6" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
-            <!-- <p>Color:</p>
+            <p>Color: (pronta implementación)</p>
             <select>
               <option v-for="(item, idx) in highlightColors" :key="idx" ref="color">{{ item }}</option>
             </select>
-             <p>Tipo:</p>
+            <p>Tipo: (pronta implementación)</p>
             <select>
               <option>Busqueda</option>
               <option>Marcaje</option>
-            </select> -->
-            <br />
+            </select>
             <br />
             <p>Nombre de la búsqueda</p>
             <input type="text" ref="filter" autocapitalize="none" />
-            <br />
-            <br />
             <br />
             <BUTTON @click="guardarFiltro">Guardar {{ modalType === 'editSearch2' ? 'Nuevo' : '' }}</BUTTON>
             <BUTTON v-if="modalType === 'editSearch'" @click="eliminarFiltro">Eliminar</BUTTON>
@@ -381,7 +378,7 @@ export default {
         if (confirm('esta seguro de eliminar el filtro ' + name + '?')) {
           delete this.searchConfig[name];
           this.searchList = Object.keys(this.searchConfig);
-          window.localStorage.setItem('searchConfig2', JSON.stringify(this.searchConfig));
+          window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
           this.searchListSelect = '';
           this.modal = false;
           this.$forceUpdate();
@@ -399,7 +396,7 @@ export default {
         this.searchList = Object.keys(this.searchConfig);
         this.searchListSelect = name;
         this.$refs.filtro.value = value;
-        window.localStorage.setItem('searchConfig2', JSON.stringify(this.searchConfig));
+        window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
         this.modal = false;
       } else {
         this.notification('ingrese un las palabras clave y el nombre del filtro');
@@ -673,7 +670,7 @@ export default {
     }
     ///////////////////////////////////////////////////
 
-    let searchConfig = window.localStorage.getItem('searchConfig2');
+    let searchConfig = window.localStorage.getItem('searchConfig');
     if (searchConfig === null) {
       let searchList = window.localStorage.getItem('searchList');
       searchConfig = {};
@@ -690,7 +687,7 @@ export default {
       }
       this.searchList = searchList;
       this.searchConfig = searchConfig;
-      window.localStorage.setItem('searchConfig2', JSON.stringify(searchConfig));
+      window.localStorage.setItem('searchConfig', JSON.stringify(searchConfig));
     } else {
       this.searchConfig = JSON.parse(searchConfig);
       this.searchList = Object.keys(this.searchConfig);
