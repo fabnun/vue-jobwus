@@ -365,7 +365,7 @@ export default {
     addFiltro() {
       if (this.$refs.filtro.value.trim().length > 0) {
         this.$refs.words.value = this.$refs.filtro.value;
-        this.$refs.filter.value = 'filtro.' + Date.now();
+        this.$refs.filter.value = 'filtro' + Date.now();
         this.modalType = 'editSearch2';
         this.modal = true;
       } else {
@@ -453,6 +453,14 @@ export default {
       this.trimPlus();
       this.loading = true;
       let search = this.$refs.filtro.value;
+      let cfgLength = this.$route.params.cfg;
+      cfgLength = cfgLength || 0;
+      cfgLength = cfgLength.length;
+      const maxLength = 6579 - cfgLength;
+      if (search.length > maxLength) {
+        this.notification(`La búsqueda tiene ${search.length} caracteres y el maximo es ${maxLength} caracteres, la búsqueda se ha truncado`);
+        search = search.substring(0, maxLength);
+      }
       search = search ? search.trim() : '';
 
       let cfg = this.$route.params.cfg;
@@ -714,7 +722,7 @@ export default {
         let result;
         if (!navigator.onLine) {
           result = window.localStorage.lastFetch;
-          this.notification('Datos recuperados de localstorage (offline)', 'info');
+          este.notification('Datos recuperados de localstorage (offline)', 'info');
         } else {
           result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
           //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
@@ -722,7 +730,18 @@ export default {
         }
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
-          this.result = JSON.parse(uncompress);
+
+          let _result = JSON.parse(uncompress);
+          const keys = Object.keys(_result.data);
+
+          este.favoritos = new Set([...este.favoritos].filter((f) => keys.includes(f)));
+          window.localStorage.setItem('favoritos', [...este.favoritos].join(','));
+
+          este.archivados = new Set([...este.archivados].filter((f) => keys.includes(f)));
+          window.localStorage.setItem('archivados', [...este.archivados].join(','));
+
+          este.result = _result;
+
           //console.log(uncompress);
         }
       } catch (error) {

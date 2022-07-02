@@ -17,9 +17,9 @@
           <chevron-up-icon v-if="!collapsed"></chevron-up-icon>
           <chevron-down-icon v-if="collapsed"></chevron-down-icon>
         </div>
-        <div style="white-space: nowrap; position: relative; top: -6px">
+        <div class="right-buttons">
           <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
-            <span style="position: relative; top: -0.1em; cursor: text">
+            <span style="position: relative; top: -0.2em; cursor: text">
               {{ this.grupo.filter((item) => this.favoritos.has(item.id) || this.archivados.has(item.id)).length + (this.archivados.has(this.id) || this.favoritos.has(this.id) ? 1 : 0) }}
               / {{ grupo.length + 1 }}</span
             >
@@ -256,10 +256,31 @@ export default {
 }
 .top .fecha {
   float: left;
-  top: 0.1em;
-  left: -1em;
+  top: 0em;
+  left: -0.6em;
+  margin-left: 0;
+  padding-left: 0;
   position: relative;
 }
+
+.right-buttons {
+  white-space: nowrap;
+  position: relative;
+  top: -6px;
+  right: -4px;
+}
+
+@-moz-document url-prefix() {
+  .top .fecha {
+    top: -0.1em !important;
+    left: -0.8em !important;
+  }
+  .right-buttons {
+    top: -9px !important;
+    right: -2px !important;
+  }
+}
+
 .top span {
   cursor: pointer;
   margin-right: 0.6em;

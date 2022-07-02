@@ -62,6 +62,23 @@ const themes = {
       '--oferta-line-height': '1.3em',
       '--toolbar-background': 'rgb(167,178,183)',
     },
+    blueDark: {
+      '--background': "url('/assets/dark4.jpg') repeat center top",
+      '--color': 'rgba(239, 249, 255, 0.8)',
+      '--background-input': 'white',
+      '--background-color': 'black',
+      '--font-size': '1em',
+      '--match-background': 'rgba(12, 33, 168, 0.1)',
+      '--match-color': 'yellow',
+      '--oferta-background': 'rgba(15, 35, 66, 0.3)',
+      '--menu-background': 'rgba(0, 10, 20, 0.9)',
+      '--favorite-background': 'rgba(10, 165, 185, 0.2)',
+      '--radio': '0.3em',
+      '--font': "'Open Sans', sans-serif",
+      '--oferta-max-height': '8.77em',
+      '--oferta-line-height': '1.3em',
+      '--toolbar-background': 'rgb(12, 29, 44)',
+    },
   },
   init() {
     this.setTheme(this.themeSelected);

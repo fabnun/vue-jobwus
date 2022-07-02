@@ -83,13 +83,10 @@ let user = undefined;
 
 onAuthStateChanged(getAuth(), (_user) => {
   user = _user;
-
   if (vueinitialize) {
     Vue.mixin({
       methods: {
-        getAuth() {
-          return auth;
-        },
+        getAuth,
         getUser() {
           return user;
         },

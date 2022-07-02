@@ -51,7 +51,7 @@
       <a href="#" @click="go('ttps://www.chiletrabajos.cl', true)">chiletrabajos.cl</a><br />
       <a href="#" @click="go('https://www.computrabajo.cl', true)">computrabajo.cl</a><br />
       <a href="#" @click="go('https://www.empleospublicos.cl', true)">empleospublicos.cl</a><br />
-      <a href="#" @click="go('https://www.trabajando.cl', true)">trabajando.cl</a><br />
+      <a style="text-decoration: line-through" href="#" @click="go('https://www.trabajando.cl', true)">trabajando.cl</a><br />
     </p>
     <br />
     <p>

@@ -12,3 +12,4 @@ storage.rules
 *.log
 *.zip
 .env
+.env.local
