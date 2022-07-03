@@ -34,7 +34,7 @@ const themes = {
       '--background-input': 'white',
       '--background-color': 'black',
       '--font-size': '1em',
-      '--match-background': 'rgba(0, 0, 0,.5)',
+      '--match-background': 'rgba(0, 0, 0,.4)',
       '--match-color': 'yellow',
       '--oferta-background': 'rgba(15, 35, 66, 0.3)',
       '--menu-background': 'rgba(0, 10, 20, 0.9)',

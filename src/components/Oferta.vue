@@ -169,6 +169,7 @@ export default {
       this.collapsed = !this.collapsed;
     },
     voice(id) {
+      this.$emit('focus', this.id);
       this.$emit('voiceSpeak', id);
     },
     favorite() {
@@ -176,6 +177,7 @@ export default {
       this.$emit('favorite', this.id);
     },
     archive() {
+      this.$emit('focus', this.id);
       this.$emit('archive', this.id);
     },
     favoriteSimilar(item) {
@@ -206,7 +208,7 @@ export default {
         return a > b ? 1 : -1;
       });
       if (sorted.length > 0) {
-        let rgx = '[^a-zA-Z](' + sorted.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z])+';
+        let rgx = '([^a-z0-9áéíóúüñ]+)(' + sorted.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
         text = text.replace(new RegExp(rgx, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
       }
       if (text === '') {

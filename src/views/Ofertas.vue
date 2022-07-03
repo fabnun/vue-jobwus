@@ -87,28 +87,28 @@
     <div class="modal-container" v-show="modal" @click="modal = false">
       <div @click.stop.prevent="" style="margin-right: -32px">
         <button class="close-modal" @click="modal = false" title="Cerrar"><close-icon /></button>
-        <div class="modal" :style="`height: ${height - (50 * (height - 180)) / 200}px`">
+        <div class="modal" :style="`width: ${width}px; height: ${height - (50 * (height - 180)) / 200}px`">
           <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="modalType === 'config' && result !== null" :words="result.config.okWords.join(', ')"></config>
 
-          <div v-if="modalType === 'editSearch' || modalType === 'editSearch2'" class="edit-search">
+          <div v-show="modalType === 'editSearch' || modalType === 'editSearch2'" class="edit-search">
             Nombre del filtro de búsqueda<br />
-            <input type="text" ref="filter" autocapitalize="none" />
+            <input type="text" ref="filter" autocapitalize="none" spellcheck="false" />
+            <br />
+            Palabras claves Obligatorias<br />
+            <textarea ref="words" rows="3" autocapitalize="none" spellcheck="false"></textarea>
             <br />
             Palabras claves Opcionales<br />
-            <textarea ref="words" rows="4" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
-            <br />
-            Palabras claves obligatorias<br />
-            <textarea ref="wordsHave" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
-            <br />
+            <textarea ref="wordsHave" rows="4" autocapitalize="none" spellcheck="false"></textarea>
+            <!-- <br />
             Palabras claves Kill<br />
-            <textarea ref="wordsRemove" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
+            <textarea ref="wordsRemove" rows="2" autocapitalize="none" spellcheck="false"></textarea>
             <br />
             Palabras claves Positivas<br />
-            <textarea ref="wordsPositive" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
+            <textarea ref="wordsPositive" rows="2" autocapitalize="none" spellcheck="false"></textarea>
             <br />
             Palabras claves Negativas<br />
-            <textarea ref="wordsNegative" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
-            <br />
+            <textarea ref="wordsNegative" rows="2" autocapitalize="none" spellcheck="false"></textarea>
+            <br /> -->
             <BUTTON @click="guardarFiltro">Guardar {{ modalType === 'editSearch2' ? 'Nuevo' : '' }}</BUTTON>
             <BUTTON v-if="modalType === 'editSearch'" @click="eliminarFiltro">Eliminar</BUTTON>
           </div>
@@ -161,7 +161,8 @@ export default {
       itemFocus: null,
       /**Oferta anterior que tuvo el foco*/
       lastItemFocus: null,
-
+      /**Expresion regular del filtro */
+      rgx: '',
       idAjustado: null,
       speechSupport: this.voice !== '' && speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
@@ -170,7 +171,6 @@ export default {
       modal: false,
       modalType: 'editSearch',
       filtroFinal: [],
-      filtroFinalPlus: [],
       result: null,
       resultView: null,
       paginaSize: 20,
@@ -181,6 +181,7 @@ export default {
       searchListSelect: null,
       undo: [],
       redo: [],
+      width: 1200,
       height: 0,
       searchClick: true,
     };
@@ -202,8 +203,10 @@ export default {
     resize() {
       const orientation = window.screen.orientation.type;
       if (orientation === 'portrait-primary') {
+        this.width = window.innerWidth - 200;
         this.height = window.innerHeight;
       } else if (orientation === 'landscape-primary') {
+        this.width = window.innerWidth - 200;
         this.height = window.innerHeight;
       }
     },
@@ -372,10 +375,10 @@ export default {
     },
     addFiltro() {
       if (this.$refs.filtro.value.trim().length > 0) {
-        this.$refs.words.value = this.$refs.filtro.value;
-        this.$refs.filter.value = 'filtro' + Date.now();
         this.modalType = 'editSearch2';
         this.modal = true;
+        this.$refs.words.value = this.$refs.filtro.value;
+        this.$refs.filter.value = 'filtro' + Date.now();
       } else {
         this.notification('Debe ingresar palabras claves para agregar un filtro');
       }
@@ -397,9 +400,17 @@ export default {
       let name = this.$refs.filter.value.trim();
       let value = this.limpiarTexto(this.$refs.words.value.trim());
       if (name.length > 0 && value.length > 0) {
+        let obligatorio = this.limpiarTexto(this.$refs.wordsHave.value.trim());
+        // let kill = this.limpiarTexto(this.$refs.wordsRemove.value.trim());
+        // let positivo = this.limpiarTexto(this.$refs.wordsPositive.value.trim());
+        // let negativo = this.limpiarTexto(this.$refs.wordsNegative.value.trim());
+
         this.searchConfig[name] = {
           filtro: value,
-          tipo: 'busqueda',
+          obligatorio,
+          kill,
+          positivo,
+          negativo,
         };
         this.searchList = Object.keys(this.searchConfig);
         this.searchListSelect = name;
@@ -429,7 +440,7 @@ export default {
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
-      console.log(val + ' -> ' + newValue);
+      //console.log(val + ' -> ' + newValue);
       return newValue;
     },
 
@@ -447,7 +458,11 @@ export default {
     },
     editFiltro() {
       if (this.searchListSelect !== '') {
-        this.$refs.words.value = this.searchConfig[this.searchListSelect].filtro;
+        this.$refs.words.value = this.searchConfig[this.searchListSelect].filtro ? this.searchConfig[this.searchListSelect].filtro : '';
+        this.$refs.wordsHave.value = this.searchConfig[this.searchListSelect].obligatorio ? this.searchConfig[this.searchListSelect].obligatorio : '';
+        // this.$refs.wordsRemove.value = this.searchConfig[this.searchListSelect].kill ? this.searchConfig[this.searchListSelect].kill : '';
+        // this.$refs.wordsPositive.value = this.searchConfig[this.searchListSelect].positivo ? this.searchConfig[this.searchListSelect].positivo : '';
+        // this.$refs.wordsNegative.value = this.searchConfig[this.searchListSelect].negativo ? this.searchConfig[this.searchListSelect].negativo : '';
         this.$refs.filter.value = this.searchListSelect;
         this.modalType = 'editSearch';
         this.modal = true;
@@ -472,8 +487,8 @@ export default {
 
       let cfg = this.$route.params.cfg;
       cfg = cfg ? cfg.trim() : 'info';
+      let queryString = `/${cfg}${search ? '/' + search.replace(/\?/g, '¿') : ''}`;
 
-      let queryString = `/${cfg}${search ? '/' + search : ''}`;
       if (queryString !== document.location.pathname) {
         this.$router.push({ path: queryString }).catch(() => {});
       }
@@ -486,8 +501,10 @@ export default {
     },
 
     submit() {
-      let search = this.$route.params.search;
-      search = search ? search.trim() : '';
+      let search = '';
+
+      search = this.$route.params.search;
+      search = search ? search.replace(/¿/g, '?').trim() : '';
 
       let cfg = this.$route.params.cfg;
       cfg = cfg ? cfg.trim() : 'info';
@@ -503,10 +520,22 @@ export default {
         .filter((word) => word !== '');
 
       this.filtroFinal = final;
-      this.filtroFinalPlus = this.filtroFinal.filter((word) => word.startsWith('+') === true);
+      let words = this.filtroFinal.map((word) => this.normalizeText(word));
+      if (this.searchListSelect !== '' && this.searchConfig[this.searchListSelect].obligatorio) {
+        let search2 = this.searchConfig[this.searchListSelect].obligatorio;
+        if (this.$store.state.ignorarTildes) {
+          search2 = search2.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+        let final = this.normalizeText(search2.toLowerCase())
+          .replace(/\s+/, ' ')
+          .split(',')
+          .map((word) => word.trim())
+          .filter((word) => word !== '');
+        this.filtroFinal = this.filtroFinal.concat(final);
+      }
 
-      this.filtroFinal = this.filtroFinal.map((word) => (word.startsWith('+') === true ? word.substring(1) : word));
-      this.filtroFinalPlus = this.filtroFinalPlus.map((word) => (word.startsWith('+') === true ? word.substring(1) : word));
+      this.rgx = '([^a-z0-9áéíóúüñ]+)(' + words.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
+      //console.log(this.rgx);
 
       //////////////////////////////////////////////////////////////////
       let resultBuild;
@@ -610,23 +639,11 @@ export default {
     filtrar(id) {
       let data = this.result.data[id];
       if (this.filtroFinal.length === 0) return true;
-      let words = this.filtroFinal.map((word) => this.normalizeText(word));
-      let words2 = this.filtroFinalPlus.map((word) => this.normalizeText(word));
-
       let text = this.normalizeText(data.titulo + ' ' + data.descripcion);
       text = ' ' + text + ' ';
-      if (words2.length > 0) {
-        let rgx = '[^a-zA-Z]+(' + words2.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
-        let found = text.match(new rgx(rgx, 'gi')) !== null;
-        if (found) {
-          return true;
-        }
-      } else {
-        let rgx = '[^a-zA-Z]+(' + words.map((w) => w.replace(/\s+/g, '[^a-zA-Z]+')).join('[^a-zA-Z]+|') + '[^a-zA-Z]+)+';
-        let found = text.match(new RegExp(rgx, 'gi')) !== null;
-        if (found) {
-          return true;
-        }
+      let found = text.match(new RegExp(this.rgx, 'gi')) !== null;
+      if (found) {
+        return true;
       }
       return false;
     },
@@ -718,7 +735,7 @@ export default {
     let folder = window.localStorage.getItem('folder');
     this.folder = this.folders.includes(folder) ? folder : 'Agrupados';
     ///////////////////////////////////////////////////
-    this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.trim() : '';
+    this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
 
     ///////////////////////////////////////////////////
 
@@ -922,10 +939,9 @@ export default {
 .modal {
   overflow-y: auto;
   box-shadow: var(--menu-background);
-  max-width: 720px;
   margin: 0 60px 0 34px !important;
   padding: 1em;
-
+  max-width: 800px;
   border-radius: var(--radio);
   background: var(--menu-background);
   border: 1px solid var(--color);
@@ -937,7 +953,6 @@ export default {
   top: 0px;
   left: -10px;
   padding: 8px;
-  max-width: 640px;
 }
 
 .menu-button {
