@@ -18,7 +18,7 @@
     <div>
       <strong>Theme: </strong>
       <select class="button" @change="setTheme">
-        <option :value="theme" v-for="theme in Object.keys(themes.styles)" :key="theme" :selected="themes.themeSelected === theme">{{ theme }}</option>
+        <option :value="theme" v-for="theme in Object.keys(themes.styles).sort()" :key="theme" :selected="themes.themeSelected === theme">{{ theme }}</option>
       </select>
     </div>
     <div>

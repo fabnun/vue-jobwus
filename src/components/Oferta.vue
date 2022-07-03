@@ -230,11 +230,11 @@ export default {
   border-radius: 6px;
 }
 .focus > div:first-child {
-  box-shadow: rgba(3, 214, 78, 0.4) 0px 0px 0px 4px;
+  box-shadow: var(--shadow-parent);
 }
 
 .focus > div:not(:first-child) > div {
-  box-shadow: rgba(3, 214, 78, 0.3) 0px 0px 0px 2px;
+  box-shadow: var(--shadow-child);
 }
 
 .contenido {

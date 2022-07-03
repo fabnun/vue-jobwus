@@ -9,6 +9,8 @@
   --oferta-transition: max-height 0.2s;
   --page-max-width: 1280px;
   --body-margin-top: 3.7em;
+  --shadow-parent: rgba(251, 255, 0, 0.514) 0px 0px 0px 4px;
+  --shadow-child: rgba(251, 255, 0, 0.414) 0px 0px 0px 2px;
 }
 h1 {
   font-size: 1.2em;

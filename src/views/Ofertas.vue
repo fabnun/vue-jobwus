@@ -91,20 +91,23 @@
           <config @setVoice="setVoice" @setSpeed="setSpeed" :voiceList="voiceList" v-if="modalType === 'config' && result !== null" :words="result.config.okWords.join(', ')"></config>
 
           <div v-if="modalType === 'editSearch' || modalType === 'editSearch2'" class="edit-search">
-            <h1>Palabras claves separadas por coma</h1>
-            <textarea ref="words" rows="6" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
-            <p>Color: (pronta implementación)</p>
-            <select>
-              <option v-for="(item, idx) in highlightColors" :key="idx" ref="color">{{ item }}</option>
-            </select>
-            <p>Tipo: (pronta implementación)</p>
-            <select>
-              <option>Busqueda</option>
-              <option>Marcaje</option>
-            </select>
-            <br />
-            <p>Nombre de la búsqueda</p>
+            Nombre del filtro de búsqueda<br />
             <input type="text" ref="filter" autocapitalize="none" />
+            <br />
+            Palabras claves Opcionales<br />
+            <textarea ref="words" rows="4" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
+            <br />
+            Palabras claves obligatorias<br />
+            <textarea ref="wordsHave" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
+            <br />
+            Palabras claves Kill<br />
+            <textarea ref="wordsRemove" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
+            <br />
+            Palabras claves Positivas<br />
+            <textarea ref="wordsPositive" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
+            <br />
+            Palabras claves Negativas<br />
+            <textarea ref="wordsNegative" rows="2" style="width: 100%; resize: vertical" autocapitalize="none"></textarea>
             <br />
             <BUTTON @click="guardarFiltro">Guardar {{ modalType === 'editSearch2' ? 'Nuevo' : '' }}</BUTTON>
             <BUTTON v-if="modalType === 'editSearch'" @click="eliminarFiltro">Eliminar</BUTTON>
@@ -144,16 +147,21 @@ export default {
   name: 'Ofertas',
   data() {
     return {
-      highlightColors: ['cyan', 'green', 'orange', 'purple', 'red', 'yellow'],
-      realHighlightColors: ['red', 'green', 'orange', 'purple', 'red', 'yellow'],
+      /**Usado en boton para apagar la lectura*/
       prepareVoice: false,
+      /**Usado en boton para apagar la lectura*/
       stopVoice: false,
+      /**Lista de voces en español disponibles*/
       voiceList: [],
+      /**Voz actual*/
       voice: '',
+      /**Velocidad de lectura actual*/
       voiceSpeed: 1,
-      y: 0,
+      /**oferta que tiene el foco*/
       itemFocus: null,
+      /**Oferta anterior que tuvo el foco*/
       lastItemFocus: null,
+
       idAjustado: null,
       speechSupport: this.voice !== '' && speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
@@ -200,7 +208,7 @@ export default {
       }
     },
     focus(id) {
-      if (this.lastItemFocus !== id) {
+      if (this.itemFocus !== id) {
         this.lastItemFocus = this.itemFocus;
       }
       this.itemFocus = id;
@@ -387,7 +395,7 @@ export default {
     },
     guardarFiltro() {
       let name = this.$refs.filter.value.trim();
-      let value = this.trimPlus2(this.$refs.words.value.trim());
+      let value = this.limpiarTexto(this.$refs.words.value.trim());
       if (name.length > 0 && value.length > 0) {
         this.searchConfig[name] = {
           filtro: value,
@@ -413,21 +421,20 @@ export default {
       window.localStorage.setItem('searchListSelect', this.searchListSelect);
       //}
     },
-    trimPlus() {
-      this.$refs.filtro.value = this.trimPlus2(this.$refs.filtro.value);
-    },
-    trimPlus2(val) {
+
+    limpiarTexto(val) {
       let newValue = val
         .toLowerCase()
-        .replace(/[^\d\wáéíóúüñ,\+\s]+/g, ' ')
+        .replace(/[^\d\wáéíóúüñ,\(\)\?\|\s]+/g, ' ')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
+      console.log(val + ' -> ' + newValue);
       return newValue;
     },
 
     addSearch() {
-      this.trimPlus();
+      this.$refs.filtro.value = this.limpiarTexto(this.$refs.filtro.value);
       let search = this.$refs.filtro.value;
       if (this.searchList.indexOf(search) === -1) {
         if (search.length > 0) {
@@ -450,7 +457,7 @@ export default {
     },
 
     query() {
-      this.trimPlus();
+      this.$refs.filtro.value = this.limpiarTexto(this.$refs.filtro.value);
       this.loading = true;
       let search = this.$refs.filtro.value;
       let cfgLength = this.$route.params.cfg;
@@ -473,7 +480,6 @@ export default {
       setTimeout(this.submit, 200);
     },
     goto(id, collapsed) {
-      const element = document.getElementById(id);
       if (collapsed) {
         this.idAjustado = id;
       }
