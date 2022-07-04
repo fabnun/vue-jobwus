@@ -57,7 +57,6 @@
               @voiceSpeak="voiceSpeak"
               @favorite="favorite"
               @archive="archive"
-              @goto="goto"
               @focus="focus"
               :data="resultView.data[item.id]"
               :id="item.id"
@@ -163,7 +162,6 @@ export default {
       lastItemFocus: null,
       /**Expresion regular del filtro */
       rgx: '',
-      idAjustado: null,
       speechSupport: this.voice !== '' && speech.hasBrowserSupport(),
       folders: ['Agrupados', 'Favoritos', 'Archivados', 'Todos'],
       folder: 'Favoritos',
@@ -203,15 +201,17 @@ export default {
     resize() {
       const orientation = window.screen.orientation.type;
       if (orientation === 'portrait-primary') {
-        this.width = window.innerWidth - 200;
+        this.width = window.innerWidth - 120;
         this.height = window.innerHeight;
       } else if (orientation === 'landscape-primary') {
-        this.width = window.innerWidth - 200;
+        this.width = window.innerWidth - 120;
         this.height = window.innerHeight;
       }
     },
     focus(id) {
       if (this.itemFocus !== id) {
+        console.log('FOCO ' + id, this.itemFocus);
+        this.goto(id, 160);
         this.lastItemFocus = this.itemFocus;
       }
       this.itemFocus = id;
@@ -408,9 +408,9 @@ export default {
         this.searchConfig[name] = {
           filtro: value,
           obligatorio,
-          kill,
-          positivo,
-          negativo,
+          // kill,
+          // positivo,
+          // negativo,
         };
         this.searchList = Object.keys(this.searchConfig);
         this.searchListSelect = name;
@@ -493,11 +493,6 @@ export default {
         this.$router.push({ path: queryString }).catch(() => {});
       }
       setTimeout(this.submit, 200);
-    },
-    goto(id, collapsed) {
-      if (collapsed) {
-        this.idAjustado = id;
-      }
     },
 
     submit() {
@@ -941,7 +936,7 @@ export default {
   box-shadow: var(--menu-background);
   margin: 0 60px 0 34px !important;
   padding: 1em;
-  max-width: 800px;
+  max-width: 1024px;
   border-radius: var(--radio);
   background: var(--menu-background);
   border: 1px solid var(--color);

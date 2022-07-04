@@ -1,7 +1,7 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id), focus: id === itemFocus }">
-    <div :id="id" class="oferta" :class="{ collapsed, fav: favoritos.has(id) }">
-      <div @click="collapseDoubleClick" class="contenido">
+    <div :id="id" class="oferta" :class="{ collapsed: id !== itemFocus, fav: favoritos.has(id) }">
+      <div @click="focus()" class="contenido">
         <div v-if="filtro.length > 0">
           <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
           <span class="descripcion" v-html="format(data.descripcion)"></span>
@@ -13,10 +13,6 @@
       </div>
       <div class="top" @click="$emit('focus', id)">
         <label class="fecha">{{ dateFormat(data.fecha) }}</label>
-        <div style="text-align: center; cursor: pointer" @click="collapse">
-          <chevron-up-icon v-if="!collapsed"></chevron-up-icon>
-          <chevron-down-icon v-if="collapsed"></chevron-down-icon>
-        </div>
         <div class="right-buttons">
           <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
             <span style="position: relative; top: -0.2em; cursor: text">
@@ -51,7 +47,7 @@
       </div>
     </div>
 
-    <div v-if="!collapsedSimilar">
+    <div v-if="!collapsedSimilar && id === itemFocus">
       <div class="copy-job" v-for="(item, idx) in reordenGrupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
         <div class="copy-job-buttons">
           <delete-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="!archivados.has(item.id)" />
@@ -90,7 +86,6 @@ export default {
   props: ['data', 'voice2', 'grupo', 'itemFocus', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
   data: function () {
     return {
-      collapsed: true,
       collapsedSimilar: true,
       dragStart: 0,
       dragTime: 0,
@@ -148,73 +143,29 @@ export default {
   },
 
   methods: {
-    collapseDoubleClick() {
-      let time = Date.now();
+    focus() {
       this.$emit('focus', this.id);
-      if (time - this.prevTime < 500) {
-        if (!this.collapsed) {
-          //console.log(event.screenY);
-          this.goto(this.id, event.clientY, document.getElementById(this.id).clientHeight);
-        }
-        this.collapsed = !this.collapsed;
+      if (!this.collapsedSimilar) {
+        this.collapsedSimilar = true;
       }
-      this.prevTime = time;
-    },
-    collapse() {
-      if (!this.collapsed) {
-        //console.log(event.screenY);
-        this.goto(this.id, event.clientY, document.getElementById(this.id).clientHeight);
-      }
-      this.$emit('focus', this.id);
-      this.collapsed = !this.collapsed;
     },
     voice(id) {
-      this.$emit('focus', this.id);
       this.$emit('voiceSpeak', id);
     },
     favorite() {
-      this.$emit('focus', this.id);
       this.$emit('favorite', this.id);
     },
     archive() {
-      this.$emit('focus', this.id);
       this.$emit('archive', this.id);
     },
     favoriteSimilar(item) {
-      this.$emit('focus', this.id);
       this.$emit('favorite', item, false);
     },
     archiveSimilar(item) {
-      this.$emit('focus', this.id);
       this.$emit('archive', item, false);
     },
     dateFormat: function (date) {
       return dayjs(date).format('DD/MM/YY');
-    },
-    format(text, title) {
-      if (this.ignorarTildes) {
-        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      }
-      text = ' ' + text + ' ';
-
-      let sorted = [...this.filtro];
-      sorted.sort((a, b) => {
-        if (a.startsWith(b)) {
-          return -1;
-        }
-        if (b.startsWith(a)) {
-          return 1;
-        }
-        return a > b ? 1 : -1;
-      });
-      if (sorted.length > 0) {
-        let rgx = '([^a-z0-9áéíóúüñ]+)(' + sorted.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
-        text = text.replace(new RegExp(rgx, 'gi'), '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
-      }
-      if (text === '') {
-        text = title ? 'Sin Título' : 'Sin Descrición';
-      }
-      return text;
     },
   },
 };

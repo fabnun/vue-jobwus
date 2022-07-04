@@ -85,28 +85,63 @@ onAuthStateChanged(getAuth(), (_user) => {
   user = _user;
   if (vueinitialize) {
     Vue.mixin({
+      data() {
+        return {
+          interval: undefined,
+        };
+      },
       methods: {
         getAuth,
         getUser() {
           return user;
         },
+        format(text, title) {
+          if (this.ignorarTildes) {
+            text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          }
+          text = ' ' + text + ' ';
+
+          let sorted = [...this.filtro];
+          sorted.sort((a, b) => {
+            if (a.startsWith(b)) {
+              return -1;
+            }
+            if (b.startsWith(a)) {
+              return 1;
+            }
+            return a > b ? 1 : -1;
+          });
+          if (sorted.length > 0) {
+            let rgx = '([^a-z0-9áéíóúüñ]+)(' + sorted.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
+            let rex = new RegExp(rgx, 'gi');
+            text = text.replace(rex, '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
+          }
+          if (text === '') {
+            text = title ? 'Sin Título' : 'Sin Descrición';
+          }
+          return text;
+        },
         goto(id, y) {
+          if (this.interval !== undefined) {
+            clearInterval(this.interval);
+          }
           const element = document.getElementById(id);
           const ofertasDiv = document.getElementById('ofertas');
-          let offset = element.offsetTop;
+
           let count = 0;
-          let interval = setInterval(() => {
+          this.interval = setInterval(() => {
+            let offset = element.offsetTop;
             let zoom = themes.getZoom();
 
             let pos = Math.max(0, offset + 130 - y / zoom);
             let nowPos = ofertasDiv.scrollTop;
-            if (count < 60 && Math.abs(nowPos - pos) > 3) {
+            if (count < 20) {
               ofertasDiv.scrollTop = nowPos + (pos - nowPos) * 0.3;
               count++;
             } else {
               ofertasDiv.scrollTop = pos;
               this.idAjustado = null;
-              clearInterval(interval);
+              clearInterval(this.interval);
               return;
             }
           }, 20);
