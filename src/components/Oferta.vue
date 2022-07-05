@@ -1,6 +1,7 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id), focus: id === itemFocus }">
     <div :id="id" class="oferta" :class="{ collapsed: id !== itemFocus, fav: favoritos.has(id) }">
+      <account-tie-voice-outline-icon style="float: right; cursor: pointer; margin: 4px 10px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
       <div @click="focus()" class="contenido">
         <div v-if="filtro.length > 0">
           <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
@@ -41,7 +42,7 @@
 
           <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
           <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />
-          <account-tie-voice-outline-icon @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
+
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
       </div>
@@ -50,11 +51,13 @@
     <div v-if="!collapsedSimilar && id === itemFocus">
       <div class="copy-job" v-for="(item, idx) in reordenGrupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
         <div class="copy-job-buttons">
+          <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" :size="22" v-if="speechSupport && voice2 !== ''" />
           <delete-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="!archivados.has(item.id)" />
           <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
+
           <star-outline-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="!favoritos.has(item.id)" />
           <star-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="favoritos.has(item.id)" />
-          <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" :size="22" v-if="speechSupport && voice2 !== ''" />
+
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
         {{ dateFormat(item.fecha) }}
@@ -284,7 +287,7 @@ export default {
   border-radius: var(--radio);
   border: 1.5px solid var(--color);
   overflow: hidden;
-  transition: var(--oferta-transition);
+  /* transition: var(--oferta-transition); */
   max-height: var(--oferta-full-max-height);
 }
 .collapsed {

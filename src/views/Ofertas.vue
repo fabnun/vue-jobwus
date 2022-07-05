@@ -210,7 +210,6 @@ export default {
     },
     focus(id) {
       if (this.itemFocus !== id) {
-        console.log('FOCO ' + id, this.itemFocus);
         this.goto(id, 160);
         this.lastItemFocus = this.itemFocus;
       }
@@ -266,7 +265,6 @@ export default {
       try {
         this.stopVoice = true;
         this.prepareVoice = true;
-        console.log(this.voice, this.voiceSpeed, this.itemFocus);
         speech.setVoice(this.voice);
         speech.setRate(this.voiceSpeed);
         speech.speak({
@@ -322,8 +320,24 @@ export default {
         } else {
           this.undo.push({ type: 'unarchive', id });
         }
+
         if (this.folder === 'Agrupados' && this.itemFocus === id) {
-          this.itemFocus = this.lastItemFocus;
+          let lastArchivedIndex = this.resultView.pages.findIndex((page, idx) => page.id === id);
+          const este = this;
+          let nextFocus = this.resultView.pages.find(function (page, idx) {
+            return !este.archivados.has(page.id) && page.hidden === false && idx > lastArchivedIndex;
+          });
+          if (nextFocus === undefined) {
+            for (let i = lastArchivedIndex; i > 0; i--) {
+              if (this.resultView.pages[i].hidden === false && !this.archivados.has(this.resultView.pages[i].id)) {
+                nextFocus = this.resultView.pages[i].id;
+                break;
+              }
+            }
+          }
+          this.updateHidden(this.resultView);
+          //console.log('now', this.resultView.data[nextFocus.id].titulo, Date.now());
+          this.focus(nextFocus.id);
         }
       }
       this.updateHidden(this.resultView);

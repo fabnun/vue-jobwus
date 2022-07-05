@@ -129,22 +129,23 @@ onAuthStateChanged(getAuth(), (_user) => {
           const ofertasDiv = document.getElementById('ofertas');
 
           let count = 0;
-          this.interval = setInterval(() => {
-            let offset = element.offsetTop;
-            let zoom = themes.getZoom();
+          if (element !== null)
+            this.interval = setInterval(() => {
+              let offset = element.offsetTop;
+              let zoom = themes.getZoom();
 
-            let pos = Math.max(0, offset + 130 - y / zoom);
-            let nowPos = ofertasDiv.scrollTop;
-            if (count < 20) {
-              ofertasDiv.scrollTop = nowPos + (pos - nowPos) * 0.3;
-              count++;
-            } else {
-              ofertasDiv.scrollTop = pos;
-              this.idAjustado = null;
-              clearInterval(this.interval);
-              return;
-            }
-          }, 20);
+              let pos = Math.max(0, offset + 130 - y / zoom);
+              let nowPos = ofertasDiv.scrollTop;
+              if (count < 10) {
+                ofertasDiv.scrollTop = pos;
+                count++;
+              } else {
+                ofertasDiv.scrollTop = pos;
+                this.idAjustado = null;
+                clearInterval(this.interval);
+                return;
+              }
+            }, 10);
         },
         notification: function (message, type = 'info', dismissible = true, duration = 5000) {
           if (typeof message === 'object') {
