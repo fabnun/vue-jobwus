@@ -286,7 +286,9 @@ export default {
       }
     },
     favorite(id) {
-      this.focus(id);
+      if (this.resultView.pages.find((p) => p.id === id).hidden === false) {
+        this.focus(id);
+      }
       let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
       if (this.favoritos.has(id)) {
         this.favoritos.delete(id);
@@ -307,7 +309,6 @@ export default {
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
     },
     archive(id) {
-      this.focus(id);
       let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
       if (this.archivados.has(id)) {
         this.archivados.delete(id);
