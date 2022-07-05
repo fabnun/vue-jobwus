@@ -1,7 +1,7 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id), focus: id === itemFocus }">
     <div :id="id" class="oferta" :class="{ collapsed: id !== itemFocus, fav: favoritos.has(id) }">
-      <account-tie-voice-outline-icon style="float: right; cursor: pointer; margin: 4px 10px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
+      <account-tie-voice-outline-icon style="background: rgba(0, 0, 0, 0.25); border-radius: 50%; padding: 0.3em 0.33em; float: right; cursor: pointer; margin: 4px 4px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
       <div @click="focus()" class="contenido">
         <div v-if="filtro.length > 0">
           <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
@@ -60,7 +60,7 @@
 
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
-        {{ dateFormat(item.fecha) }}
+        <span class="copydate">{{ dateFormat(item.fecha) }}</span>
         <div class="clear"></div>
         <a @click.stop="" target="_blank" :href="item.url" class="titulo">
           {{ item.titulo === undefined || item.titulo === null || item.titulo.trim().length === 0 ? 'sin titulo' : item.titulo }}
@@ -265,17 +265,22 @@ export default {
   border-bottom: 1px solid var(--color);
 }
 
+.copy-job .copydate {
+  position: absolute;
+  margin-top: 0.4em;
+}
+
 .copy-job span {
   top: 0.2em !important;
-  padding: 0 0.5em 0 0;
+  padding: 0 0.7em 0 0;
   cursor: pointer;
   position: relative;
 }
 
 .copy-job-buttons {
   float: right;
-  right: 0em;
-  top: -0.2em;
+  right: -0.5em;
+  top: -0.1em;
   position: relative;
 }
 
