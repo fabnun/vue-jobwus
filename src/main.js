@@ -95,9 +95,12 @@ onAuthStateChanged(getAuth(), (_user) => {
         getUser() {
           return user;
         },
+        quitarTildes(text) {
+          return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        },
         format(text, title) {
           if (this.ignorarTildes) {
-            text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            text = this.quitarTildes(text);
           }
           text = ' ' + text + ' ';
 

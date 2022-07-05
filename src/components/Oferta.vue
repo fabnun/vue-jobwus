@@ -4,15 +4,15 @@
       <account-tie-voice-outline-icon style="background: rgba(0, 0, 0, 0.25); border-radius: 50%; padding: 0.3em 0.33em; float: right; cursor: pointer; margin: 4px 4px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
       <div @click="focus()" class="contenido">
         <div v-if="filtro.length > 0">
-          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
+          <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
           <span class="descripcion" v-html="format(data.descripcion)"></span>
         </div>
         <div v-else>
-          <a @click.stop="$emit('focus', id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"></a>
+          <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"></a>
           <span class="descripcion" v-text="data.descripcion"></span>
         </div>
       </div>
-      <div class="top" @click="$emit('focus', id)">
+      <div class="top" @click="focus(id)">
         <label class="fecha">{{ dateFormat(data.fecha) }}</label>
         <div class="right-buttons">
           <label v-if="grupo.length > 0" style="position: relative; top: -0.1em">
@@ -23,7 +23,7 @@
             <content-copy-icon
               @click.stop.prevent="
                 collapsedSimilar = !collapsedSimilar;
-                $emit('focus', id);
+                focus(id);
               "
               :size="18"
             />
@@ -148,11 +148,6 @@ export default {
   methods: {
     focus() {
       this.$emit('focus', this.id);
-      if (this.id !== this.itemFocus) {
-        if (!this.collapsedSimilar) {
-          this.collapsedSimilar = true;
-        }
-      }
     },
     voice(id) {
       this.$emit('voiceSpeak', id);

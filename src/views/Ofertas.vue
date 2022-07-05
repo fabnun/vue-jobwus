@@ -209,7 +209,9 @@ export default {
       }
     },
     focus(id) {
-      //console.log('focus', id, this.resultView.data[id].titulo);
+      console.log('focus', id, this.resultView.data[id].titulo);
+      console.log(this.resultView.pages.find((page) => page.id === id).hidden);
+
       if (this.itemFocus !== id) {
         this.goto(id, 160);
         this.lastItemFocus = this.itemFocus;
@@ -255,7 +257,10 @@ export default {
       }
     },
     voiceSpeak(id) {
-      this.focus(id);
+      if (!this.resultView.pages.find((page) => page.id === id).hidden) {
+        this.focus(id);
+      }
+
       let data = this.result.data[id];
       if (speech.speaking()) {
         speech.cancel();
@@ -518,14 +523,17 @@ export default {
     submit() {
       let search = '';
 
+      //Obtiene la búsqueda de la url
       search = this.$route.params.search;
+      //invierte los signos de pregunta para poder usar ? en la url
       search = search ? search.replace(/¿/g, '?').trim() : '';
 
+      //Obtiene la configuración de la url
       let cfg = this.$route.params.cfg;
       cfg = cfg ? cfg.trim() : 'info';
 
       if (this.$store.state.ignorarTildes) {
-        search = search.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        search = this.quitarTildes(search);
       }
       window.localStorage.setItem('filtro', search);
       let final = this.normalizeText(search.toLowerCase())
@@ -539,7 +547,7 @@ export default {
       if (this.searchListSelect !== '' && this.searchConfig[this.searchListSelect].obligatorio) {
         let search2 = this.searchConfig[this.searchListSelect].obligatorio;
         if (this.$store.state.ignorarTildes) {
-          search2 = search2.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          search2 = this.quitarTildes(search2);
         }
         let final = this.normalizeText(search2.toLowerCase())
           .replace(/\s+/, ' ')
@@ -666,7 +674,7 @@ export default {
     normalizeText(text) {
       text = text.toLowerCase();
       if (this.$store.state.ignorarTildes) {
-        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        text = this.quitarTildes(text);
       }
       return text.trim();
     },
