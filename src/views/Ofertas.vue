@@ -209,6 +209,7 @@ export default {
       }
     },
     focus(id) {
+      //console.log('focus', id, this.resultView.data[id].titulo);
       if (this.itemFocus !== id) {
         this.goto(id, 160);
         this.lastItemFocus = this.itemFocus;
@@ -286,7 +287,8 @@ export default {
       }
     },
     favorite(id) {
-      if (this.resultView.pages.find((p) => p.id === id).hidden === false) {
+      let data = this.result.pages.find((item) => item.id === id);
+      if (id !== this.itemFocus && data !== undefined && data.hidden === false) {
         this.focus(id);
       }
       let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;

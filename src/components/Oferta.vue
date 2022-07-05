@@ -148,8 +148,10 @@ export default {
   methods: {
     focus() {
       this.$emit('focus', this.id);
-      if (!this.collapsedSimilar) {
-        this.collapsedSimilar = true;
+      if (this.id !== this.itemFocus) {
+        if (!this.collapsedSimilar) {
+          this.collapsedSimilar = true;
+        }
       }
     },
     voice(id) {
@@ -247,7 +249,7 @@ export default {
 .copy-job {
   font-size: 0.8em;
   font-weight: bolder;
-  padding: 0.3em 0 0 0.5em;
+  padding: 0.4em 0 0.1em 0.5em;
   display: block;
   margin: 0 1em 0 2em;
   border-bottom: none;
@@ -288,10 +290,11 @@ export default {
   background: var(--oferta-background);
   line-height: var(--oferta-line-height);
   padding: 0;
-  margin: 0 0.5em;
+  margin: 0.2em 1em;
   border-radius: var(--radio);
-  border: 1.5px solid var(--color);
+  border: 1px solid var(--color);
   overflow: hidden;
+  text-align: start;
   /* transition: var(--oferta-transition); */
   max-height: var(--oferta-full-max-height);
 }
