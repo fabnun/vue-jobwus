@@ -98,6 +98,23 @@ onAuthStateChanged(getAuth(), (_user) => {
         quitarTildes(text) {
           return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         },
+        localGetItem(key, cfg = false) {
+          let keyFinal = cfg ? this.$route.params.cfg + '_' + key : key;
+          let resp = localStorage.getItem(keyFinal);
+          if (resp === null && cfg) {
+            resp = localStorage.getItem(key);
+            if (resp !== null) {
+              localStorage.removeItem(key);
+              localStorage.setItem(keyFinal, resp);
+            }
+          }
+          return resp;
+        },
+        localSetItem(key, value, cfg = false) {
+          let keyFinal = cfg ? this.$route.params.cfg + '_' + key : key;
+          localStorage.setItem(key, value);
+        },
+
         format(text, title) {
           if (this.ignorarTildes) {
             text = this.quitarTildes(text);

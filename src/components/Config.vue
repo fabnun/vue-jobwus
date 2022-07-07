@@ -103,8 +103,8 @@ export default {
       themes: require('../themes.js').default,
       speeds: [1, 1.25, 1.5, 1.75, 2],
       oldCfg: this.$store.state.words,
-      voiceSpeed: parseFloat(localStorage.getItem('voiceSpeed')) || 1,
-      voice: localStorage.getItem('voice') || null,
+      voiceSpeed: parseFloat(this.localGetItem('voiceSpeed')) || 1,
+      voice: this.localGetItem('voice') || null,
     };
   },
   methods: {
@@ -131,17 +131,17 @@ export default {
     },
     setVoice(e) {
       this.voice = e.target.value;
-      localStorage.setItem('voice', this.voice);
+      this.localSetItem('voice', this.voice);
       this.$emit('setVoice', e.target.value);
     },
     setSpeed(e) {
       this.voiceSpeed = parseFloat(e.target.value);
-      localStorage.setItem('voiceSpeed', this.voiceSpeed);
+      this.localSetItem('voiceSpeed', this.voiceSpeed);
       this.$emit('setSpeed', e.target.value);
     },
     setCfg(e) {
       if (confirm('¿Estás seguro de que quieres cambiar las palabras clave?')) {
-        localStorage.setItem('cfg', e.target.value);
+        this.localSetItem('cfg', e.target.value);
         location.reload();
       } else {
         e.target.value = this.oldCfg;
@@ -155,17 +155,17 @@ export default {
         let reader = new FileReader();
         reader.onload = (e) => {
           let config = JSON.parse(e.target.result);
-          localStorage.setItem('ignorarTildes', config.ignorarTildes);
-          localStorage.setItem('folder', config.folder);
-          localStorage.setItem('zoom', config.zoom);
-          localStorage.setItem('theme', config.theme);
-          localStorage.setItem('voice', config.voice);
-          localStorage.setItem('voiceSpeed', config.voiceSpeed);
-          localStorage.setItem('filtro', config.filtro);
-          localStorage.setItem('searchConfig', config.searchConfig);
-          localStorage.setItem('searchListSelect', config.searchListSelect);
-          localStorage.setItem('favoritos', config.favoritos);
-          localStorage.setItem('archivados', config.archivados);
+          this.localSetItem('ignorarTildes', config.ignorarTildes);
+          this.localSetItem('folder', config.folder);
+          this.localSetItem('zoom', config.zoom);
+          this.localSetItem('theme', config.theme);
+          this.localSetItem('voice', config.voice);
+          this.localSetItem('voiceSpeed', config.voiceSpeed);
+          this.localSetItem('filtro', config.filtro);
+          this.localSetItem('searchConfig', config.searchConfig);
+          this.localSetItem('searchListSelect', config.searchListSelect);
+          this.localSetItem('favoritos', config.favoritos, true);
+          this.localSetItem('archivados', config.archivados, true);
           location.reload();
         };
         reader.readAsText(file);
@@ -175,17 +175,17 @@ export default {
     },
     exportConfig() {
       let config = {
-        ignorarTildes: localStorage.getItem('ignorarTildes'),
-        folder: localStorage.getItem('folder'),
-        filtro: localStorage.getItem('filtro'),
-        searchConfig: localStorage.getItem('searchConfig'),
-        searchListSelect: localStorage.getItem('searchListSelect'),
-        favoritos: localStorage.getItem('favoritos'),
-        archivados: localStorage.getItem('archivados'),
-        zoom: localStorage.getItem('zoom'),
-        theme: localStorage.getItem('theme'),
-        voice: localStorage.getItem('voice'),
-        voiceSpeed: localStorage.getItem('voiceSpeed'),
+        ignorarTildes: this.localGetItem('ignorarTildes'),
+        folder: this.localGetItem('folder'),
+        filtro: this.localGetItem('filtro'),
+        searchConfig: this.localGetItem('searchConfig'),
+        searchListSelect: this.localGetItem('searchListSelect'),
+        favoritos: this.localGetItem('favoritos', true),
+        archivados: this.localGetItem('archivados', true),
+        zoom: this.localGetItem('zoom'),
+        theme: this.localGetItem('theme'),
+        voice: this.localGetItem('voice'),
+        voiceSpeed: this.localGetItem('voiceSpeed'),
       };
       let file = new Blob([JSON.stringify(config)], { type: 'application/json' });
       let fileURL = URL.createObjectURL(file);
@@ -196,8 +196,8 @@ export default {
     },
   },
   mounted() {
-    this.voice = localStorage.getItem('voice') || '';
-    this.voiceSpeed = parseFloat(localStorage.getItem('voiceSpeed') || 1);
+    this.voice = this.localGetItem('voice') || '';
+    this.voiceSpeed = parseFloat(this.localGetItem('voiceSpeed') || 1);
     this.$emit('setVoice', this.voice);
     this.$emit('setSpeed', this.voiceSpeed);
   },

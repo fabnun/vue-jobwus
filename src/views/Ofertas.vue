@@ -191,7 +191,7 @@ export default {
       if (this.result !== null) {
         this.query();
       }
-      window.localStorage.setItem('folder', this.folder);
+      this.localSetItem('folder', this.folder);
     },
   },
   created() {
@@ -328,7 +328,7 @@ export default {
       }
       this.showUndoRedo('favorite');
       this.$forceUpdate();
-      window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
+      this.localSetItem('favoritos', Array.from(this.favoritos).join(','), true);
     },
     archive(id) {
       let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
@@ -372,7 +372,7 @@ export default {
       this.showUndoRedo('archive');
       this.updateHidden(this.resultView);
       this.$forceUpdate();
-      window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
+      this.localSetItem('archivados', Array.from(this.archivados).join(','), true);
     },
     doRedo() {
       let lastRedo = this.redo.pop();
@@ -380,22 +380,22 @@ export default {
         this.undo.push(lastRedo);
         if (lastRedo.type === 'favorite') {
           this.favoritos.delete(lastRedo.id);
-          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
+          this.localSetItem('favoritos', Array.from(this.favoritos).join(','), true);
         } else if (lastRedo.type === 'unfavorite') {
           this.favoritos.add(lastRedo.id);
-          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
+          this.localSetItem('favoritos', Array.from(this.favoritos).join(','), true);
         } else if (lastRedo.type === 'archive') {
           this.archivados.delete(lastRedo.id);
           if (!this.redo.length > 0) {
             this.doRedo();
           }
-          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
+          this.localSetItem('archivados', Array.from(this.archivados).join(','), true);
         } else if (lastRedo.type === 'unarchive') {
           this.archivados.add(lastRedo.id);
           if (!this.redo.length > 0) {
             this.doRedo();
           }
-          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
+          this.localSetItem('archivados', Array.from(this.archivados).join(','), true);
         } else if (lastRedo.type === 'focus') {
           if (this.itemFocus !== lastRedo.id) {
             this.focus(lastRedo.id, false);
@@ -412,22 +412,22 @@ export default {
         this.redo.push(lastUndo);
         if (lastUndo.type === 'favorite') {
           this.favoritos.add(lastUndo.id);
-          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
+          this.localSetItem('favoritos', Array.from(this.favoritos).join(','), true);
         } else if (lastUndo.type === 'unfavorite') {
           this.favoritos.delete(lastUndo.id);
-          window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
+          this.localSetItem('favoritos', Array.from(this.favoritos).join(','), true);
         } else if (lastUndo.type === 'archive') {
           this.archivados.add(lastUndo.id);
           if (!this.undo.length > 0) {
             this.doUndo();
           }
-          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
+          this.localSetItem('archivados', Array.from(this.archivados).join(','), true);
         } else if (lastUndo.type === 'unarchive') {
           this.archivados.delete(lastUndo.id);
           if (!this.undo.length > 0) {
             this.doUndo();
           }
-          window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
+          this.localSetItem('archivados', Array.from(this.archivados).join(','), true);
         } else if (lastUndo.type === 'focus') {
           if (this.itemFocus !== lastUndo.id) {
             this.focus(lastUndo.id, false);
@@ -454,7 +454,7 @@ export default {
         if (confirm('esta seguro de eliminar el filtro ' + name + '?')) {
           delete this.searchConfig[name];
           this.searchList = Object.keys(this.searchConfig);
-          window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
+          this.localSetItem('searchConfig', JSON.stringify(this.searchConfig));
           this.searchListSelect = '';
           this.modal = false;
           this.$forceUpdate();
@@ -480,7 +480,7 @@ export default {
         this.searchList = Object.keys(this.searchConfig);
         this.searchListSelect = name;
         this.$refs.filtro.value = value;
-        window.localStorage.setItem('searchConfig', JSON.stringify(this.searchConfig));
+        this.localSetItem('searchConfig', JSON.stringify(this.searchConfig));
         this.modal = false;
       } else {
         this.notification('ingrese un las palabras clave y el nombre del filtro');
@@ -494,7 +494,7 @@ export default {
       } else {
         this.$refs.filtro.value = this.searchConfig[this.searchListSelect].filtro;
       }
-      window.localStorage.setItem('searchListSelect', this.searchListSelect);
+      this.localSetItem('searchListSelect', this.searchListSelect);
       //}
     },
 
@@ -578,7 +578,7 @@ export default {
       if (this.$store.state.ignorarTildes) {
         search = this.quitarTildes(search);
       }
-      window.localStorage.setItem('filtro', search);
+      this.localSetItem('filtro', search);
       let final = this.normalizeText(search.toLowerCase())
         .replace(/\s+/, ' ')
         .split(',')
@@ -731,9 +731,9 @@ export default {
       voices = voices.filter((v) => v.toLowerCase().indexOf('spanish') > -1 || v.toLowerCase().indexOf('español') > -1);
       voices.unshift('');
       this.voiceList = voices;
-      this.voice = localStorage.getItem('voice');
+      this.voice = this.localGetItem('voice');
       this.voice = this.voice || '';
-      this.voiceSpeed = localStorage.getItem('voiceSpeed');
+      this.voiceSpeed = this.localGetItem('voiceSpeed');
       this.voiceSpeed = parseFloat(this.voiceSpeed) || 1;
       this.$forceUpdate();
     },
@@ -766,15 +766,15 @@ export default {
     initVoices();
 
     ///////////////////////////////////////////////////
-    let favoritos = window.localStorage.getItem('favoritos');
+    let favoritos = this.localGetItem('favoritos', true);
     if (favoritos !== null) {
       this.favoritos = new Set(favoritos.split(','));
     }
     ///////////////////////////////////////////////////
 
-    let searchConfig = window.localStorage.getItem('searchConfig');
+    let searchConfig = this.localGetItem('searchConfig');
     if (searchConfig === null) {
-      let searchList = window.localStorage.getItem('searchList');
+      let searchList = this.localGetItem('searchList');
       searchConfig = {};
       if (searchList !== null) {
         searchList = JSON.parse(searchList);
@@ -789,7 +789,7 @@ export default {
       }
       this.searchList = searchList;
       this.searchConfig = searchConfig;
-      window.localStorage.setItem('searchConfig', JSON.stringify(searchConfig));
+      this.localSetItem('searchConfig', JSON.stringify(searchConfig));
     } else {
       this.searchConfig = JSON.parse(searchConfig);
       this.searchList = Object.keys(this.searchConfig);
@@ -798,12 +798,12 @@ export default {
     this.searchListSelect = '';
 
     ///////////////////////////////////////////////////
-    let archivados = window.localStorage.getItem('archivados');
+    let archivados = this.localGetItem('archivados', true);
     if (archivados !== null) {
       this.archivados = new Set(archivados.split(','));
     }
     ///////////////////////////////////////////////////
-    let folder = window.localStorage.getItem('folder');
+    let folder = this.localGetItem('folder');
     this.folder = this.folders.includes(folder) ? folder : 'Agrupados';
     ///////////////////////////////////////////////////
     this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
@@ -815,12 +815,12 @@ export default {
       try {
         let result;
         if (!navigator.onLine) {
-          result = window.localStorage.lastFetch;
+          result = localStorage.lastFetch;
           este.notification('Datos recuperados de localstorage (offline)', 'info');
         } else {
           result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
           //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
-          window.localStorage.setItem('lastFetch', result);
+          this.localSetItem('lastFetch', result);
         }
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
@@ -829,17 +829,17 @@ export default {
           const keys = Object.keys(_result.data);
 
           este.favoritos = new Set([...este.favoritos].filter((f) => keys.includes(f)));
-          window.localStorage.setItem('favoritos', [...este.favoritos].join(','));
+          this.localSetItem('favoritos', [...este.favoritos].join(','), true);
 
           este.archivados = new Set([...este.archivados].filter((f) => keys.includes(f)));
-          window.localStorage.setItem('archivados', [...este.archivados].join(','));
+          this.localSetItem('archivados', [...este.archivados].join(','), true);
 
           este.result = _result;
 
           //console.log(uncompress);
         }
       } catch (error) {
-        let result = window.localStorage.lastFetch;
+        let result = localStorage.lastFetch;
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
           this.result = JSON.parse(uncompress);

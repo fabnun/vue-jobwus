@@ -14,7 +14,7 @@ export default new Vuex.Store({
     },
     setIgnorarTildes(state, value) {
       state.ignorarTildes = !state.ignorarTildes;
-      localStorage.setItem('ignorarTildes', state.ignorarTildes);
+      this.localSetItem('ignorarTildes', state.ignorarTildes);
     },
   },
   actions: {
