@@ -1,9 +1,8 @@
 <template>
   <div v-if="(folder === 'Agrupados' && !archivados.has(id)) || folder !== 'Agrupados'" :class="{ arch: archivados.has(id), focus: id === itemFocus }">
     <div :id="id" class="oferta" :class="{ collapsed: id !== itemFocus, fav: favoritos.has(id) }">
-      <account-tie-voice-outline-icon style="background: rgba(0, 0, 0, 0.25); border-radius: 50%; padding: 0.3em 0.33em; float: right; cursor: pointer; margin: 4px 4px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
+      <account-tie-voice-outline-icon style="background: rgba(0, 0, 0, 0.3); border-radius: 50%; padding: 0.3em 0.46em; float: right; cursor: pointer; margin: 4px 4px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
       <div @click="focus()" class="contenido">
-        {{ id }}
         <div v-if="filtro.length > 0">
           <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
           <span class="descripcion" v-html="format(data.descripcion)"></span>
@@ -135,13 +134,8 @@ export default {
       let este = this;
       return this.grupo.sort((a, b) => {
         let result = 0;
-        if (a.titulo === este.data.titulo) {
-          return -10000;
-        }
-        let ta = a.titulo.trim().toLowerCase();
-        let tb = b.titulo.trim().toLowerCase();
         result += a.fecha > b.fecha ? -1 : 1;
-        return result;
+        return b.fecha - a.fecha;
       });
     },
   },

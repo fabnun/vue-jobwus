@@ -295,15 +295,15 @@ export default {
       this.$forceUpdate();
     },
     showUndoRedo(msg) {
-      console.log(
-        msg,
-        this.undo.reduce((acc, cur) => acc + '\n' + cur.type + ' ' + cur.id, 'UNDO:')
-      );
-      console.log(
-        msg,
-        this.redo.reduce((acc, cur) => acc + '\n' + cur.type + ' ' + cur.id, 'REDO:')
-      );
-      console.log('---------------------------------------------');
+      // console.log(
+      //   msg,
+      //   this.undo.reduce((acc, cur) => acc + '\n' + cur.type + ' ' + cur.id, 'UNDO:')
+      // );
+      // console.log(
+      //   msg,
+      //   this.redo.reduce((acc, cur) => acc + '\n' + cur.type + ' ' + cur.id, 'REDO:')
+      // );
+      // console.log('---------------------------------------------');
     },
     favorite(id) {
       let data = this.result.pages.find((item) => item.id === id);
