@@ -912,7 +912,7 @@ export default {
   border-radius: var(--radio);
 }
 .button-icon {
-  margin: 0.2em;
+  margin: 0.1em;
   cursor: pointer;
 }
 .oferta-num {
@@ -1046,7 +1046,7 @@ export default {
   position: relative;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 32px 152px 1fr 32px;
+  grid-template-columns: 32px 122px 1fr 32px;
   max-width: calc(var(--page-max-width) - 42px);
 }
 .filtro select,
