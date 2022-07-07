@@ -349,7 +349,7 @@ export default {
         }
 
         //Cuando archiva una oferta visible
-        if (this.folder === 'Agrupados' && (this.itemFocus === null || this.archivados.has(id))) {
+        if (this.folder === 'Agrupados' && (this.itemFocus === null || (this.itemFocus === id && this.archivados.has(id)))) {
           let lastArchivedIndex = this.resultView.pages.findIndex((page, idx) => page.id === id);
           const este = this;
           let nextFocus = this.resultView.pages.find(function (page, idx) {
