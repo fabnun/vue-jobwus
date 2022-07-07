@@ -3,6 +3,7 @@
     <div :id="id" class="oferta" :class="{ collapsed: id !== itemFocus, fav: favoritos.has(id) }">
       <account-tie-voice-outline-icon style="background: rgba(0, 0, 0, 0.25); border-radius: 50%; padding: 0.3em 0.33em; float: right; cursor: pointer; margin: 4px 4px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
       <div @click="focus()" class="contenido">
+        {{ id }}
         <div v-if="filtro.length > 0">
           <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
           <span class="descripcion" v-html="format(data.descripcion)"></span>

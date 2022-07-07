@@ -136,6 +136,7 @@ import Loading from '../components/Loading.vue';
 import _smartPhone from 'detect-mobile-browser';
 import Config from '../components/Config.vue';
 import Speech from 'speak-tts';
+//import chalk from 'chalk';
 
 const speech = new Speech();
 
@@ -208,17 +209,7 @@ export default {
         this.height = window.innerHeight;
       }
     },
-    focus(id) {
-      console.log('focus', id, this.resultView.data[id].titulo);
-      console.log(this.resultView.pages.find((page) => page.id === id).hidden);
 
-      if (this.itemFocus !== id) {
-        this.goto(id, 160);
-        this.lastItemFocus = this.itemFocus;
-      }
-      this.itemFocus = id;
-      this.$forceUpdate();
-    },
     debounce(func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -291,6 +282,29 @@ export default {
         console.error(error);
       }
     },
+    focus(id, undo = true) {
+      if (this.itemFocus !== id) {
+        this.goto(id, 160);
+        this.lastItemFocus = this.itemFocus;
+        if (undo) {
+          this.undo.push({ type: 'focus', id });
+          this.showUndoRedo('focus');
+        }
+      }
+      this.itemFocus = id;
+      this.$forceUpdate();
+    },
+    showUndoRedo(msg) {
+      console.log(
+        msg,
+        this.undo.reduce((acc, cur) => acc + '\n' + cur.type + ' ' + cur.id, 'UNDO:')
+      );
+      console.log(
+        msg,
+        this.redo.reduce((acc, cur) => acc + '\n' + cur.type + ' ' + cur.id, 'REDO:')
+      );
+      console.log('---------------------------------------------');
+    },
     favorite(id) {
       let data = this.result.pages.find((item) => item.id === id);
       if (id !== this.itemFocus && data !== undefined && data.hidden === false) {
@@ -312,6 +326,7 @@ export default {
           this.undo.push({ type: 'unfavorite', id });
         }
       }
+      this.showUndoRedo('favorite');
       this.$forceUpdate();
       window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
     },
@@ -329,10 +344,12 @@ export default {
         if (lastUndo !== null && lastUndo.type === 'unarchive' && lastUndo.id === id) {
           this.undo.pop();
         } else {
+          this.undo.push({ type: 'focus', id });
           this.undo.push({ type: 'unarchive', id });
         }
 
-        if (this.folder === 'Agrupados' && this.itemFocus === id) {
+        //Cuando archiva una oferta visible
+        if (this.folder === 'Agrupados' && (this.itemFocus === null || this.archivados.has(id))) {
           let lastArchivedIndex = this.resultView.pages.findIndex((page, idx) => page.id === id);
           const este = this;
           let nextFocus = this.resultView.pages.find(function (page, idx) {
@@ -346,11 +363,13 @@ export default {
               }
             }
           }
+
           this.updateHidden(this.resultView);
           //console.log('now', this.resultView.data[nextFocus.id].titulo, Date.now());
           this.focus(nextFocus.id);
         }
       }
+      this.showUndoRedo('archive');
       this.updateHidden(this.resultView);
       this.$forceUpdate();
       window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
@@ -367,13 +386,23 @@ export default {
           window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
         } else if (lastRedo.type === 'archive') {
           this.archivados.delete(lastRedo.id);
+          if (!this.redo.length > 0) {
+            this.doRedo();
+          }
           window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
         } else if (lastRedo.type === 'unarchive') {
           this.archivados.add(lastRedo.id);
+          if (!this.redo.length > 0) {
+            this.doRedo();
+          }
           window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
+        } else if (lastRedo.type === 'focus') {
+          if (this.itemFocus !== lastRedo.id) {
+            this.focus(lastRedo.id, false);
+          } else this.doRedo();
         }
         if (this.folder === 'Agrupados') this.updateHidden(this.resultView);
-
+        this.showUndoRedo('doRedo');
         this.$forceUpdate();
       }
     },
@@ -389,12 +418,23 @@ export default {
           window.localStorage.setItem('favoritos', Array.from(this.favoritos).join(','));
         } else if (lastUndo.type === 'archive') {
           this.archivados.add(lastUndo.id);
+          if (!this.undo.length > 0) {
+            this.doUndo();
+          }
           window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
         } else if (lastUndo.type === 'unarchive') {
           this.archivados.delete(lastUndo.id);
+          if (!this.undo.length > 0) {
+            this.doUndo();
+          }
           window.localStorage.setItem('archivados', Array.from(this.archivados).join(','));
+        } else if (lastUndo.type === 'focus') {
+          if (this.itemFocus !== lastUndo.id) {
+            this.focus(lastUndo.id, false);
+          } else this.doUndo();
         }
         if (this.folder === 'Agrupados') this.updateHidden(this.resultView);
+        this.showUndoRedo('doUndo');
         this.$forceUpdate();
       }
     },
@@ -521,6 +561,9 @@ export default {
     },
 
     submit() {
+      this.itemFocus = null;
+      this.undo = [];
+      this.redo = [];
       let search = '';
 
       //Obtiene la búsqueda de la url
@@ -579,6 +622,11 @@ export default {
       }
       this.updateHidden(resultBuild);
       this.resultView = resultBuild;
+      // console.log(this.resultView.pages.length);
+      // if (this.resultView.pages.length > 0) {
+      //   this.focus(this.resultView.pages[0].id);
+      // }
+
       //////////////////////////////////////////////////////////////////
 
       try {
