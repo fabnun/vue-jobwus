@@ -121,9 +121,6 @@ onAuthStateChanged(getAuth(), (_user) => {
           }
 
           function hightlightText(texto, filtro, hightlight, filtro2, hightlight2) {
-            if (filtro2 === undefined) {
-              console.log(hightlight, texto, filtro2 !== undefined);
-            }
             texto = ' ' + texto + ' ';
             const sorted = [...filtro].sort((a, b) => {
               if (a.startsWith(b)) {
@@ -151,7 +148,6 @@ onAuthStateChanged(getAuth(), (_user) => {
                 }
               }
               resultText += filtro2 !== undefined && filtro2.length > 0 ? hightlightText(texto.substring(pos), filtro2, hightlight2) : texto.substring(pos);
-              console.log(resultText);
               texto = resultText;
             }
             if (texto === '') {
