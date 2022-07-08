@@ -150,9 +150,6 @@ onAuthStateChanged(getAuth(), (_user) => {
               resultText += filtro2 !== undefined && filtro2.length > 0 ? hightlightText(texto.substring(pos), filtro2, hightlight2) : texto.substring(pos);
               texto = resultText;
             }
-            if (texto === '') {
-              texto = title ? 'Sin Título' : 'Sin Descripción';
-            }
             return texto;
           }
           return hightlightText(text, this.filtro, 'highlight', this.filtroOpcional, 'highlight2');
