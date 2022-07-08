@@ -112,34 +112,54 @@ onAuthStateChanged(getAuth(), (_user) => {
         },
         localSetItem(key, value, cfg = false) {
           let keyFinal = cfg ? this.$route.params.cfg + '_' + key : key;
-          localStorage.setItem(key, value);
+          localStorage.setItem(keyFinal, value);
         },
 
         format(text, title) {
           if (this.ignorarTildes) {
             text = this.quitarTildes(text);
           }
-          text = ' ' + text + ' ';
 
-          let sorted = [...this.filtro];
-          sorted.sort((a, b) => {
-            if (a.startsWith(b)) {
-              return -1;
+          function hightlightText(texto, filtro, hightlight, filtro2, hightlight2) {
+            if (filtro2 === undefined) {
+              console.log(hightlight, texto, filtro2 !== undefined);
             }
-            if (b.startsWith(a)) {
-              return 1;
+            texto = ' ' + texto + ' ';
+            const sorted = [...filtro].sort((a, b) => {
+              if (a.startsWith(b)) {
+                return -1;
+              }
+              if (b.startsWith(a)) {
+                return 1;
+              }
+              return a > b ? 1 : -1;
+            });
+            if (sorted.length > 0) {
+              let rgx = '([^a-z0-9áéíóúüñ]+)(' + sorted.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
+              let rex = new RegExp(rgx, 'gi');
+
+              let match,
+                pos = 0,
+                resultText = '';
+              while ((match = rex.exec(texto))) {
+                if (match[0].trim().length > 0) {
+                  const subText = texto.substring(pos, match.index);
+                  const result = filtro2 !== undefined && filtro2.length > 0 ? hightlightText(subText, filtro2, hightlight2) : subText;
+                  resultText += result;
+                  resultText += '<span class="' + hightlight + '">' + match[0] + '</span>';
+                  pos = match.index + match[0].length;
+                }
+              }
+              resultText += filtro2 !== undefined && filtro2.length > 0 ? hightlightText(texto.substring(pos), filtro2, hightlight2) : texto.substring(pos);
+              console.log(resultText);
+              texto = resultText;
             }
-            return a > b ? 1 : -1;
-          });
-          if (sorted.length > 0) {
-            let rgx = '([^a-z0-9áéíóúüñ]+)(' + sorted.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
-            let rex = new RegExp(rgx, 'gi');
-            text = text.replace(rex, '<span class="highlight">$&</span>').replace(/\s+/g, ' ').trim();
+            if (texto === '') {
+              texto = title ? 'Sin Título' : 'Sin Descripción';
+            }
+            return texto;
           }
-          if (text === '') {
-            text = title ? 'Sin Título' : 'Sin Descrición';
-          }
-          return text;
+          return hightlightText(text, this.filtro, 'highlight', this.filtroOpcional, 'highlight2');
         },
         goto(id, y) {
           if (this.interval !== undefined) {

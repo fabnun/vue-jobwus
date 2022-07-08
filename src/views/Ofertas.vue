@@ -63,6 +63,7 @@
               :voice2="voice"
               :ignorarTildes="$store.state.ignorarTildes"
               :filtro="filtroFinal"
+              :filtroOpcional="filtroOpcional"
               :grupo="
                 folder === 'Agrupados'
                   ? item.grupo === null
@@ -93,7 +94,7 @@
             Nombre del filtro de búsqueda<br />
             <input type="text" ref="filter" autocapitalize="none" spellcheck="false" />
             <br />
-            Palabras claves Obligatorias<br />
+            Palabras claves buscadas<br />
             <textarea ref="words" rows="3" autocapitalize="none" spellcheck="false"></textarea>
             <br />
             Palabras claves Opcionales<br />
@@ -170,6 +171,7 @@ export default {
       modal: false,
       modalType: 'editSearch',
       filtroFinal: [],
+      filtroOpcional: [],
       result: null,
       resultView: null,
       paginaSize: 20,
@@ -209,7 +211,6 @@ export default {
         this.height = window.innerHeight;
       }
     },
-
     debounce(func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -458,6 +459,7 @@ export default {
           this.searchListSelect = '';
           this.modal = false;
           this.$forceUpdate();
+          this.resize();
         }
       }
     },
@@ -482,6 +484,7 @@ export default {
         this.$refs.filtro.value = value;
         this.localSetItem('searchConfig', JSON.stringify(this.searchConfig));
         this.modal = false;
+        this.resize();
       } else {
         this.notification('ingrese un las palabras clave y el nombre del filtro');
       }
@@ -561,7 +564,6 @@ export default {
     },
 
     submit() {
-      this.itemFocus = null;
       this.undo = [];
       this.redo = [];
       let search = '';
@@ -592,13 +594,16 @@ export default {
         if (this.$store.state.ignorarTildes) {
           search2 = this.quitarTildes(search2);
         }
-        let final = this.normalizeText(search2.toLowerCase())
+        this.filtroOpcional = this.normalizeText(search2.toLowerCase())
           .replace(/\s+/, ' ')
           .split(',')
           .map((word) => word.trim())
           .filter((word) => word !== '');
-        this.filtroFinal = this.filtroFinal.concat(final);
+      } else {
+        this.filtroOpcional = [];
       }
+      //console.log(this.filtroFinal);
+      //console.log(this.filtroOpcional);
 
       this.rgx = '([^a-z0-9áéíóúüñ]+)(' + words.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
       //console.log(this.rgx);
@@ -622,10 +627,10 @@ export default {
       }
       this.updateHidden(resultBuild);
       this.resultView = resultBuild;
-      // console.log(this.resultView.pages.length);
-      // if (this.resultView.pages.length > 0) {
-      //   this.focus(this.resultView.pages[0].id);
-      // }
+
+      if (this.resultView.pages.length > 0) {
+        this.focus(this.resultView.pages[0].id);
+      }
 
       //////////////////////////////////////////////////////////////////
 
@@ -739,6 +744,9 @@ export default {
     },
   },
   mounted() {
+    setInterval(() => {
+      this.resize();
+    }, 333);
     window.addEventListener('resize', this.resize);
     this.resize();
     let este = this;
@@ -960,7 +968,7 @@ export default {
 }
 
 .loading {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;

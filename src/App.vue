@@ -19,6 +19,7 @@ h1 {
 body {
   zoom: var(--zoom) !important;
 }
+
 body {
   margin-bottom: 6em;
 }
@@ -62,6 +63,13 @@ select {
 .highlight {
   background: var(--match-background);
   color: var(--match-color);
+  border-radius: var(--radio);
+  font-weight: bolder;
+  padding: 0 4px;
+}
+.highlight2 {
+  background: var(--match2-background);
+  color: var(--match2-color);
   border-radius: var(--radio);
   font-weight: bolder;
   padding: 0 4px;

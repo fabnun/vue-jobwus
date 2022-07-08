@@ -4,8 +4,8 @@
       <account-tie-voice-outline-icon style="background: rgba(0, 0, 0, 0.3); border-radius: 50%; padding: 0.3em 0.46em; float: right; cursor: pointer; margin: 4px 4px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
       <div @click="focus()" class="contenido">
         <div v-if="filtro.length > 0">
-          <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"> </a> -
-          <span class="descripcion" v-html="format(data.descripcion)"></span>
+          <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="id === itemFocus ? format(data.titulo) : data.titulo"> </a> -
+          <span class="descripcion" v-html="id === itemFocus ? format(data.descripcion) : data.descripcion"></span>
         </div>
         <div v-else>
           <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo, true)"></a>
@@ -86,7 +86,7 @@ import ChevronUpIcon from 'vue-material-design-icons/ChevronUp.vue';
 import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue';
 
 export default {
-  props: ['data', 'voice2', 'grupo', 'itemFocus', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
+  props: ['data', 'voice2', 'filtroOpcional', 'grupo', 'itemFocus', 'filtro', 'ignorarTildes', 'id', 'folder', 'archivados', 'favoritos', 'speechSupport'],
   data: function () {
     return {
       collapsedSimilar: true,
