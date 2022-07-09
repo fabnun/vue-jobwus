@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    //No supe como usar el mixin para usar el metodo setItem
     ignorarTildes: localStorage.getItem('ignorarTildes') === 'true',
     voiceList: [],
   },
@@ -14,7 +15,8 @@ export default new Vuex.Store({
     },
     setIgnorarTildes(state, value) {
       state.ignorarTildes = !state.ignorarTildes;
-      this.localSetItem('ignorarTildes', state.ignorarTildes);
+      //No supe como usar el mixin para usar el metodo setItem
+      localStorage.setItem('ignorarTildes', state.ignorarTildes);
     },
   },
   actions: {

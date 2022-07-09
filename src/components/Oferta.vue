@@ -39,6 +39,7 @@
           <div v-if="folder === 'Agrupados'" style="display: inline-block; padding: 0; margin: 0; width: 0; height: 0; z-index: 1000; opacity: 0.2; color: white; height: 32px; vertical-align: text-bottom">
             <div @click.stop.prevent="favorite" :style="`height: ${note2}px; top: 6px; background:green`" class="progreso">&nbsp;</div>
           </div>
+          <div v-else style="display: inline-block; padding: 0; margin: 0; width: 0; height: 0; z-index: 1000; opacity: 0.2; color: white; height: 32px; vertical-align: text-bottom"></div>
 
           <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
           <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />

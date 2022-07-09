@@ -824,12 +824,12 @@ export default {
       try {
         let result;
         if (!navigator.onLine) {
-          result = localStorage.lastFetch;
+          result = this.localGetItem('lastFetch', true);
           este.notification('Datos recuperados de localstorage (offline)', 'info');
         } else {
           result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
           //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
-          this.localSetItem('lastFetch', result);
+          this.localSetItem('lastFetch', result, true);
         }
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
@@ -848,7 +848,7 @@ export default {
           //console.log(uncompress);
         }
       } catch (error) {
-        let result = localStorage.lastFetch;
+        let result = this.localGetItem('lastFetch', true);
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
           this.result = JSON.parse(uncompress);
