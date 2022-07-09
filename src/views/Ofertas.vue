@@ -22,16 +22,23 @@
           <playlist-edit-icon class="button-icon" @click="editFiltro" />
         </div>
         <div class="cell">
-          <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="" />
+          <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="ej: java, node" />
 
           <select class="searchList" ref="searchList" @change="setSearch">
-            <option></option>
+            <option value="">- Tus Filtros -</option>
             <option v-for="item in searchList" :key="item" :selected="searchListSelect === item">
               {{ item }}
             </option>
           </select>
         </div>
-        <div class="cell" @click="query">
+        <div
+          class="cell"
+          @click="
+            loading = true;
+            $forceUpdate();
+            query();
+          "
+        >
           <magnify-icon class="menu-button" />
         </div>
       </div>
@@ -331,6 +338,25 @@ export default {
       this.$forceUpdate();
       this.localSetItem('favoritos', Array.from(this.favoritos).join(','), true);
     },
+    // nextFocus() {
+    //   debugger;
+    //   let lastArchivedIndex = this.resultView.pages.findIndex((page, idx) => page.id === id);
+    //   let nextFocus = this.resultView.pages.find(function (page, idx) {
+    //     return !this.archivados.has(page.id) && page.hidden === false && idx > lastArchivedIndex;
+    //   });
+    //   if (nextFocus === undefined) {
+    //     for (let i = lastArchivedIndex; i > 0; i--) {
+    //       if (this.resultView.pages[i].hidden === false && !this.archivados.has(this.resultView.pages[i].id)) {
+    //         nextFocus = this.resultView.pages[i].id;
+    //         break;
+    //       }
+    //     }
+    //   }
+
+    //   this.updateHidden(this.resultView);
+    //   //console.log('now', this.resultView.data[nextFocus.id].titulo, Date.now());
+    //   this.focus(nextFocus.id);
+    // },
     archive(id) {
       let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
       if (this.archivados.has(id)) {
@@ -533,7 +559,7 @@ export default {
         this.modalType = 'editSearch';
         this.modal = true;
       } else {
-        this.notification('Seleccione un filtro para editar');
+        this.notification('Seleccione un filtro para editar o cree un filtro nuevo.');
       }
     },
 
@@ -541,7 +567,7 @@ export default {
       this.$refs.filtro.value = this.limpiarTexto(this.$refs.filtro.value);
       this.searchListSelect = this.localGetItem('searchListSelect');
       this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
-      this.loading = true;
+
       let search = this.$refs.filtro.value;
       let cfgLength = this.$route.params.cfg;
       cfgLength = cfgLength || 0;
@@ -639,8 +665,10 @@ export default {
       } catch (error) {
         console.log(error);
       }
-
-      this.loading = false;
+      setTimeout(() => {
+        this.loading = false;
+        this.$forceUpdate();
+      }, 666);
       this.paginaSize = 20;
 
       try {
@@ -744,9 +772,11 @@ export default {
     },
   },
   mounted() {
+    this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
     setInterval(() => {
       this.resize();
     }, 333);
+    window.visualViewport.addEventListener('resize', this.resize);
     window.addEventListener('resize', this.resize);
     this.resize();
     let este = this;
@@ -787,7 +817,7 @@ export default {
       if (searchList !== null) {
         searchList = JSON.parse(searchList);
         searchList.forEach((search, idx) => {
-          searchConfig['filtro ' + idx] = {
+          searchConfig['filtro' + idx] = {
             filtro: search,
             tipo: 'busqueda',
           };
@@ -803,7 +833,8 @@ export default {
       this.searchList = Object.keys(this.searchConfig);
     }
     this.searchList.sort();
-    this.searchListSelect = '';
+    this.searchListSelect = this.localGetItem('searchListSelect');
+    this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
 
     ///////////////////////////////////////////////////
     let archivados = this.localGetItem('archivados', true);
@@ -815,9 +846,6 @@ export default {
     this.folder = this.folders.includes(folder) ? folder : 'Agrupados';
     ///////////////////////////////////////////////////
     this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
-
-    this.searchListSelect = this.localGetItem('searchListSelect');
-    this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
 
     ///////////////////////////////////////////////////
 

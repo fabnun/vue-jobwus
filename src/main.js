@@ -80,6 +80,7 @@ const errores = {
 let vueinitialize = true;
 const auth = undefined;
 let user = undefined;
+let regExpOtherChars = /[^a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ]/g;
 
 onAuthStateChanged(getAuth(), (_user) => {
   user = _user;
@@ -139,11 +140,7 @@ onAuthStateChanged(getAuth(), (_user) => {
                 pos = 0,
                 resultText = '';
               while ((match = rex.exec(texto))) {
-                let trim = match[0]
-                  .trim()
-                  .replace(/[^a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ]/g, ' ')
-                  .replace(/\s+/g, ' ')
-                  .trim();
+                let trim = match[0].trim().replace(regExpOtherChars, ' ').replace(/\s+/g, ' ').trim();
                 if (trim.length > 0) {
                   let offset = match[0].indexOf(trim);
                   const subText = texto.substring(pos, match.index + (offset > 0 ? offset : 0));

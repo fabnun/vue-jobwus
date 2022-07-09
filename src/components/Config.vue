@@ -8,6 +8,7 @@
         <option v-for="item in voiceList" :key="item" :value="item" :selected="item === voice">{{ item === '' ? 'ninguna' : item.substring(item.indexOf(' - ') > -1 ? item.indexOf(' - ') + 3 : 0) }}</option>
       </select>
       <span v-if="voice !== ''">
+        <br />
         <strong>Rapidez de lectura: </strong>
         <select class="button" @change="setSpeed">
           <option :value="speed" v-for="speed in speeds" :key="speed" :selected="speed === voiceSpeed">{{ speed * 100 }}%</option>

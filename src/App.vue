@@ -45,6 +45,21 @@ hr {
 * {
   -webkit-tap-highlight-color: transparent;
 }
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: gray;
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: gray;
+}
+
+::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: gray;
+}
 
 body {
   margin-top: var(--body-margin-top);

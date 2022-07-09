@@ -61,7 +61,7 @@
 
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
-        <span class="copydate">{{ dateFormat(item.fecha) + 'aa' }}</span>
+        <label class="copydate">{{ dateFormat(item.fecha) }}</label>
         <div class="clear"></div>
         <a @click.stop="" target="_blank" :href="item.url" class="titulo">
           {{ item.titulo === undefined || item.titulo === null || item.titulo.trim().length === 0 ? 'sin titulo' : item.titulo }}
@@ -205,7 +205,7 @@ export default {
   -webkit-box-shadow: -1px -1px 10px 5px rgba(0, 0, 0, 0.47);
   box-shadow: -1px -1px 10px 5px rgba(0, 0, 0, 0.47);
   display: grid;
-  grid-template-columns: 118px 100fr 1fr;
+  grid-template-columns: 128px 100fr 1fr;
 }
 .top .fecha {
   float: left;
