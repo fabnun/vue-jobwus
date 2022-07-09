@@ -139,11 +139,18 @@ onAuthStateChanged(getAuth(), (_user) => {
                 pos = 0,
                 resultText = '';
               while ((match = rex.exec(texto))) {
-                if (match[0].trim().length > 0) {
-                  const subText = texto.substring(pos, match.index);
+                let trim = match[0]
+                  .trim()
+                  .replace(/[^a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ]/g, ' ')
+                  .replace(/\s+/g, ' ')
+                  .trim();
+                if (trim.length > 0) {
+                  let offset = match[0].indexOf(trim);
+                  const subText = texto.substring(pos, match.index + (offset > 0 ? offset : 0));
                   const result = filtro2 !== undefined && filtro2.length > 0 ? hightlightText(subText, filtro2, hightlight2) : subText;
                   resultText += result;
-                  resultText += '<span class="' + hightlight + '">' + match[0] + '</span>';
+
+                  resultText += '<span class="' + hightlight + '">' + trim + '</span>';
                   pos = match.index + match[0].length;
                 }
               }

@@ -131,11 +131,15 @@ export default {
       return result;
     },
     reordenGrupo: function () {
-      let este = this;
       return this.grupo.sort((a, b) => {
         let result = 0;
-        result += a.fecha > b.fecha ? -1 : 1;
-        return b.fecha - a.fecha;
+        if ((this.favoritos.has(a.id) || this.archivados.has(a.id)) && !this.favoritos.has(b.id) && !this.archivados.has(b.id)) {
+          result += 100;
+        } else if (!(this.favoritos.has(a.id) || this.archivados.has(a.id)) && (this.favoritos.has(b.id) || this.archivados.has(b.id))) {
+          result -= 100;
+        }
+        result += a.fecha > b.fecha ? -10 : 10;
+        return result;
       });
     },
   },
