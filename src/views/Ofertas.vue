@@ -490,7 +490,6 @@ export default {
       }
     },
     setSearch(event) {
-      //if (event.button === -1) {
       this.searchListSelect = this.$refs.searchList.value;
       if (this.searchListSelect === '') {
         this.$refs.filtro.value = '';
@@ -498,7 +497,6 @@ export default {
         this.$refs.filtro.value = this.searchConfig[this.searchListSelect].filtro;
       }
       this.localSetItem('searchListSelect', this.searchListSelect);
-      //}
     },
 
     limpiarTexto(val) {
@@ -567,6 +565,9 @@ export default {
       this.undo = [];
       this.redo = [];
       let search = '';
+
+      this.searchListSelect = this.localGetItem('searchListSelect');
+      this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
 
       //Obtiene la búsqueda de la url
       search = this.$route.params.search;
