@@ -539,6 +539,8 @@ export default {
 
     query() {
       this.$refs.filtro.value = this.limpiarTexto(this.$refs.filtro.value);
+      this.searchListSelect = this.localGetItem('searchListSelect');
+      this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
       this.loading = true;
       let search = this.$refs.filtro.value;
       let cfgLength = this.$route.params.cfg;
@@ -558,16 +560,13 @@ export default {
       if (queryString !== document.location.pathname) {
         this.$router.push({ path: queryString }).catch(() => {});
       }
-      setTimeout(this.submit, 200);
+      this.submit();
     },
 
     submit() {
       this.undo = [];
       this.redo = [];
       let search = '';
-
-      this.searchListSelect = this.localGetItem('searchListSelect');
-      this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
 
       //Obtiene la búsqueda de la url
       search = this.$route.params.search;
@@ -816,6 +815,9 @@ export default {
     this.folder = this.folders.includes(folder) ? folder : 'Agrupados';
     ///////////////////////////////////////////////////
     this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
+
+    this.searchListSelect = this.localGetItem('searchListSelect');
+    this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
 
     ///////////////////////////////////////////////////
 

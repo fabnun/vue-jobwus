@@ -61,7 +61,7 @@
 
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
-        <span class="copydate">{{ dateFormat(item.fecha) }}</span>
+        <span class="copydate">{{ dateFormat(item.fecha) + 'aa' }}</span>
         <div class="clear"></div>
         <a @click.stop="" target="_blank" :href="item.url" class="titulo">
           {{ item.titulo === undefined || item.titulo === null || item.titulo.trim().length === 0 ? 'sin titulo' : item.titulo }}
@@ -165,7 +165,7 @@ export default {
       this.$emit('archive', item, false);
     },
     dateFormat: function (date) {
-      return dayjs(date).format('DD/MM/YY');
+      return dayjs(date).format('DD/MM/YY HH:mm');
     },
   },
 };
@@ -205,7 +205,7 @@ export default {
   -webkit-box-shadow: -1px -1px 10px 5px rgba(0, 0, 0, 0.47);
   box-shadow: -1px -1px 10px 5px rgba(0, 0, 0, 0.47);
   display: grid;
-  grid-template-columns: 78px 100fr 1fr;
+  grid-template-columns: 118px 100fr 1fr;
 }
 .top .fecha {
   float: left;
