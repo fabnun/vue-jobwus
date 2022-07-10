@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" @keydown.alt.up.prevent="up" @keydown.alt.down.prevent="down" tabindex="0">
     <div class="filtro">
       <div class="filtroIn">
         <div
@@ -208,6 +208,32 @@ export default {
   },
 
   methods: {
+    up() {
+      let lastArchivedIndex = this.itemFocus ? this.resultView.pages.findIndex((page, idx) => page.id === this.itemFocus) : 0;
+      let nextFocus = undefined;
+      for (let i = lastArchivedIndex - 1; i > 0; i--) {
+        if (this.resultView.pages[i].hidden === false && !this.archivados.has(this.resultView.pages[i].id)) {
+          nextFocus = this.resultView.pages[i];
+          break;
+        }
+      }
+      if (nextFocus !== undefined) {
+        this.focus(nextFocus.id);
+      }
+    },
+    down() {
+      let lastArchivedIndex = this.itemFocus ? this.resultView.pages.findIndex((page, idx) => page.id === this.itemFocus) : 0;
+      let nextFocus = undefined;
+      for (let i = lastArchivedIndex + 1; i < this.resultView.pages.length; i++) {
+        if (this.resultView.pages[i].hidden === false && !this.archivados.has(this.resultView.pages[i].id)) {
+          nextFocus = this.resultView.pages[i];
+          break;
+        }
+      }
+      if (nextFocus !== undefined) {
+        this.focus(nextFocus.id);
+      }
+    },
     resize() {
       const orientation = window.screen.orientation.type;
       if (orientation === 'portrait-primary') {
@@ -292,15 +318,19 @@ export default {
     },
     focus(id, undo = true) {
       if (this.itemFocus !== id) {
-        this.goto(id, 160);
         this.lastItemFocus = this.itemFocus;
         if (undo) {
           this.undo.push({ type: 'focus', id });
           this.showUndoRedo('focus');
         }
+        this.itemFocus = undefined;
+        this.$forceUpdate();
+        setTimeout(() => {
+          this.goto(id);
+          this.itemFocus = id;
+          this.$forceUpdate();
+        }, 1);
       }
-      this.itemFocus = id;
-      this.$forceUpdate();
     },
     showUndoRedo(msg) {
       // console.log(
@@ -338,25 +368,7 @@ export default {
       this.$forceUpdate();
       this.localSetItem('favoritos', Array.from(this.favoritos).join(','), true);
     },
-    // nextFocus() {
-    //   debugger;
-    //   let lastArchivedIndex = this.resultView.pages.findIndex((page, idx) => page.id === id);
-    //   let nextFocus = this.resultView.pages.find(function (page, idx) {
-    //     return !this.archivados.has(page.id) && page.hidden === false && idx > lastArchivedIndex;
-    //   });
-    //   if (nextFocus === undefined) {
-    //     for (let i = lastArchivedIndex; i > 0; i--) {
-    //       if (this.resultView.pages[i].hidden === false && !this.archivados.has(this.resultView.pages[i].id)) {
-    //         nextFocus = this.resultView.pages[i].id;
-    //         break;
-    //       }
-    //     }
-    //   }
 
-    //   this.updateHidden(this.resultView);
-    //   //console.log('now', this.resultView.data[nextFocus.id].titulo, Date.now());
-    //   this.focus(nextFocus.id);
-    // },
     archive(id) {
       let lastUndo = this.undo.length > 0 ? this.undo[this.undo.length - 1] : null;
       if (this.archivados.has(id)) {
@@ -466,14 +478,10 @@ export default {
       }
     },
     addFiltro() {
-      if (this.$refs.filtro.value.trim().length > 0) {
-        this.modalType = 'editSearch2';
-        this.modal = true;
-        this.$refs.words.value = this.$refs.filtro.value;
-        this.$refs.filter.value = 'filtro' + Date.now();
-      } else {
-        this.notification('Debe ingresar palabras claves para agregar un filtro');
-      }
+      this.modalType = 'editSearch2';
+      this.modal = true;
+      this.$refs.words.value = this.$refs.filtro.value;
+      this.$refs.filter.value = 'filtro' + Date.now();
     },
     eliminarFiltro() {
       let name = this.$refs.filter.value.trim();
@@ -492,18 +500,12 @@ export default {
     guardarFiltro() {
       let name = this.$refs.filter.value.trim();
       let value = this.limpiarTexto(this.$refs.words.value.trim());
-      if (name.length > 0 && value.length > 0) {
+      if (name.length > 0) {
         let obligatorio = this.limpiarTexto(this.$refs.wordsHave.value.trim());
-        // let kill = this.limpiarTexto(this.$refs.wordsRemove.value.trim());
-        // let positivo = this.limpiarTexto(this.$refs.wordsPositive.value.trim());
-        // let negativo = this.limpiarTexto(this.$refs.wordsNegative.value.trim());
 
         this.searchConfig[name] = {
           filtro: value,
           obligatorio,
-          // kill,
-          // positivo,
-          // negativo,
         };
         this.searchList = Object.keys(this.searchConfig);
         this.searchListSelect = name;
@@ -512,7 +514,7 @@ export default {
         this.modal = false;
         this.resize();
       } else {
-        this.notification('ingrese un las palabras clave y el nombre del filtro');
+        this.notification('ingrese el nombre del filtro');
       }
     },
     setSearch(event) {
@@ -772,6 +774,7 @@ export default {
     },
   },
   mounted() {
+    console.clear();
     this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
     setInterval(() => {
       this.resize();
@@ -850,16 +853,17 @@ export default {
     ///////////////////////////////////////////////////
 
     (async () => {
+      this.localSetItem('lastFetch', undefined, true);
       let fetchCfg = { method: 'POST', body: this.$route.params.cfg ? this.$route.params.cfg.trim() : 'info' };
       try {
         let result;
         if (!navigator.onLine) {
-          result = this.localGetItem('lastFetch', true);
-          este.notification('Datos recuperados de localstorage (offline)', 'info');
+          //result = this.localGetItem('lastFetch', true);
+          este.notification('Sin Conexion... intente despues...', 'error');
         } else {
           result = await (await fetch('https://us-central1-jobwus-5f24c.cloudfunctions.net/getData2', fetchCfg)).text();
           //let result = await (await fetch('http://localhost:5001/jobwus-5f24c/us-central1/getData2', fetchCfg)).text();
-          this.localSetItem('lastFetch', result, true);
+          //this.localSetItem('lastFetch', result, true);
         }
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
@@ -878,7 +882,7 @@ export default {
           //console.log(uncompress);
         }
       } catch (error) {
-        let result = this.localGetItem('lastFetch', true);
+        //let result = this.localGetItem('lastFetch', true);
         if (result !== undefined) {
           let uncompress = lzString.decompressFromBase64(result);
           this.result = JSON.parse(uncompress);

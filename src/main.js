@@ -86,11 +86,6 @@ onAuthStateChanged(getAuth(), (_user) => {
   user = _user;
   if (vueinitialize) {
     Vue.mixin({
-      data() {
-        return {
-          interval: undefined,
-        };
-      },
       methods: {
         getAuth,
         getUser() {
@@ -113,7 +108,11 @@ onAuthStateChanged(getAuth(), (_user) => {
         },
         localSetItem(key, value, cfg = false) {
           let keyFinal = cfg ? this.$route.params.cfg + '_' + key : key;
-          localStorage.setItem(keyFinal, value);
+          if (value === undefined || value === null) {
+            localStorage.removeItem(keyFinal);
+          } else {
+            localStorage.setItem(keyFinal, value);
+          }
         },
 
         format(text, title) {
@@ -122,7 +121,7 @@ onAuthStateChanged(getAuth(), (_user) => {
           }
 
           function hightlightText(texto, filtro, hightlight, filtro2, hightlight2) {
-            texto = ' ' + texto + ' ';
+            texto = ' ' + texto.replace(/\s+/g, ' ') + ' ';
             const sorted = [...filtro].sort((a, b) => {
               if (a.startsWith(b)) {
                 return -1;
@@ -132,57 +131,43 @@ onAuthStateChanged(getAuth(), (_user) => {
               }
               return a > b ? 1 : -1;
             });
-            if (sorted.length > 0) {
-              let rgx = '([^a-z0-9áéíóúüñ]+)(' + sorted.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
-              let rex = new RegExp(rgx, 'gi');
+            let rgx = sorted.length === 0 ? '_' : '([^a-z0-9áéíóúüñ]+)(' + sorted.map((w) => w.replace(/\s+/g, '([^a-z0-9áéíóúüñ]+)')).join('([^a-z0-9áéíóúüñ]+)|') + '([^a-z0-9áéíóúüñ]+))+';
+            let rex = new RegExp(rgx, 'gi');
 
-              let match,
-                pos = 0,
-                resultText = '';
-              while ((match = rex.exec(texto))) {
-                let trim = match[0].trim().replace(regExpOtherChars, ' ').replace(/\s+/g, ' ').trim();
-                if (trim.length > 0) {
-                  let offset = match[0].indexOf(trim);
-                  const subText = texto.substring(pos, match.index + (offset > 0 ? offset : 0));
-                  const result = filtro2 !== undefined && filtro2.length > 0 ? hightlightText(subText, filtro2, hightlight2) : subText;
-                  resultText += result;
+            let match,
+              pos = 0,
+              resultText = '';
+            while ((match = rex.exec(texto))) {
+              let trim = match[0].trim().replace(regExpOtherChars, ' ').replace(/\s+/g, ' ').trim();
+              if (trim.length > 0) {
+                let offset = match[0].indexOf(trim);
+                const subText = texto.substring(pos, match.index + (offset > 0 ? offset : 0));
+                const result = filtro2 !== undefined && filtro2.length > 0 ? hightlightText(subText, filtro2, hightlight2) : subText;
+                resultText += result;
 
-                  resultText += '<span class="' + hightlight + '">' + trim + '</span>';
-                  pos = match.index + match[0].length;
-                }
+                resultText += '<span class="' + hightlight + '">' + trim + '</span>';
+                resultText += match[0].substring(offset + match[0].length);
+                pos = match.index + match[0].length;
               }
-              resultText += filtro2 !== undefined && filtro2.length > 0 ? hightlightText(texto.substring(pos), filtro2, hightlight2) : texto.substring(pos);
-              texto = resultText;
             }
+            resultText += filtro2 !== undefined && filtro2.length > 0 ? hightlightText(texto.substring(pos), filtro2, hightlight2) : texto.substring(pos);
+
+            texto = resultText;
             return texto;
           }
           return hightlightText(text, this.filtro, 'highlight', this.filtroOpcional, 'highlight2');
         },
         goto(id, y) {
-          if (this.interval !== undefined) {
-            clearInterval(this.interval);
-          }
           const element = document.getElementById(id);
           const ofertasDiv = document.getElementById('ofertas');
 
           let count = 0;
-          if (element !== null)
-            this.interval = setInterval(() => {
-              let offset = element.offsetTop;
-              let zoom = themes.getZoom();
-
-              let pos = Math.max(0, offset + 130 - y / zoom);
-              let nowPos = ofertasDiv.scrollTop;
-              if (count < 10) {
-                ofertasDiv.scrollTop = pos;
-                count++;
-              } else {
-                ofertasDiv.scrollTop = pos;
-                this.idAjustado = null;
-                clearInterval(this.interval);
-                return;
-              }
-            }, 10);
+          if (element !== null) {
+            let offset = element.offsetTop;
+            let zoom = themes.getZoom();
+            let pos = Math.max(0, offset - 20 / zoom);
+            ofertasDiv.scrollTop = pos;
+          }
         },
         notification: function (message, type = 'info', dismissible = true, duration = 5000) {
           if (typeof message === 'object') {

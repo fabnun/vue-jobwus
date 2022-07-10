@@ -3,14 +3,8 @@
     <div :id="id" class="oferta" :class="{ collapsed: id !== itemFocus, fav: favoritos.has(id) }">
       <account-tie-voice-outline-icon style="background: rgba(0, 0, 0, 0.3); border-radius: 50%; padding: 0.3em 0.46em; float: right; cursor: pointer; margin: 4px 4px 0 4px" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
       <div @click="focus()" class="contenido">
-        <div v-if="filtro.length > 0">
-          <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="id === itemFocus ? format(data.titulo ? data.titulo : 'N/A') : data.titulo ? data.titulo : 'N/A'"> </a> -
-          <span class="descripcion" v-html="id === itemFocus ? format(data.descripcion ? data.descripcion : 'N/A') : data.descripcion ? data.descripcion : 'N/A'"></span>
-        </div>
-        <div v-else>
-          <a @click.stop="focus(id)" target="_blank" :href="data.url" class="titulo" v-html="format(data.titulo ? data.titulo : 'N/A', true)"></a>
-          <span class="descripcion" v-text="data.descripcion ? data.descripcion : 'N/A'"></span>
-        </div>
+        <a @click.stop="focus(id)" tabindex="-1" target="_blank" :href="data.url" class="titulo" v-html="id === itemFocus ? format(data.titulo ? data.titulo : 'N/A') : data.titulo ? data.titulo : 'N/A'"> </a> -
+        <span class="descripcion" v-html="id === itemFocus ? format(data.descripcion ? data.descripcion : 'N/A') : data.descripcion ? data.descripcion : 'N/A'"></span>
       </div>
       <div class="top" @click="focus(id)">
         <label class="fecha">{{ dateFormat(data.fecha) }}</label>
@@ -63,7 +57,7 @@
         </div>
         <label class="copydate">{{ dateFormat(item.fecha) }}</label>
         <div class="clear"></div>
-        <a @click.stop="" target="_blank" :href="item.url" class="titulo">
+        <a @click.stop="" tabindex="-1" target="_blank" :href="item.url" class="titulo">
           {{ item.titulo === undefined || item.titulo === null || item.titulo.trim().length === 0 ? 'sin titulo' : item.titulo }}
         </a>
       </div>
