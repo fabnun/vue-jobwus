@@ -38,6 +38,8 @@
           <star-outline-icon @click.stop.prevent="favorite" :size="22" v-if="!favoritos.has(id)" />
           <star-icon @click.stop.prevent="favorite" :size="22" v-if="favoritos.has(id)" />
 
+          <account-tie-voice-outline-icon style="" @click.stop.prevent="voice(id)" :size="22" v-if="speechSupport && voice2 !== ''" />
+
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
       </div>
@@ -46,12 +48,13 @@
     <div v-if="!collapsedSimilar && id === itemFocus">
       <div class="copy-job" v-for="(item, idx) in reordenGrupo" :key="idx" :title="item.descripcion" :class="{ fav: favoritos.has(item.id), arch: archivados.has(item.id) }">
         <div class="copy-job-buttons">
-          <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" :size="22" v-if="speechSupport && voice2 !== ''" />
           <delete-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="!archivados.has(item.id)" />
           <delete-off-outline-icon @click.stop.prevent="archiveSimilar(item.id)" :size="22" v-if="archivados.has(item.id)" />
 
           <star-outline-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="!favoritos.has(item.id)" />
           <star-icon @click.stop.prevent="favoriteSimilar(item.id)" :size="22" v-if="favoritos.has(item.id)" />
+
+          <account-tie-voice-outline-icon @click.stop.prevent="voice(item.id)" :size="22" v-if="speechSupport && voice2 !== ''" />
 
           <!-- <dots-vertical-icon :size="22" /> -->
         </div>
@@ -270,7 +273,7 @@ export default {
 
 .copy-job-buttons {
   float: right;
-  right: -0.5em;
+  right: 0.9em;
   top: -0.1em;
   position: relative;
 }
