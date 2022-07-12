@@ -179,7 +179,7 @@ onAuthStateChanged(getAuth(), (_user) => {
             duration = 7000;
           }
           console.trace({ message, type, dismissible, duration });
-          this.$toast.open({ message, type, duration, dismissible });
+          this.$toast.open({ message, type, duration, dismissible, position: 'top' });
         },
         updateUserData(state, user) {
           userData = !userData ? {} : state.userData;

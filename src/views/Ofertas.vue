@@ -22,7 +22,20 @@
           <playlist-edit-icon class="button-icon" @click="editFiltro" />
         </div>
         <div class="cell">
-          <input autocapitalize="none" spellcheck="false" @keyup.enter="query" ref="filtro" placeholder="ej: java, node" />
+          <input
+            autocapitalize="none"
+            spellcheck="false"
+            @blur="resize"
+            @keyup.enter="
+              loading = true;
+              $forceUpdate();
+              localSetItem('filtro', $refs.filtro.value.trim());
+              setURL(true);
+              query();
+            "
+            ref="filtro"
+            placeholder="ej: java, node"
+          />
 
           <select class="searchList" ref="searchList" @change="setSearch">
             <option value="">- Tus Filtros -</option>
@@ -36,6 +49,8 @@
           @click="
             loading = true;
             $forceUpdate();
+            localSetItem('filtro', $refs.filtro.value.trim());
+            setURL(true);
             query();
           "
         >
@@ -46,50 +61,52 @@
     <div :class="{ noEvents: modal }">
       <div @scroll="scroll" id="ofertas" ref="ofertasDiv">
         <div v-if="!loading" class="container">
-          <div style="margin: 0 auto; padding: 0 10px 10px; font-size: 0.8em">
-            <span v-if="resultView !== null"> {{ result.pages.length }}&nbsp;resultados, {{ result.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }}&nbsp;similares, {{ resultView.pages.filter((p) => favoritos.has(p.id)).length }}&nbsp;Favoritos, {{ resultView.pages.filter((p) => archivados.has(p.id)).length }}&nbsp;Archivados</span>
-            <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
-            <div style="clear: both"></div>
-          </div>
-          <div v-for="item in resultView.pages" :key="item.id">
-            <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- hiddenPage:{{ item.hiddenPage }} ---- archivado:{{ archivados.has(item.id) }} ---- favorito:{{ favoritos.has(item.id) }} -->
+          <div v-if="resultView !== null">
+            <div style="margin: 0 auto; padding: 0 10px 10px; font-size: 0.8em">
+              <span v-if="result !== null"> {{ result.pages.length }}&nbsp;resultados, {{ result.clusters.reduce((p, c) => p + (c.length > 1 ? c.length - 1 : 0), 0) }}&nbsp;similares, {{ result.pages.filter((p) => favoritos.has(p.id)).length }}&nbsp;Favoritos, {{ result.pages.filter((p) => archivados.has(p.id)).length }}&nbsp;Archivados</span>
+              <span v-if="result !== null" style="float: right; line-height: 1.5em">Actualizado&nbsp;el&nbsp;{{ new Date(result.updateTime).toLocaleDateString() }}&nbsp;{{ new Date(result.updateTime).toLocaleTimeString().substring(0, 5) }}</span>
+              <div style="clear: both"></div>
+            </div>
+            <div v-for="item in resultView.pages" :key="item.id">
+              <!-- grupo:{{ item.grupo }} ------ hidden:{{ item.hidden }} ---- hiddenPage:{{ item.hiddenPage }} ---- archivado:{{ archivados.has(item.id) }} ---- favorito:{{ favoritos.has(item.id) }} -->
 
-            <oferta
-              v-if="item.hiddenPage > 0 && item.hiddenPage < paginaSize && ((!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos')"
-              :archivados="archivados"
-              :favoritos="favoritos"
-              :speechSupport="speechSupport"
-              :folder="folder"
-              :itemFocus="itemFocus"
-              @voiceSpeak="voiceSpeak"
-              @favorite="favorite"
-              @archive="archive"
-              @focus="focus"
-              :data="resultView.data[item.id]"
-              :id="item.id"
-              :voice2="voice"
-              :ignorarTildes="$store.state.ignorarTildes"
-              :filtro="filtroFinal"
-              :filtroOpcional="filtroOpcional"
-              :grupo="
-                folder === 'Agrupados'
-                  ? item.grupo === null
-                    ? []
-                    : result.clusters[item.grupo]
-                        .filter((id) => id !== item.id)
-                        .map((id) => {
-                          return { id, ...result.data[id] };
-                        })
-                  : []
-              "
-            />
+              <oferta
+                v-if="item.hiddenPage > 0 && item.hiddenPage < paginaSize && ((!item.hidden && folder === 'Agrupados' && !archivados.has(item.id)) || (folder === 'Favoritos' && favoritos.has(item.id)) || (folder === 'Archivados' && archivados.has(item.id)) || folder === 'Todos')"
+                :archivados="archivados"
+                :favoritos="favoritos"
+                :speechSupport="speechSupport"
+                :folder="folder"
+                :itemFocus="itemFocus"
+                @voiceSpeak="voiceSpeak"
+                @favorite="favorite"
+                @archive="archive"
+                @focus="focus"
+                :data="resultView.data[item.id]"
+                :id="item.id"
+                :voice2="voice"
+                :ignorarTildes="$store.state.ignorarTildes"
+                :filtro="filtroFinal"
+                :filtroOpcional="filtroOpcional"
+                :grupo="
+                  folder === 'Agrupados'
+                    ? item.grupo === null
+                      ? []
+                      : result.clusters[item.grupo]
+                          .filter((id) => id !== item.id)
+                          .map((id) => {
+                            return { id, ...result.data[id] };
+                          })
+                    : []
+                "
+              />
+            </div>
           </div>
           <div id="footer"></div>
         </div>
-        <div v-else class="loading">
-          <loading />
-        </div>
       </div>
+    </div>
+    <div v-if="loading" class="loading">
+      <loading />
     </div>
     <div class="modal-container" v-show="modal" @click="modal = false">
       <div @click.stop.prevent="" style="margin-right: -32px">
@@ -99,13 +116,13 @@
 
           <div v-show="modalType === 'editSearch' || modalType === 'editSearch2'" class="edit-search">
             Nombre del filtro de búsqueda<br />
-            <input type="text" ref="filter" autocapitalize="none" spellcheck="false" />
+            <input type="text" @blur="resize" ref="filter" autocapitalize="none" spellcheck="false" />
             <br />
             Palabras claves buscadas<br />
-            <textarea ref="words" rows="3" autocapitalize="none" spellcheck="false"></textarea>
+            <textarea ref="words" @blur="resize" rows="3" autocapitalize="none" spellcheck="false"></textarea>
             <br />
             Palabras claves Opcionales<br />
-            <textarea ref="wordsHave" rows="4" autocapitalize="none" spellcheck="false"></textarea>
+            <textarea ref="wordsHave" @blur="resize" rows="4" autocapitalize="none" spellcheck="false"></textarea>
             <!-- <br />
             Palabras claves Kill<br />
             <textarea ref="wordsRemove" rows="2" autocapitalize="none" spellcheck="false"></textarea>
@@ -206,7 +223,6 @@ export default {
   created() {
     window.addEventListener('scroll', this.handleScroll);
   },
-
   methods: {
     up() {
       let lastArchivedIndex = this.itemFocus ? this.resultView.pages.findIndex((page, idx) => page.id === this.itemFocus) : 0;
@@ -235,14 +251,11 @@ export default {
       }
     },
     resize() {
-      const orientation = window.screen.orientation.type;
-      if (orientation === 'portrait-primary') {
-        this.width = window.innerWidth - 120;
-        this.height = window.innerHeight;
-      } else if (orientation === 'landscape-primary') {
-        this.width = window.innerWidth - 120;
-        this.height = window.innerHeight;
-      }
+      setTimeout(() => {
+        const orientation = window.screen.orientation.type;
+        if (this.width !== window.innerWidth - 120) this.width = window.innerWidth - 120;
+        if (this.height !== window.innerHeight) this.height = window.innerHeight;
+      }, 1000);
     },
     debounce(func, wait) {
       let timeout;
@@ -482,7 +495,25 @@ export default {
       this.modal = true;
       this.$refs.words.value = this.$refs.filtro.value;
       this.$refs.filter.value = 'filtro' + Date.now();
+      setTimeout(() => {
+        this.$refs.words.focus();
+      }, 200);
     },
+    editFiltro() {
+      if (this.searchListSelect !== '') {
+        this.$refs.words.value = this.searchConfig[this.searchListSelect].filtro ? this.searchConfig[this.searchListSelect].filtro : '';
+        this.$refs.wordsHave.value = this.searchConfig[this.searchListSelect].obligatorio ? this.searchConfig[this.searchListSelect].obligatorio : '';
+        this.$refs.filter.value = this.searchListSelect;
+        this.modalType = 'editSearch';
+        this.modal = true;
+        setTimeout(() => {
+          this.$refs.words.focus();
+        }, 200);
+      } else {
+        this.notification('Seleccione un filtro para editar o cree un filtro nuevo.');
+      }
+    },
+
     eliminarFiltro() {
       let name = this.$refs.filter.value.trim();
       if (name !== '') {
@@ -493,7 +524,6 @@ export default {
           this.searchListSelect = '';
           this.modal = false;
           this.$forceUpdate();
-          this.resize();
         }
       }
     },
@@ -502,6 +532,7 @@ export default {
       let value = this.limpiarTexto(this.$refs.words.value.trim());
       if (name.length > 0) {
         let obligatorio = this.limpiarTexto(this.$refs.wordsHave.value.trim());
+        //console.log('obligatorio', obligatorio);
 
         this.searchConfig[name] = {
           filtro: value,
@@ -512,11 +543,11 @@ export default {
         this.$refs.filtro.value = value;
         this.localSetItem('searchConfig', JSON.stringify(this.searchConfig));
         this.modal = false;
-        this.resize();
       } else {
         this.notification('ingrese el nombre del filtro');
       }
     },
+
     setSearch(event) {
       this.searchListSelect = this.$refs.searchList.value;
       if (this.searchListSelect === '') {
@@ -530,7 +561,7 @@ export default {
     limpiarTexto(val) {
       let newValue = val
         .toLowerCase()
-        .replace(/[^\d\wáéíóúüñ,\(\)\?\|\s]+/g, ' ')
+        .replace(/[^\d\wáéíóúüñ,\(\)\?\|\s|\¿]+/g, ' ')
         .replace(/\s+/g, ' ')
         .replace(/\s*,\s*/g, ', ')
         .trim();
@@ -550,48 +581,19 @@ export default {
         this.$forceUpdate();
       }
     },
-    editFiltro() {
-      if (this.searchListSelect !== '') {
-        this.$refs.words.value = this.searchConfig[this.searchListSelect].filtro ? this.searchConfig[this.searchListSelect].filtro : '';
-        this.$refs.wordsHave.value = this.searchConfig[this.searchListSelect].obligatorio ? this.searchConfig[this.searchListSelect].obligatorio : '';
-        // this.$refs.wordsRemove.value = this.searchConfig[this.searchListSelect].kill ? this.searchConfig[this.searchListSelect].kill : '';
-        // this.$refs.wordsPositive.value = this.searchConfig[this.searchListSelect].positivo ? this.searchConfig[this.searchListSelect].positivo : '';
-        // this.$refs.wordsNegative.value = this.searchConfig[this.searchListSelect].negativo ? this.searchConfig[this.searchListSelect].negativo : '';
-        this.$refs.filter.value = this.searchListSelect;
-        this.modalType = 'editSearch';
-        this.modal = true;
-      } else {
-        this.notification('Seleccione un filtro para editar o cree un filtro nuevo.');
-      }
-    },
 
     query() {
       this.$refs.filtro.value = this.limpiarTexto(this.$refs.filtro.value);
       this.searchListSelect = this.localGetItem('searchListSelect');
       this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
 
-      let search = this.$refs.filtro.value;
-      let cfgLength = this.$route.params.cfg;
-      cfgLength = cfgLength || 0;
-      cfgLength = cfgLength.length;
-      const maxLength = 6579 - cfgLength;
-      if (search.length > maxLength) {
-        this.notification(`La búsqueda tiene ${search.length} caracteres y el maximo es ${maxLength} caracteres, la búsqueda se ha truncado`);
-        search = search.substring(0, maxLength);
-      }
-      search = search ? search.trim() : '';
-
-      let cfg = this.$route.params.cfg;
-      cfg = cfg ? cfg.trim() : 'info';
-      let queryString = `/${cfg}${search ? '/' + search.replace(/\?/g, '¿') : ''}`;
-
-      if (queryString !== document.location.pathname) {
-        this.$router.push({ path: queryString }).catch(() => {});
-      }
       this.submit();
     },
 
     submit() {
+      this.itemFocus = null;
+      this.lastItemFocus = null;
+
       this.undo = [];
       this.redo = [];
       let search = '';
@@ -617,7 +619,11 @@ export default {
 
       this.filtroFinal = final;
       let words = this.filtroFinal.map((word) => this.normalizeText(word));
-      if (this.searchListSelect !== '' && this.searchConfig[this.searchListSelect].obligatorio) {
+
+      // console.log('searchListSelect 2', this.searchListSelect);
+      // console.log('searchConfig 2', JSON.stringify(this.searchConfig));
+
+      if (this.searchListSelect !== '' && this.searchConfig[this.searchListSelect] !== undefined && this.searchConfig[this.searchListSelect].obligatorio) {
         let search2 = this.searchConfig[this.searchListSelect].obligatorio;
         if (this.$store.state.ignorarTildes) {
           search2 = this.quitarTildes(search2);
@@ -656,9 +662,9 @@ export default {
       this.updateHidden(resultBuild);
       this.resultView = resultBuild;
 
-      if (this.resultView.pages.length > 0) {
-        this.focus(this.resultView.pages[0].id);
-      }
+      // if (this.resultView.pages.length > 0) {
+      //   this.focus(this.resultView.pages[0].id);
+      // }
 
       //////////////////////////////////////////////////////////////////
 
@@ -772,13 +778,57 @@ export default {
       this.voiceSpeed = parseFloat(this.voiceSpeed) || 1;
       this.$forceUpdate();
     },
+    setURL(firstLocal = false) {
+      let search = this.$refs.filtro.value;
+      if (search === '') {
+        if (!firstLocal) {
+          search = this.$route.params.search;
+          if (search === undefined) {
+            search = this.localGetItem('filtro');
+            search = search ? search : '';
+          } else {
+            search = search.replace(/\¿/g, '?').trim();
+          }
+        } else {
+          search = this.localGetItem('filtro');
+          if (search === undefined) {
+            search = this.$route.params.search;
+            search = search ? search : '';
+          }
+        }
+      }
+
+      const maxLength = 6500 - search.length;
+      if (search.length > maxLength) {
+        this.notification(`La búsqueda tiene ${search.length} caracteres y el maximo es 6500 caracteres, la búsqueda se ha truncado`);
+        search = search.substring(0, 6500);
+      }
+      search = search ? search.trim() : '';
+
+      let cfg = this.$route.params.cfg;
+      let queryString = '';
+      if (cfg === undefined) {
+        cfg = this.localGetItem('cfg');
+        cfg = cfg ? cfg : 'info';
+      } else {
+        let oldCfg = this.localGetItem('cfg');
+        if (oldCfg !== cfg) {
+          this.localSetItem('cfg', cfg);
+          search = '';
+        }
+      }
+      this.$refs.filtro.value = search;
+      queryString = `/${cfg}${search ? '/' + search.replace(/\?/g, '¿') : ''}`;
+      if (queryString !== document.location.pathname) {
+        this.$router.push({ path: queryString }).catch(() => {});
+      }
+    },
   },
   mounted() {
     console.clear();
-    this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
-    setInterval(() => {
-      this.resize();
-    }, 333);
+    this.setURL();
+    navigator.virtualKeyboard.overlaysContent = true;
+
     window.visualViewport.addEventListener('resize', this.resize);
     window.addEventListener('resize', this.resize);
     this.resize();
@@ -812,6 +862,13 @@ export default {
       this.favoritos = new Set(favoritos.split(','));
     }
     ///////////////////////////////////////////////////
+    let archivados = this.localGetItem('archivados', true);
+    if (archivados !== null) {
+      this.archivados = new Set(archivados.split(','));
+    }
+    ///////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////
 
     let searchConfig = this.localGetItem('searchConfig');
     if (searchConfig === null) {
@@ -835,21 +892,17 @@ export default {
       this.searchConfig = JSON.parse(searchConfig);
       this.searchList = Object.keys(this.searchConfig);
     }
-    this.searchList.sort();
-    this.searchListSelect = this.localGetItem('searchListSelect');
-    this.searchListSelect = this.searchListSelect ? this.searchListSelect : '';
 
-    ///////////////////////////////////////////////////
-    let archivados = this.localGetItem('archivados', true);
-    if (archivados !== null) {
-      this.archivados = new Set(archivados.split(','));
-    }
-    ///////////////////////////////////////////////////
+    this.searchList.sort();
+    this.searchList.forEach((search, idx) => {
+      this.searchConfig[search].obligatorio = this.searchConfig[search].obligatorio !== undefined ? this.searchConfig[search].obligatorio : '';
+      //console.log(search, idx, this.searchConfig[search], this.searchConfig[search].obligatorio);
+    });
+    this.searchListSelect = this.localGetItem('searchListSelect');
+    this.searchListSelect = this.searchListSelect ? (this.searchConfig[this.searchListSelect] !== undefined ? this.searchListSelect : '') : '';
+
     let folder = this.localGetItem('folder');
     this.folder = this.folders.includes(folder) ? folder : 'Agrupados';
-    ///////////////////////////////////////////////////
-    this.$refs.filtro.value = this.$route.params.search ? this.$route.params.search.replace('¿', '?').trim() : '';
-
     ///////////////////////////////////////////////////
 
     (async () => {

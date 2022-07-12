@@ -18,10 +18,13 @@ h1 {
 }
 body {
   zoom: var(--zoom) !important;
-}
-
-body {
   margin-bottom: 6em;
+  display: grid;
+  margin: 0;
+  height: 100vh;
+  grid-template:
+    'controls' min-content
+    'cells' 1fr;
 }
 
 strong {

@@ -162,7 +162,7 @@ export default {
       this.$emit('archive', item, false);
     },
     dateFormat: function (date) {
-      return dayjs(date).format('DD/MM/YY HH:mm');
+      return dayjs(date).format('DD/MM/YY');
     },
   },
 };
@@ -207,7 +207,7 @@ export default {
 .top .fecha {
   float: left;
   top: 0em;
-  left: -0.6em;
+  left: -3.6em;
   margin-left: 0;
   padding-left: 0;
   position: relative;
@@ -273,7 +273,7 @@ export default {
 
 .copy-job-buttons {
   float: right;
-  right: 0.9em;
+  right: 0.2em;
   top: -0.1em;
   position: relative;
 }
