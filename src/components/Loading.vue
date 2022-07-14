@@ -1,7 +1,7 @@
 <template>
   <div>
     JOBWUS ESTA <br />
-    PROCESANDO...
+    PROCESANDO DATOS...
     <br />
     <img src="/img/load.gif" alt="" />
   </div>

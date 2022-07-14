@@ -108,7 +108,7 @@
     <div v-if="loading" class="loading">
       <loading />
     </div>
-    <div class="modal-container" v-show="modal" @click="modal = false">
+    <div class="modal-container" v-show="modal">
       <div @click.stop.prevent="" style="margin-right: -32px">
         <button class="close-modal" @click="modal = false" title="Cerrar"><close-icon /></button>
         <div class="modal" :style="`width: ${width}px; height: ${height - (50 * (height - 180)) / 200}px`">
@@ -954,6 +954,9 @@ export default {
 };
 </script>
 <style>
+.edit-search {
+  padding-bottom: 440px;
+}
 .edit-search select,
 .edit-search textarea,
 .edit-search input {
@@ -1073,18 +1076,18 @@ export default {
 }
 .close-modal {
   z-index: 10000;
-  width: 28px;
-  padding: 2px 2px 0 0;
-  top: 0px;
+  width: 26px;
+  padding: 1px 1px 0 0;
+  top: -2px;
   position: relative;
-  left: -44px;
+  left: -30px;
   float: right;
   background: transparent;
   color: white;
   cursor: pointer;
   border: none;
-  background: red;
-  border-radius: 50%;
+  background: rgba(255, 0, 0, 0.5);
+  border-radius: 25%;
 }
 .modal-container {
   position: fixed;

@@ -3,6 +3,19 @@
     <h1>CONFIGURACIÓN</h1>
     <hr />
     <div>
+      <strong>Theme: </strong>
+      <select class="button" @change="setTheme">
+        <option :value="theme" v-for="theme in Object.keys(themes.styles).sort()" :key="theme" :selected="themes.themeSelected === theme">{{ theme }}</option>
+      </select>
+    </div>
+    <div>
+      <strong> Zoom: </strong>
+      <select class="button" @change="setZoom">
+        <option :value="zoom" v-for="zoom in Object.keys(themes.zooms)" :key="zoom" :selected="themes.themeZoom === zoom">{{ zoom }}</option>
+      </select>
+    </div>
+    <hr />
+    <div>
       <strong>Voz: </strong>
       <select class="button" @change="setVoice">
         <option v-for="item in voiceList" :key="item" :value="item" :selected="item === voice">{{ item === '' ? 'ninguna' : item.substring(item.indexOf(' - ') > -1 ? item.indexOf(' - ') + 3 : 0) }}</option>
@@ -17,19 +30,7 @@
     </div>
 
     <hr />
-    <div>
-      <strong>Theme: </strong>
-      <select class="button" @change="setTheme">
-        <option :value="theme" v-for="theme in Object.keys(themes.styles).sort()" :key="theme" :selected="themes.themeSelected === theme">{{ theme }}</option>
-      </select>
-    </div>
-    <div>
-      <strong> Zoom: </strong>
-      <select class="button" @change="setZoom">
-        <option :value="zoom" v-for="zoom in Object.keys(themes.zooms)" :key="zoom" :selected="themes.themeZoom === zoom">{{ zoom }}</option>
-      </select>
-    </div>
-    <hr />
+
     <input type="checkbox" @click.stop="" id="ignorarTildes" v-model="ignorarTildes" />
     <label style="position: relative; top: -0px !important; margin-left: 10px" class="menu-button" @click.stop="" for="ignorarTildes">Ignorar tildes en la busqueda.</label>
     <br />
@@ -51,9 +52,10 @@
       Es un extractor de ofertas laborales obtenidas desde los siguientes portales de empleos en Chile:<br /><br />
       <a href="#" @click="go('https://www.bne.cl', true)">bne.cl</a><br />
       <a href="#" @click="go('ttps://www.chiletrabajos.cl', true)">chiletrabajos.cl</a><br />
-      <a href="#" @click="go('https://www.computrabajo.cl', true)">computrabajo.cl</a><br />
       <a href="#" @click="go('https://www.empleospublicos.cl', true)">empleospublicos.cl</a><br />
+      <a href="#" @click="go('https://www.getonbrd.com/', true)">getonbrd.com</a><br />
       <a style="text-decoration: line-through" href="#" @click="go('https://www.trabajando.cl', true)">trabajando.cl</a><br />
+      <a style="text-decoration: line-through" href="#" @click="go('https://www.computrabajo.cl', true)">computrabajo.cl</a><br />
     </p>
     <br />
     <p>
